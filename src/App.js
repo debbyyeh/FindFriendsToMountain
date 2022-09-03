@@ -1,6 +1,4 @@
 import React, { useState } from 'react'
-import 'react-date-range/dist/styles.css'
-import 'react-date-range/dist/theme/default.css'
 import './App.css'
 import { createGlobalStyle } from 'styled-components'
 import Header from './components/Header'
