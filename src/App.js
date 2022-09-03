@@ -4,7 +4,6 @@ import { createGlobalStyle } from 'styled-components'
 import Header from './components/Header'
 
 import { Link, Routes, Route, Outlet, BrowserRouter } from 'react-router-dom'
-import { DateRange } from 'react-date-range'
 import { UserContext } from './utils/userContext'
 
 const GlobalStyle = createGlobalStyle`
