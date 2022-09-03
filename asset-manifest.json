@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/FindFriendsToMountain/static/css/main.073c9b0a.css",
+    "main.js": "/FindFriendsToMountain/static/js/main.dcb81a75.js",
+    "static/js/787.28cb0dcd.chunk.js": "/FindFriendsToMountain/static/js/787.28cb0dcd.chunk.js",
+    "index.html": "/FindFriendsToMountain/index.html",
+    "main.073c9b0a.css.map": "/FindFriendsToMountain/static/css/main.073c9b0a.css.map",
+    "main.dcb81a75.js.map": "/FindFriendsToMountain/static/js/main.dcb81a75.js.map",
+    "787.28cb0dcd.chunk.js.map": "/FindFriendsToMountain/static/js/787.28cb0dcd.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.073c9b0a.css",
+    "static/js/main.dcb81a75.js"
+  ]
+}
