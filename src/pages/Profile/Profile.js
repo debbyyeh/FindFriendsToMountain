@@ -158,7 +158,7 @@ function Profile() {
       <Divide>
         <Group>
           <div>我的登山群組</div>
-          {leadGroup &&
+          {leadGroup.length > 0 ? (
             Object.values(leadGroup).map((item, index) => {
               return (
                 <div key={index}>
@@ -168,12 +168,15 @@ function Profile() {
                   </Link>
                 </div>
               )
-            })}
+            })
+          ) : (
+            <div>目前尚無發起群組</div>
+          )}
           <button onClick={addActivity}>我要發起活動</button>
         </Group>
         <Group>
           <div>參加的群組列表</div>
-          {joinGroup &&
+          {joinGroup.length > 0 ? (
             Object.values(joinGroup).map((item, index) => {
               return (
                 <div key={index}>
@@ -183,7 +186,10 @@ function Profile() {
                   </Link>
                 </div>
               )
-            })}
+            })
+          ) : (
+            <div>目前尚無參加群組</div>
+          )}
         </Group>
       </Divide>
       <Equipment>個人的裝備列表</Equipment>

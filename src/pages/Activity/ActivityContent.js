@@ -106,7 +106,7 @@ const AddingNumber = styled.input`
 
 const ActivityContent = () => {
   let url = window.location.href
-  const newUrl = url.split('http://localhost:3000/Activity/')
+  const newUrl = url.split('http://localhost:3006/Activity/')
   const groupID = newUrl[1]
   const [contentID, setContentID] = useState()
   const [contentInfo, setContentInfo] = useState()
@@ -121,22 +121,20 @@ const ActivityContent = () => {
   const [bedList, setBedList] = useState()
   const [auth, setAuth] = useState(false)
   const [content, setContent] = useState(false)
-  const [password, setPassword] = useState()
-  const [currentName, setCurrentName] = useState()
   const [welcome, setWelcome] = useState(false)
   const [ownerName, setOwnerName] = useState()
   const [visitorUid, setVisitorUid] = useState()
   const [visitorInfo, setVisitorInfo] = useState()
-  const [visitorName, setVisitorName] = useState()
-  const [member, setMember] = useState()
+  const [join, setJoin] = useState() //visitor個人資料
+  const [member, setMember] = useState() //更新群組名單
   //總床位
   const [allBedArr, setAllBedArr] = useState([])
   //每一組床位的資訊
   const [bedInfo, setBedInfo] = useState()
 
   useEffect(() => {
-    getvisitorInfo()
-    testAuth()
+    getGroupInfo()
+    getContentInfo()
     async function getGroupInfo() {
       const id = groupID
       setContentID(groupID)
@@ -146,6 +144,7 @@ const ActivityContent = () => {
         if (docSnap.exists()) {
           const userData = docSnap.data()
           setGroupData(userData)
+          setOwnerName(userData.groupOwner)
         }
       } catch {
         console.log('No such document!')
@@ -158,116 +157,115 @@ const ActivityContent = () => {
         const docSnap = await getDoc(docRef)
         if (docSnap.exists()) {
           const Data = docSnap.data()
+          const memberData = Data.memberList
           setContentData(Data)
+          setMember(memberData)
         }
       } catch {
         console.log('No such document!')
       }
     }
-    getGroupInfo()
-    getContentInfo()
+    testAuth()
   }, [groupID])
 
   console.log(contentData)
+  //判斷登入者的身分
 
-  //取得進入頁面的人的資料
-  async function getvisitorInfo() {
-    const visitorData = doc(db, 'users', makeLogin.uid)
-    const visitorSnap = await getDoc(visitorData)
-    if (visitorSnap.exists()) {
-      const visitorData = visitorSnap.data()
-      const nowvisitorName = visitorData.name
-      setVisitorName(nowvisitorName)
-    }
-  }
-
-  //驗證
   async function testAuth() {
-    const testRef = doc(db, 'groupLists', groupID)
-    const testSnap = await getDoc(testRef)
-    const groupContent = doc(db, 'groupContents', groupID)
-
-    if (testSnap.exists()) {
-      const testInfo = testSnap.data()
-      //取到群組的密碼
-      const testPassword = testInfo.groupPassword
-      const owner = testInfo.groupOwner
-      const currentGroupName = testInfo.groupName
-      // if (groupSnap.exists()) {
-      //   const groupMember = groupSnap.data()
-      //   const memberLog = groupMember
-      // }
-
-      if (makeLogin.uid !== owner) {
-        setAuth(true)
-        setPassword(testPassword)
-        setVisitorUid(makeLogin.uid)
-        setOwnerName(owner)
-        setCurrentName(currentGroupName)
-      } else {
-        setAuth(false)
-        setContent(true)
+    if (makeLogin.uid !== ownerName) {
+      //非團主打開驗證碼欄位
+      setAuth(true)
+      const joinData = doc(db, 'users', makeLogin.uid)
+      const joinSnap = await getDoc(joinData)
+      if (joinSnap.exists()) {
+        console.log('取得個人資料')
+        const getjoinData = joinSnap.data()
+        console.log(getjoinData)
+        setJoin(getjoinData)
+        console.log(join)
       }
+    } else {
+      setContent(true)
+      setAuth(false)
     }
   }
-
+  console.log(join)
   async function testBtn() {
-    if (authRef.current.value !== password) {
+    if (authRef.current.value !== groupData.groupPassword) {
       alert('驗證碼錯誤')
     } else {
+      alert('驗證成功')
       setAuth(false)
-      setWelcome(true)
-      //取到他的資訊
-      const visitorData = doc(db, 'users', visitorUid)
-      const visitorSnap = await getDoc(visitorData)
-      if (visitorSnap.exists()) {
-        const visitorData = visitorSnap.data()
-        const getvisitorInfo = {
-          visitorName: visitorData.name,
-          visitorPic: visitorData.photoURL,
-          isLogged: true,
-          //通過驗證
-        }
-        setVisitorInfo(getvisitorInfo)
+      setContent(true)
+      //取得他的資料，更新個人joinlist
+      const joinData = doc(db, 'users', makeLogin.uid)
+      const groupContent = doc(db, 'groupContents', groupData.groupID)
+      const oldjoinList = join.joinGroup
+      let newjoinList = []
+      const joinInfo = {
+        groupID: groupData.groupID,
+        groupName: groupData.groupName,
       }
-    }
-  }
-
-  async function join() {
-    setWelcome(false)
-    setContent(true)
-    const groupContent = doc(db, 'groupContents', groupID)
-    const groupSnap = await getDoc(groupContent)
-    //更新群組的member
-    if (groupSnap.exists()) {
-      const groupData = groupSnap.data()
-      const oldmemberList = groupData.memberList
+      newjoinList.push(joinInfo, ...oldjoinList)
+      const updatejoinGroup = await updateDoc(joinData, {
+        joinGroup: newjoinList,
+      })
+      // if (groupSnap.exists()) {
+      console.log('這是團的資料')
+      // const getgroupData = groupSnap.data()
+      const oldmemberList = contentData.memberList
       let newMember = []
-      const newMemberInfo = visitorInfo
-      newMember.push(visitorInfo, ...oldmemberList)
+      const newMemberInfo = {
+        joinName: join.name,
+        joinPic: join.photoURL,
+        joinID: join.id,
+        isLogged: true,
+      }
+      console.log(newMemberInfo)
+      newMember.push(newMemberInfo, ...oldmemberList)
       const updateMember = await updateDoc(groupContent, {
         memberList: newMember,
       })
       setMember(newMember)
-    }
-    //更新自己的joinlist
-    const visitorData = doc(db, 'users', visitorUid)
-    const visitorSnap = await getDoc(visitorData)
-    if (visitorSnap.exists()) {
-      console.log(visitorSnap.data())
-      const visitorDataInfo = visitorSnap.data()
-      const oldjoinList = visitorDataInfo.joinGroup
-      let newjoinList = []
-      const joinInfo = {
-        groupID: groupID,
-        groupName: currentName,
-      }
-      newjoinList.push(joinInfo, ...oldjoinList)
-      const updatejoinGroup = await updateDoc(visitorData, {
-        joinGroup: newjoinList,
-      })
+      // }
     }
   }
+  console.log(member)
+  // async function join() {
+  //   setWelcome(false)
+  //   setContent(true)
+  //   const groupContent = doc(db, 'groupContents', groupID)
+  //   const groupSnap = await getDoc(groupContent)
+  //   //更新群組的member
+  //   if (groupSnap.exists()) {
+  //     const groupData = groupSnap.data()
+  //     const oldmemberList = groupData.memberList
+  //     let newMember = []
+  //     const newMemberInfo = visitorInfo
+  //     newMember.push(visitorInfo, ...oldmemberList)
+  //     const updateMember = await updateDoc(groupContent, {
+  //       memberList: newMember,
+  //     })
+  //     setMember(newMember)
+  //   }
+  //   //更新自己的joinlist
+  //   const visitorData = doc(db, 'users', visitorUid)
+  //   const visitorSnap = await getDoc(visitorData)
+  //   if (visitorSnap.exists()) {
+  //     console.log(visitorSnap.data())
+  //     const visitorDataInfo = visitorSnap.data()
+  //     const oldjoinList = visitorDataInfo.joinGroup
+  //     let newjoinList = []
+  //     const joinInfo = {
+  //       groupID: groupID,
+  //       groupName: currentName,
+  //     }
+  //     newjoinList.push(joinInfo, ...oldjoinList)
+  //     const updatejoinGroup = await updateDoc(visitorData, {
+  //       joinGroup: newjoinList,
+  //     })
+  //   }
+  // }
 
   function addOneBed() {
     setAddBed((current) => !current)
@@ -314,24 +312,22 @@ const ActivityContent = () => {
     }
   }
 
-  console.log(auth)
-
   return (
     <>
       {auth && (
         <>
-          <div>請輸入驗證碼</div>
+          <div>歡迎加入，請輸入驗證碼</div>
           <input ref={authRef} />
           <button onClick={testBtn}>驗證</button>
         </>
       )}
-      {welcome && (
+      {/* {welcome && (
         <>
           <div>歡迎加入{currentName}的群組</div>
           <button onClick={join}>確定加入</button>
           <Link to="/profile">考慮一下，回個人頁面</Link>
         </>
-      )}
+      )} */}
 
       <div>這是群組第二頁</div>
       {content && (
@@ -350,20 +346,20 @@ const ActivityContent = () => {
                   <div>景點簡介</div>
                   <LocationIntro value={groupData.groupIntro} />
                   <div>團員</div>
-                  {/* {member ? (
+                  {member.length > 0 ? (
                     Object.values(member).map((item, index) => {
                       return (
                         <div key={index}>
-                          <div>name:{item.visitorName}</div>
-                          <MemberPic src={item.visitorPic} />
-                          <div>ID:{item.groupID}</div>
+                          <div>name:{item.joinName}</div>
+                          <MemberPic src={item.joinPic} />
+                          <div>ID:{item.joinID}</div>
                         </div>
                       )
                     })
                   ) : (
                     <MemberDefault></MemberDefault>
-                  )} */}
-                  {contentData.memberList !== undefined ? (
+                  )}
+                  {/* {contentData.memberList !== undefined ? (
                     Object.values(contentData.memberList).map((item, index) => {
                       return (
                         <div key={index}>
@@ -375,7 +371,7 @@ const ActivityContent = () => {
                     })
                   ) : (
                     <MemberDefault></MemberDefault>
-                  )}
+                  )} */}
                 </>
               )}
             </Private>

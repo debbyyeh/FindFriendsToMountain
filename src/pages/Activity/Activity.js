@@ -65,6 +65,7 @@ function Activity() {
 
   useEffect(() => {
     async function getMyGroup() {
+      console.log('取得登山資訊')
       try {
         const docRef = doc(db, 'groupLists', groupID)
         const docSnap = await getDoc(docRef)
@@ -211,7 +212,7 @@ function Activity() {
             </>
           )}
           {groupID && (
-            <Link onClick={setTheContent} to={`/${groupID}`}>
+            <Link onClick={setTheContent} to={`activity/${groupID}`}>
               繼續編輯下一步
             </Link>
           )}
