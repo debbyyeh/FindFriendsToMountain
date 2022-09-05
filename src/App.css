@@ -1,38 +1,44 @@
-.App {
-  text-align: center;
+.rdrDateDisplayWrapper{
+  background-color: transparent;
+}
+.rdrNextPrevButton{
+  background-color: transparent;
+}
+.rdrMonthAndYearPickers select:hover{
+  background-color:transparent
+}
+.rdrDayToday .rdrDayNumber span:after{
+  background:#577D45;
+}
+.rdrDateDisplayItem{
+  border:none;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+:root {
+    --color-gold: #B99362;
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+body {
+    background-color: rgb(48,61,48);
+    /* background-color: rgb(200,229,207);
+    background-color:rgb(5,105,102);
+    background-color:rgb(55,137,113);  */
+    color:white;
+    /* color:rgb(194,173,62); */
+    /* color:rgb(5,105,102) */
 }
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+svg {
+    height: 100vh;
 }
-
-.App-link {
-  color: #61dafb;
+path {
+    stroke: white;
+    fill: transparent;
+    transition: 0.5s;
+    cursor: pointer;
 }
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+path:hover {
+    fill: #577D45;
+    transform: translate(-5px, -5px);
+}
+path:focus {
+    fill: #577D45;
 }
