@@ -16,6 +16,9 @@ import memberDefault from './memberDefault.png'
 import accommodation from './accommodation.png'
 import Car from './Car.png'
 import itinerary from './itinerary.png'
+import 水壺 from './水壺.png'
+import 鍋子 from './鍋子.jpg'
+import 睡袋 from './睡袋.png'
 const Divide = styled.div`
   display: flex;
 `
@@ -103,10 +106,15 @@ const AddingNumber = styled.input`
   background-color: transparent;
   color: white;
 `
+const IconImage = styled.div`
+  width: 40px;
+  height: 40px;
+  background-size: cover;
+`
 
 const ActivityContent = () => {
   let url = window.location.href
-  const newUrl = url.split('http://localhost:3006/Activity/')
+  const newUrl = url.split('/Activity/')
   const groupID = newUrl[1]
   const [contentID, setContentID] = useState()
   const [contentInfo, setContentInfo] = useState()
@@ -121,20 +129,23 @@ const ActivityContent = () => {
   const [bedList, setBedList] = useState()
   const [auth, setAuth] = useState(false)
   const [content, setContent] = useState(false)
-  const [welcome, setWelcome] = useState(false)
   const [ownerName, setOwnerName] = useState()
   const [visitorUid, setVisitorUid] = useState()
-  const [visitorInfo, setVisitorInfo] = useState()
   const [join, setJoin] = useState() //visitor個人資料
   const [member, setMember] = useState() //更新群組名單
+  const [profile, setProfile] = useState() //點選大頭貼的個人資料
   //總床位
   const [allBedArr, setAllBedArr] = useState([])
   //每一組床位的資訊
   const [bedInfo, setBedInfo] = useState()
+  const equipments = {
+    水壺: 水壺,
+    鍋子: 鍋子,
+    睡袋: 睡袋,
+  }
 
   useEffect(() => {
-    getGroupInfo()
-    getContentInfo()
+    testAuth()
     async function getGroupInfo() {
       const id = groupID
       setContentID(groupID)
@@ -165,31 +176,31 @@ const ActivityContent = () => {
         console.log('No such document!')
       }
     }
-    testAuth()
-  }, [groupID])
+    getGroupInfo()
+    getContentInfo()
+  }, [contentID])
 
-  console.log(contentData)
   //判斷登入者的身分
 
   async function testAuth() {
-    if (makeLogin.uid !== ownerName) {
-      //非團主打開驗證碼欄位
+    const groupContent = doc(db, 'groupContents', groupID)
+    const groupDoc = await getDoc(groupContent)
+    const groupOwnerInfo = groupDoc.data()
+    const currgroupOwner = groupOwnerInfo.groupOwner
+
+    if (makeLogin.uid !== currgroupOwner) {
       setAuth(true)
       const joinData = doc(db, 'users', makeLogin.uid)
       const joinSnap = await getDoc(joinData)
       if (joinSnap.exists()) {
-        console.log('取得個人資料')
         const getjoinData = joinSnap.data()
-        console.log(getjoinData)
         setJoin(getjoinData)
-        console.log(join)
       }
-    } else {
-      setContent(true)
+    } else if (makeLogin.uid == currgroupOwner) {
       setAuth(false)
+      setContent(true)
     }
   }
-  console.log(join)
   async function testBtn() {
     if (authRef.current.value !== groupData.groupPassword) {
       alert('驗證碼錯誤')
@@ -210,9 +221,6 @@ const ActivityContent = () => {
       const updatejoinGroup = await updateDoc(joinData, {
         joinGroup: newjoinList,
       })
-      // if (groupSnap.exists()) {
-      console.log('這是團的資料')
-      // const getgroupData = groupSnap.data()
       const oldmemberList = contentData.memberList
       let newMember = []
       const newMemberInfo = {
@@ -227,45 +235,8 @@ const ActivityContent = () => {
         memberList: newMember,
       })
       setMember(newMember)
-      // }
     }
   }
-  console.log(member)
-  // async function join() {
-  //   setWelcome(false)
-  //   setContent(true)
-  //   const groupContent = doc(db, 'groupContents', groupID)
-  //   const groupSnap = await getDoc(groupContent)
-  //   //更新群組的member
-  //   if (groupSnap.exists()) {
-  //     const groupData = groupSnap.data()
-  //     const oldmemberList = groupData.memberList
-  //     let newMember = []
-  //     const newMemberInfo = visitorInfo
-  //     newMember.push(visitorInfo, ...oldmemberList)
-  //     const updateMember = await updateDoc(groupContent, {
-  //       memberList: newMember,
-  //     })
-  //     setMember(newMember)
-  //   }
-  //   //更新自己的joinlist
-  //   const visitorData = doc(db, 'users', visitorUid)
-  //   const visitorSnap = await getDoc(visitorData)
-  //   if (visitorSnap.exists()) {
-  //     console.log(visitorSnap.data())
-  //     const visitorDataInfo = visitorSnap.data()
-  //     const oldjoinList = visitorDataInfo.joinGroup
-  //     let newjoinList = []
-  //     const joinInfo = {
-  //       groupID: groupID,
-  //       groupName: currentName,
-  //     }
-  //     newjoinList.push(joinInfo, ...oldjoinList)
-  //     const updatejoinGroup = await updateDoc(visitorData, {
-  //       joinGroup: newjoinList,
-  //     })
-  //   }
-  // }
 
   function addOneBed() {
     setAddBed((current) => !current)
@@ -312,6 +283,33 @@ const ActivityContent = () => {
     }
   }
 
+  async function seeTheProfile(index) {
+    const profileID = member[index].joinID
+    console.log(profileID)
+    try {
+      const docRef = doc(db, 'users', profileID)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        const userData = docSnap.data()
+        setProfile(userData)
+      }
+    } catch {
+      console.log('No such document!')
+    }
+  }
+  // console.log(profile.equipment)
+  // async function isFirstTime() {
+  //   const q = query(
+  //     doc(db, 'groupContents', groupID),
+  //     where('memberList', 'isLogged', true),
+  //   )
+  //   const querySnapshot = await getDocs(q)
+  //   querySnapshot.forEach((doc) => {
+  //     // doc.data() is never undefined for query doc snapshots
+  //     console.log(doc.id, ' => ', doc.data())
+  //   })
+  // }
+  // isFirstTime()
   return (
     <>
       {auth && (
@@ -321,13 +319,6 @@ const ActivityContent = () => {
           <button onClick={testBtn}>驗證</button>
         </>
       )}
-      {/* {welcome && (
-        <>
-          <div>歡迎加入{currentName}的群組</div>
-          <button onClick={join}>確定加入</button>
-          <Link to="/profile">考慮一下，回個人頁面</Link>
-        </>
-      )} */}
 
       <div>這是群組第二頁</div>
       {content && (
@@ -349,29 +340,38 @@ const ActivityContent = () => {
                   {member.length > 0 ? (
                     Object.values(member).map((item, index) => {
                       return (
-                        <div key={index}>
+                        <div key={index} id={index}>
                           <div>name:{item.joinName}</div>
-                          <MemberPic src={item.joinPic} />
-                          <div>ID:{item.joinID}</div>
+                          <MemberPic
+                            src={item.joinPic}
+                            onClick={() => seeTheProfile(index)}
+                          />
                         </div>
                       )
                     })
                   ) : (
                     <MemberDefault></MemberDefault>
                   )}
-                  {/* {contentData.memberList !== undefined ? (
-                    Object.values(contentData.memberList).map((item, index) => {
+                  {/* 顯示點選大頭貼的裝備 */}
+                  {profile && <div>這是{profile.name}的清單</div>}
+                  {profile && profile.equipment.length > 0 ? (
+                    profile.equipment.map((item, index) => {
                       return (
-                        <div key={index}>
-                          <div>name:{item.visitorName}</div>
-                          <MemberPic src={item.visitorPic} />
-                          <div>ID:{item.groupID}</div>
-                        </div>
+                        <>
+                          <Divide key={index}>
+                            <div>{item}</div>
+                            <IconImage
+                              style={{
+                                backgroundImage: `url(${equipments[item]})`,
+                              }}
+                            ></IconImage>
+                          </Divide>
+                        </>
                       )
                     })
                   ) : (
-                    <MemberDefault></MemberDefault>
-                  )} */}
+                    <p>目前尚無清單</p>
+                  )}
                 </>
               )}
             </Private>
@@ -418,18 +418,6 @@ const ActivityContent = () => {
                       </BedContent>
                     )
                   })}
-
-                {/* {bedContent && (
-              <BedContent>
-
-                <BedIcon />
-                <Display>
-                  <BedList />
-                  <BedList />
-                  <BedList />
-                </Display>
-              </BedContent>
-            )} */}
               </PublicArea>
               <PublicArea>
                 <AreaTitle>

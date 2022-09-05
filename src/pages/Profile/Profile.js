@@ -97,7 +97,6 @@ function Profile() {
     getDBInfo()
   }, [personalData])
 
-  console.log(leadGroup)
   async function logOut() {
     window.localStorage.removeItem('token')
     navigate('/')

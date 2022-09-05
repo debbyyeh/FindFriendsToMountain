@@ -212,7 +212,7 @@ function Activity() {
             </>
           )}
           {groupID && (
-            <Link onClick={setTheContent} to={`activity/${groupID}`}>
+            <Link onClick={setTheContent} to={`Activity/${groupID}`}>
               繼續編輯下一步
             </Link>
           )}
