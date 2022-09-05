@@ -23,6 +23,9 @@ body {
     background-color:rgb(5,105,102);
     background-color:rgb(55,137,113);  */
     color:white;
+    max-width:1280px;
+    margin:0 auto;
+    padding-top:70px;
     /* color:rgb(194,173,62); */
     /* color:rgb(5,105,102) */
 }

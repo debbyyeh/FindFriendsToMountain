@@ -1,44 +1,67 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './App.css'
 import { createGlobalStyle } from 'styled-components'
 import Header from './components/Header'
+import { UserContext } from './utils/userContext'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import 水壺 from './tools/水壺.png'
 
 import { Link, Routes, Route, Outlet, BrowserRouter } from 'react-router-dom'
-import { UserContext } from './utils/userContext'
 
 const GlobalStyle = createGlobalStyle`
+  @font-face{
+    font-family:'poppins';
+  } 
   * {
     box-sizing: border-box;
   }
-  #root{
-    min-height:100vh;
+  li{
+    list-style-type:none;
+  }
+  input{
+    background-color:transparent;
+    outline:none;
+    cursor:pointer;
+  }
+  button{
+    background-color:transparent;
+    outline:none;
+    cursor:pointer;
   }
 `
+
 const App = () => {
-  // const [state, setState] = useState([
-  //   {
-  //     startDate: new Date(),
-  //     endDate: new Date(),
-  //     key: 'selection',
-  //   },
-  // ])
+  const [userUid, setUserUid] = useState()
+  const [userName, setUserName] = useState()
+  const auth = getAuth()
+
+  const equipments = {
+    水壺: 水壺,
+  }
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (user.displayName !== null) {
+          setUserName(user.displayName)
+        }
+        setUserUid(user.uid)
+      } else {
+      }
+    })
+  }, [])
+
+  const value = {
+    userUid,
+  }
+  console.log(userUid)
 
   return (
     <>
-      <UserContext.Provider>
+      <UserContext.Provider value={userUid}>
         <GlobalStyle />
         <Header />
         <Outlet />
       </UserContext.Provider>
-
-      {/* <DateRange
-        editableDateInputs={true}
-        onChange={(item) => setState([item.selection])}
-        moveRangeOnFirstSelection={false}
-        ranges={state}
-        dateDisplayFormat="yyyy/MM/dd"
-        rangeColors={['#577D45']}
-      /> */}
     </>
   )
 }

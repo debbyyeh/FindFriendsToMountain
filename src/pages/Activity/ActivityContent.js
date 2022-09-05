@@ -112,10 +112,27 @@ const IconImage = styled.div`
   background-size: cover;
 `
 
+const ActiveBackground = styled.div`
+  width: 10%;
+  height: 10%;
+  background-color: rgba(0, 0, 0, 0.8);
+  position: fixed;
+
+  display: ${(props) => (props.isActive ? 'block' : 'none')};
+`
+
+const ActivePost = styled.div`
+  position: fixed;
+  width: 10%;
+  height: 10%;
+  z-index: 100;
+`
+
 const ActivityContent = () => {
   let url = window.location.href
   const newUrl = url.split('/Activity/')
   const groupID = newUrl[1]
+  const [isActive, setIsActive] = useState(false)
   const [contentID, setContentID] = useState()
   const [contentInfo, setContentInfo] = useState()
   const makeLogin = JSON.parse(window.localStorage.getItem('token'))
@@ -284,6 +301,7 @@ const ActivityContent = () => {
   }
 
   async function seeTheProfile(index) {
+    setIsActive(true)
     const profileID = member[index].joinID
     console.log(profileID)
     try {
@@ -319,7 +337,6 @@ const ActivityContent = () => {
           <button onClick={testBtn}>驗證</button>
         </>
       )}
-
       <div>這是群組第二頁</div>
       {content && (
         <>
@@ -352,26 +369,36 @@ const ActivityContent = () => {
                   ) : (
                     <MemberDefault></MemberDefault>
                   )}
-                  {/* 顯示點選大頭貼的裝備 */}
-                  {profile && <div>這是{profile.name}的清單</div>}
-                  {profile && profile.equipment.length > 0 ? (
-                    profile.equipment.map((item, index) => {
-                      return (
-                        <>
-                          <Divide key={index}>
-                            <div>{item}</div>
-                            <IconImage
-                              style={{
-                                backgroundImage: `url(${equipments[item]})`,
-                              }}
-                            ></IconImage>
-                          </Divide>
-                        </>
-                      )
-                    })
-                  ) : (
-                    <p>目前尚無清單</p>
-                  )}
+
+                  <ActiveBackground isActive={isActive}>
+                    <ActivePost
+                      onClick={(e) => {
+                        console.log(e.target)
+                        setIsActive(false)
+                      }}
+                      isActive={isActive}
+                    >
+                      {profile && <div>這是{profile.name}的清單</div>}
+                      {profile && profile.equipment.length > 0 ? (
+                        profile.equipment.map((item, index) => {
+                          return (
+                            <>
+                              <Divide key={index}>
+                                <div>{item}</div>
+                                <IconImage
+                                  style={{
+                                    backgroundImage: `url(${equipments[item]})`,
+                                  }}
+                                ></IconImage>
+                              </Divide>
+                            </>
+                          )
+                        })
+                      ) : (
+                        <p>目前尚無清單</p>
+                      )}
+                    </ActivePost>
+                  </ActiveBackground>
                 </>
               )}
             </Private>

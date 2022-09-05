@@ -26,20 +26,20 @@ import backgroundImage from './background.jpg'
 const Wrapper = styled.div`
   background-image: url(${backgroundImage});
   background-size: cover;
-  width: 900px;
   margin: 0 auto;
-  height: 600px;
+  width: 1200px;
+  height: 900px;
   position: absolute;
-  top: 50%;
+  top: 70%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -60%);
 
   display: flex;
 `
 const InfoWrapper = styled.div`
   background-color: rgb(0, 0, 0, 0.9);
-  height: 600px;
-  width: 450px;
+  height: 100%;
+  width: 600px;
   position: absolute;
   transform: translateY(-50%);
   transform: ${(props) => {
@@ -54,9 +54,9 @@ const ChangeModeDiv = styled.div`
   height: 50px;
   background-color: rgb(200, 229, 207);
   position: absolute;
-  left: 60%;
+  left: 57%;
   transform: ${(props) => {
-    return props.toggle ? 'translateX(-60%) ' : 'translateX(-160%)'
+    return props.toggle ? 'translateX(-57%) ' : 'translateX(-157%)'
   }};
   transition: 0.5s;
 `
@@ -70,9 +70,15 @@ const SignUp = styled.div`
   left: 100%;
   transform: translateX(-100%);
 `
-const LoginForm = styled.div`
-  width: 50%;
+const LoginForm = styled.form`
+  width: 100%;
   z-index: 10;
+  padding: 20px 30px;
+`
+const InfoInput = styled.input`
+  border: 1px solid white;
+  height: 30px;
+  padding: 4px 12px;
 `
 const UploadPic = styled.div`
   margin-top: 20px;
@@ -111,7 +117,6 @@ function Login() {
       navigate('/profile')
     }
   }, [])
-  console.log(login)
   function signUpUse() {
     setSignUp(true)
   }
@@ -219,7 +224,6 @@ function Login() {
         <ChangeModeDiv
           toggle={mode}
           onClick={() => {
-            console.log('click')
             setMode(!mode)
             setSignUp((current) => !current)
             setLogin((current) => !current)
@@ -229,54 +233,54 @@ function Login() {
         </ChangeModeDiv>
         {login && (
           <>
-            <LoginForm>
-              <form onSubmit={handleSubmit(signInCheck)}>
-                <h2>登入帳號</h2>
-                <label htmlFor="email">Email</label>
-                <input
-                  name="email"
-                  type="text"
-                  placeholder="請輸入 email"
-                  {...register('email', {
-                    required: {
-                      value: true,
-                      message: '欄位必填',
-                    },
-                    pattern: {
-                      value: /^\S+@\S+$/i,
-                      message: '格式有誤!',
-                    },
-                  })}
-                />
-                <p>{errors.email?.message}</p>
-                <label htmlFor="pwd">密碼</label>
-                <input
-                  type="password"
-                  placeholder="password"
-                  {...register('password', {
-                    required: {
-                      value: true,
-                      message: '請輸入資料內容!',
-                    },
-                    minLength: {
-                      value: 6,
-                      message: '密碼長度至少6位元',
-                    },
-                  })}
-                />
-                <p>{errors.password?.message}</p>
-                <input type="submit" value="登入" />
-              </form>
-              <div onClick={signUpUse}>還沒有帳號，註冊去</div>
+            {/* <LoginForm> */}
+            <LoginForm onSubmit={handleSubmit(signInCheck)}>
+              <h2>登入帳號</h2>
+              <label htmlFor="email">Email</label>
+              <InfoInput
+                name="email"
+                type="text"
+                placeholder="請輸入 email"
+                {...register('email', {
+                  required: {
+                    value: true,
+                    message: '欄位必填',
+                  },
+                  pattern: {
+                    value: /^\S+@\S+$/i,
+                    message: '格式有誤!',
+                  },
+                })}
+              />
+              <p>{errors.email?.message}</p>
+              <label htmlFor="pwd">密碼</label>
+              <InfoInput
+                type="password"
+                placeholder="password"
+                {...register('password', {
+                  required: {
+                    value: true,
+                    message: '請輸入資料內容!',
+                  },
+                  minLength: {
+                    value: 6,
+                    message: '密碼長度至少6位元',
+                  },
+                })}
+              />
+              <p>{errors.password?.message}</p>
+              <input type="submit" value="登入" />
             </LoginForm>
+            <div onClick={signUpUse}>還沒有帳號，註冊去</div>
+            {/* </LoginForm> */}
           </>
         )}
         {signUp && (
           <SignUp>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <LoginForm onSubmit={handleSubmit(onSubmit)}>
               <h2>註冊帳號</h2>
               <label htmlFor="email">Email</label>
-              <input
+              <InfoInput
                 name="email"
                 type="text"
                 placeholder="請輸入 email"
@@ -293,14 +297,14 @@ function Login() {
               />
               <p>{errors.email?.message}</p>
               <label htmlFor="name">使用者暱稱</label>
-              <input
+              <InfoInput
                 type="text"
                 placeholder="Nnickname"
                 {...register('nickname', {})}
               />
               <p>{errors.Nickname?.message}</p>
               <label htmlFor="pwd">密碼</label>
-              <input
+              <InfoInput
                 type="password"
                 placeholder="password"
                 {...register('password', {
@@ -331,7 +335,7 @@ function Login() {
               />
               <input type="submit" value="註冊帳號" />
               <br />
-            </form>
+            </LoginForm>
           </SignUp>
         )}
 
