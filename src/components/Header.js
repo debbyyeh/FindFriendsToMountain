@@ -12,11 +12,22 @@ const LogoIcon = styled(Link)`
   background-size: contain;
 `
 function Header() {
-  // const navigate = useNavigate()
+  const navigate = useNavigate()
+  const makeLogin = JSON.parse(window.localStorage.getItem('token'))
+  function backToProfile() {
+    navigate('/profile')
+  }
   return (
     <>
       <LogoIcon to="/" />
       <Link to="LogIn" />
+
+      {makeLogin && (
+        <>
+          {' '}
+          <div onClick={backToProfile}>回到個人頁面</div>
+        </>
+      )}
     </>
   )
 }
