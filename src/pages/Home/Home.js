@@ -8,14 +8,15 @@ const LoginClick = styled(Link)`
 `
 
 function Home() {
-  const userUid = useContext(UserContext)
-  const [isLogged, setIsLogged] = useState()
+  const value = useContext(UserContext)
+  const [isLogged, setIsLogged] = useState(false)
   useEffect(() => {
-    if (userUid !== undefined) {
+    if (value.userUid !== undefined) {
       setIsLogged(true)
     }
   }, [])
 
+  console.log(isLogged)
   return (
     <>
       <div>Find Friends to Mountain</div>

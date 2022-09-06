@@ -19,9 +19,9 @@
 }
 body {
     background-color: rgb(48,61,48);
-    /* background-color: rgb(200,229,207);
-    background-color:rgb(5,105,102);
-    background-color:rgb(55,137,113);  */
+    /* background-color: rgb(200,229,207); */
+    /* background-color:rgb(5,105,102); */
+    /* background-color:rgb(55,137,113);   */
     color:white;
     max-width:1280px;
     margin:0 auto;
@@ -45,3 +45,20 @@ path:hover {
 path:focus {
     fill: #577D45;
 }
+/* .react-calendar {
+  width: 100%;
+  max-width: 100%;
+  background: transparent;
+  border: none;
+}
+.react-calendar button {
+  color:white;
+  font-size:16px;
+}
+.react-calendar__navigation button:enabled:hover, .react-calendar__navigation button:enabled:focus{
+  background-color:rgb(55,137,113) ;
+}
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+  background: transparent;
+} */

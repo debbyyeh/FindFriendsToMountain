@@ -6,6 +6,8 @@ import styled, { keyframes } from 'styled-components'
 import { Link } from 'react-router-dom'
 import { UserContext } from '../../utils/userContext'
 import hiking from './Vision.png'
+
+import 帳篷 from './帳篷.png'
 import 鍋子 from './鍋子.png'
 import 爐頭 from './爐頭.png'
 import 睡袋 from './睡袋.png'
@@ -129,18 +131,19 @@ function Profile() {
   const [isActive, setIsActive] = useState(false)
   const [tabIndex, setTabIndex] = useState(0)
   const [currentPage, setCurrentPage] = useState()
-  const userUid = useContext(UserContext)
+  const value = useContext(UserContext)
   const equipmentSearch = useRef()
   const navigate = useNavigate()
   const equipments = {
     鍋子: 鍋子,
     爐頭: 爐頭,
     睡袋: 睡袋,
+    帳篷: 帳篷,
   }
   useEffect(() => {
     async function getDBInfo() {
       try {
-        const docRef = doc(db, 'users', userUid)
+        const docRef = doc(db, 'users', value.userUid)
         const docSnap = await getDoc(docRef)
         if (docSnap.exists()) {
           const userData = docSnap.data()
@@ -154,7 +157,8 @@ function Profile() {
       }
     }
     getDBInfo()
-  }, [userUid])
+  }, [value.userUid])
+  console.log(value.userUid)
 
   async function addTool() {
     if (equipmentSearch.current.value == '') {
@@ -164,9 +168,8 @@ function Profile() {
       setTools([...tools])
       equipmentSearch.current.value = ''
       try {
-        const docRef = doc(db, 'users', userUid)
+        const docRef = doc(db, 'users', value.userUid)
         const updateEquipment = await updateDoc(docRef, { equipment: tools })
-        console.log(updateEquipment)
       } catch (erroe) {
         console.log('資料更新失敗')
       }
@@ -179,7 +182,7 @@ function Profile() {
     const newTools = deleteTools
     setTools(deleteTools)
     try {
-      const docRef = doc(db, 'users', userUid)
+      const docRef = doc(db, 'users', value.userUid)
       const updateEquipment = await updateDoc(docRef, { equipment: newTools })
       console.log(updateEquipment)
     } catch (error) {
@@ -194,7 +197,7 @@ function Profile() {
   }
   function addActivity() {
     console.log('click')
-    navigate('/Activity')
+    navigate('/activity')
   }
 
   return (
@@ -231,7 +234,7 @@ function Profile() {
                   return (
                     <div key={index}>
                       <div>name:{item.groupName}</div>
-                      <Link to={`/Activity/${item.groupID}`}>
+                      <Link to={`/activity/${item.groupID}`}>
                         ID:{item.groupID}
                       </Link>
                     </div>
@@ -253,7 +256,7 @@ function Profile() {
                   return (
                     <div key={index}>
                       <div>name:{item.groupName}</div>
-                      <Link to={`/Activity/${item.groupID}`}>
+                      <Link to={`/activity/${item.groupID}`}>
                         ID:{item.groupID}
                       </Link>
                     </div>

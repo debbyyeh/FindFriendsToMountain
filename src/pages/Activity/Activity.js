@@ -5,14 +5,28 @@ import { collection, setDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import html2canvas from 'html2canvas'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import Calendar from 'react-calendar'
+import 'react-calendar/dist/Calendar.css'
+
+const Wrapper = styled.div`
+  width: calc(1280px - 30px);
+  margin: 0 auto;
+`
 const Divide = styled.div`
   display: flex;
   justify-content: space-between;
-  width: 1200px;
-  margin: 0 auto;
 `
 const Card = styled.div`
   border: 1px solid white;
+`
+const PrintArea = styled.div`
+  width: 500px;
+  margin: 0 auto;
+  margin-top: 70px;
+`
+const Preview = styled.button`
+  color: white;
+  margin: 0 auto;
 `
 const UploadPic = styled.div`
   margin-top: 20px;
@@ -22,7 +36,7 @@ const UploadPic = styled.div`
   border-radius: 8px;
 `
 const UploadPhoto = styled.img`
-  width: 100px;
+  width: 100%;
   aspect-ratio: 1/1;
   background-color: #d9d9d9;
   border-radius: 8px;
@@ -34,11 +48,122 @@ const AfterUpload = styled.div`
   background-color: #d9d9d9;
   border-radius: 8px;
 `
+const FormLabel = styled.label`
+  display: block;
+  font-size: 20px;
+  color: white;
+`
+const InfoInput = styled.input`
+  border: 1px solid white;
+  height: 30px;
+  color: white;
+  font-size: 24px;
+  width: 100%;
+`
 const Cover = styled.img`
   width: 150px;
   height: 200px;
   object-fit: cover;
 `
+const Next = styled.button`
+  color: white;
+  cursor: pointer;
+`
+
+const Basic = styled.div`
+  width: 20%;
+`
+const FormDate = styled.div`
+  width: 40%;
+`
+const Photo = styled.div`
+  width: 30%;
+`
+const CalendarContainer = styled.div`
+  margin: 0 auto;
+  background-color: transparent;
+  .react-calendar {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgb(55, 137, 113);
+  }
+  .react-calendar__navigation {
+    display: flex;
+    .react-calendar__navigation__label {
+      font-weight: bold;
+    }
+    .react-calendar__navigation__arrow {
+      flex-grow: 0.333;
+      font-size: 24px;
+    }
+    .react-calendar__month-view__weekdays {
+      text-align: center;
+      color: black;
+    }
+  }
+  button {
+    margin: 3px;
+    background-color: #6f876f;
+    border: 0;
+    border-radius: 3px;
+    color: white;
+    padding: 5px 0;
+    &:hover {
+      background-color: #a5c1a5;
+    }
+
+    &:active {
+      background-color: #a5c1a5;
+    }
+  }
+  .react-calendar__month-view__days {
+    display: grid !important;
+    grid-template-columns: 14.2% 14.2% 14.2% 14.2% 14.2% 14.2% 14.2%;
+
+    .react-calendar__tile {
+      max-width: initial !important;
+      height: 40px;
+    }
+  }
+  .react-calendar__month-view__days__day--neighboringMonth {
+    opacity: 0.5;
+  }
+  .react-calendar__month-view__days__day--weekend {
+    color: #dfdfdf;
+  }
+  .react-calendar__month-view__weekdays__weekday {
+    color: white;
+  }
+  .react-calendar__tile--range {
+    background-color: #b99362;
+    ${'' /* box-shadow: 0 0 6px 2px #577d45;
+    &:active {
+      
+    } */}
+  }
+  .react-calendar__year-view__months,
+  .react-calendar__decade-view__years,
+  .react-calendar__century-view__decades {
+    display: grid !important;
+    grid-template-columns: 20% 20% 20% 20% 20%;
+
+    &.react-calendar__year-view__months {
+      grid-template-columns: 33.3% 33.3% 33.3%;
+    }
+
+    .react-calendar__tile {
+      max-width: initial !important;
+    }
+  }
+  .react-calendar__tile:enabled:hover,
+  .react-calendar__tile:enabled:focus {
+    background-color: #b99362;
+  }
+  .react-calendar--selectRange .react-calendar__tile--hover {
+    background-color: #b99362;
+  }
+`
+
 function Activity() {
   const nameRef = useRef()
   const groupPassword = useRef()
@@ -53,6 +178,9 @@ function Activity() {
   const [downloadUrl, setDownloadUrl] = useState([])
   const [group, setGroup] = useState()
   const [groupID, setGroupID] = useState()
+  const [isInfo, setIsInfo] = useState(false)
+  const [isPreview, setIsPreview] = useState(false)
+  const [date, setDate] = useState(new Date())
   const navigate = useNavigate()
   const makeLogin = JSON.parse(window.localStorage.getItem('token'))
   const jwtToken = makeLogin.uid
@@ -79,9 +207,21 @@ function Activity() {
     }
     getMyGroup()
   }, [])
+
   const settingCard = async () => {
-    const docRef = doc(collection(db, 'groupLists'))
+    if (
+      nameRef.current.value == '' ||
+      groupPassword.current.value == '' ||
+      cityRef.current.value == '' ||
+      mountainRef.current.value == '' ||
+      textRef.current.value == ''
+    ) {
+      alert('表格不可為空')
+      setIsInfo(false)
+    }
+    setIsInfo(true)
     const userdocRef = doc(db, 'users', jwtToken)
+    const docRef = doc(collection(db, 'groupLists'))
     const docSnap = await getDoc(userdocRef)
     const id = docRef.id
     setGroupID(id)
@@ -117,13 +257,28 @@ function Activity() {
           groupCity: cityRef.current.value,
           groupMountain: mountainRef.current.value,
           groupPassword: groupPassword.current.value,
-          startDate: startDateRef.current.value,
-          endDate: endDateRef.current.value,
+          startDate: date[0].toDateString(),
+          endDate: date[1].toDateString(),
           groupIntro: textRef.current.value,
         })
+        console.log(newDocRef)
         setGroup(newDocRef)
       })
     })
+  }
+
+  async function getMyGroup() {
+    setIsPreview(true)
+    try {
+      const docRef = doc(db, 'groupLists', groupID)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        const mountainData = docSnap.data()
+        setGroup(mountainData)
+      }
+    } catch {
+      console.log('No such document!')
+    }
   }
 
   async function printTheCard() {
@@ -154,50 +309,73 @@ function Activity() {
       memberList: [],
       todoList: [],
     })
+    navigate(`/activity/${groupID}`)
   }
+  console.log(group)
   return (
     <>
-      <Divide>
-        <div>
-          <div>這是活動頁面1</div>
-          <div>登山團名稱</div>
-          <input type="text" ref={nameRef} />
-          <div>封面照片</div>
-          <UploadPic>
-            {imageURLs ? (
-              <UploadPhoto src={imageURLs} alt="uploadImage" />
-            ) : (
-              <AfterUpload></AfterUpload>
-            )}
-          </UploadPic>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={getPhotoInfo}
-          />
-          <div>群組密碼</div>
-          <input type="text" ref={groupPassword} />
-        </div>
-        <div>
-          <div>開團日期</div>
-          <p>startDate</p>
-          <input type="date" ref={startDateRef} />
-          <p>endDate</p>
-          <input type="date" ref={endDateRef} />
-          <div>開團路線</div>
-          <input type="text" placeholder="縣市" ref={cityRef} />
-          <input type="text" placeholder="山名" ref={mountainRef} />
+      <Wrapper>
+        <Divide>
+          <Basic>
+            <div>這是活動頁面1</div>
+            <FormLabel>登山團名稱</FormLabel>
+            <InfoInput type="text" ref={nameRef} />
+            <FormLabel>群組密碼</FormLabel>
+            <InfoInput type="text" ref={groupPassword} />
+            <FormLabel>開團路線</FormLabel>
+            <InfoInput type="text" placeholder="縣市" ref={cityRef} />
+            <FormLabel>開團山名</FormLabel>
+            <InfoInput type="text" placeholder="山名" ref={mountainRef} />
+            <FormLabel>路線介紹</FormLabel>
+            <InfoInput type="text" placeholder="簡介" ref={textRef} />
+          </Basic>
+          <FormDate>
+            <FormLabel>開團日期</FormLabel>
+            <CalendarContainer>
+              <Calendar
+                // calendarType="US"
+                onChange={setDate}
+                value={date}
+                selectRange={true}
+              />
+            </CalendarContainer>
 
-          <div>路線介紹</div>
-          <input type="text" placeholder="縣市" ref={textRef} />
-          <button onClick={settingCard}>完成設定</button>
-        </div>
-        <div>
-          {group && (
+            {date.length > 0 ? (
+              <>
+                <div>startDate:{date[0].toDateString()}</div>
+                <div>EndDate:{date[1].toDateString()}</div>
+              </>
+            ) : (
+              <span>Select Date:{date.toDateString()}</span>
+            )}
+          </FormDate>
+          <Photo>
+            {/* <p>startDate</p>
+            <InfoInput type="date" ref={startDateRef} />
+            <p>endDate</p>
+            <InfoInput type="date" ref={endDateRef} /> */}
+            <FormLabel>封面照片</FormLabel>
+            <UploadPic>
+              {imageURLs ? (
+                <UploadPhoto src={imageURLs} alt="uploadImage" />
+              ) : (
+                <AfterUpload></AfterUpload>
+              )}
+            </UploadPic>
+            <InfoInput
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={getPhotoInfo}
+            />
+            <button onClick={settingCard}>完成設定</button>
+          </Photo>
+        </Divide>
+        <PrintArea>
+          {isInfo && <Preview onClick={getMyGroup}>預覽我的登山資訊</Preview>}
+          {isPreview && (
             <>
-              <button>預覽我的登山資訊</button>
-              <Card>
+              <Card ref={printRef}>
                 <div>{group.groupName}</div>
                 <div>
                   {group.groupCity}
@@ -205,19 +383,15 @@ function Activity() {
                 </div>
                 <div>{group.startDate}</div>
                 <div>{group.endDate}</div>
-                <Cover src={group.groupPhoto} ref={printRef} />
+                <Cover src={group.groupPhoto} />
                 <div>{group.groupIntro}</div>
               </Card>
               <button onClick={printTheCard}>下載成圖片分享</button>
             </>
           )}
-          {groupID && (
-            <Link onClick={setTheContent} to={`Activity/${groupID}`}>
-              繼續編輯下一步
-            </Link>
-          )}
-        </div>
-      </Divide>
+          {isPreview && <Next onClick={setTheContent}>繼續編輯下一步</Next>}
+        </PrintArea>
+      </Wrapper>
     </>
   )
 }

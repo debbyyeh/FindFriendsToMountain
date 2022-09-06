@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-
+import React, { useState, useEffect, useContext } from 'react'
+import { UserContext } from '../../utils/userContext'
 import { db, storage, auth } from '../../utils/firebase'
 import {
   createUserWithEmailAndPassword,
@@ -79,6 +79,7 @@ const InfoInput = styled.input`
   border: 1px solid white;
   height: 30px;
   padding: 4px 12px;
+  color: white;
 `
 const UploadPic = styled.div`
   margin-top: 20px;
@@ -107,6 +108,7 @@ function Login() {
   const [imageURLs, setImageURLs] = useState()
   const [downloadUrl, setDownloadUrl] = useState([])
   // const [jwtUid, setjwtUid] = useState()
+  const userName = useContext(UserContext)
   const [photoNote, setPhotoNote] = useState(true)
   const [mode, setMode] = useState(true)
   const navigate = useNavigate()
@@ -185,6 +187,7 @@ function Login() {
                     let userInfo = {
                       accessToken: getjwtToken,
                       uid: jwtUid,
+                      name: userName,
                     }
                     window.localStorage.setItem(
                       'token',
@@ -269,7 +272,7 @@ function Login() {
                 })}
               />
               <p>{errors.password?.message}</p>
-              <input type="submit" value="登入" />
+              <InfoInput type="submit" value="登入" />
             </LoginForm>
             <div onClick={signUpUse}>還沒有帳號，註冊去</div>
             {/* </LoginForm> */}
@@ -327,13 +330,13 @@ function Login() {
                 )}
               </UploadPic>
               {!photoNote && <span>照片不得為空</span>}
-              <input
+              <InfoInput
                 type="file"
                 accept="image/*"
                 multiple
                 onChange={getPhotoInfo}
               />
-              <input type="submit" value="註冊帳號" />
+              <InfoInput type="submit" value="註冊帳號" />
               <br />
             </LoginForm>
           </SignUp>

@@ -31,16 +31,14 @@ const FindMyGroup = styled.div`
 `
 function Header() {
   const navigate = useNavigate()
-  const userUid = useContext(UserContext)
+  const value = useContext(UserContext)
   const [isLogged, setIsLogged] = useState()
   const auth = getAuth()
   useEffect(() => {
-    if (userUid !== undefined) {
+    if (value.userUid !== undefined) {
       setIsLogged(true)
     }
-  }, [userUid])
-  console.log(isLogged)
-  console.log(userUid)
+  }, [value.userUid])
   async function findMyGroup() {}
   function logOut() {
     signOut(auth)

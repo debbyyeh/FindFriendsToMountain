@@ -11,7 +11,7 @@ import {
   query,
   where,
 } from 'firebase/firestore'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import memberDefault from './memberDefault.png'
 import accommodation from './accommodation.png'
 import Car from './Car.png'
@@ -19,6 +19,7 @@ import itinerary from './itinerary.png'
 import 水壺 from './水壺.png'
 import 鍋子 from './鍋子.jpg'
 import 睡袋 from './睡袋.png'
+import TodoList from '../../components/TodoList'
 const Divide = styled.div`
   display: flex;
 `
@@ -130,8 +131,9 @@ const ActivePost = styled.div`
 
 const ActivityContent = () => {
   let url = window.location.href
-  const newUrl = url.split('/Activity/')
+  const newUrl = url.split('/activity/')
   const groupID = newUrl[1]
+  console.log(groupID)
   const [isActive, setIsActive] = useState(false)
   const [contentID, setContentID] = useState()
   const [contentInfo, setContentInfo] = useState()
@@ -151,6 +153,7 @@ const ActivityContent = () => {
   const [join, setJoin] = useState() //visitor個人資料
   const [member, setMember] = useState() //更新群組名單
   const [profile, setProfile] = useState() //點選大頭貼的個人資料
+  const navigate = useNavigate()
   //總床位
   const [allBedArr, setAllBedArr] = useState([])
   //每一組床位的資訊
@@ -162,7 +165,15 @@ const ActivityContent = () => {
   }
 
   useEffect(() => {
-    testAuth()
+    if (makeLogin == undefined) {
+      alert('您尚未登入會員')
+      navigate('/login')
+    } else {
+      getGroupInfo()
+      getContentInfo()
+      testAuth()
+    }
+
     async function getGroupInfo() {
       const id = groupID
       setContentID(groupID)
@@ -193,31 +204,30 @@ const ActivityContent = () => {
         console.log('No such document!')
       }
     }
-    getGroupInfo()
-    getContentInfo()
-  }, [contentID])
-
-  //判斷登入者的身分
+  }, [groupID, contentID])
 
   async function testAuth() {
     const groupContent = doc(db, 'groupContents', groupID)
     const groupDoc = await getDoc(groupContent)
     const groupOwnerInfo = groupDoc.data()
     const currgroupOwner = groupOwnerInfo.groupOwner
+    console.log(groupOwnerInfo, makeLogin.uid, currgroupOwner)
 
-    if (makeLogin.uid !== currgroupOwner) {
+    if (makeLogin.uid == currgroupOwner) {
+      setAuth(false)
+      setContent(true)
+    } else if (makeLogin.uid !== currgroupOwner) {
       setAuth(true)
       const joinData = doc(db, 'users', makeLogin.uid)
       const joinSnap = await getDoc(joinData)
       if (joinSnap.exists()) {
         const getjoinData = joinSnap.data()
+        console.log(getjoinData)
         setJoin(getjoinData)
       }
-    } else if (makeLogin.uid == currgroupOwner) {
-      setAuth(false)
-      setContent(true)
     }
   }
+  console.log(join)
   async function testBtn() {
     if (authRef.current.value !== groupData.groupPassword) {
       alert('驗證碼錯誤')
@@ -229,6 +239,7 @@ const ActivityContent = () => {
       const joinData = doc(db, 'users', makeLogin.uid)
       const groupContent = doc(db, 'groupContents', groupData.groupID)
       const oldjoinList = join.joinGroup
+      console.log(oldjoinList)
       let newjoinList = []
       const joinInfo = {
         groupID: groupData.groupID,
@@ -315,19 +326,8 @@ const ActivityContent = () => {
       console.log('No such document!')
     }
   }
-  // console.log(profile.equipment)
-  // async function isFirstTime() {
-  //   const q = query(
-  //     doc(db, 'groupContents', groupID),
-  //     where('memberList', 'isLogged', true),
-  //   )
-  //   const querySnapshot = await getDocs(q)
-  //   querySnapshot.forEach((doc) => {
-  //     // doc.data() is never undefined for query doc snapshots
-  //     console.log(doc.id, ' => ', doc.data())
-  //   })
-  // }
-  // isFirstTime()
+
+  console.log(member)
   return (
     <>
       {auth && (
@@ -340,7 +340,6 @@ const ActivityContent = () => {
       <div>這是群組第二頁</div>
       {content && (
         <>
-          <button>開始編輯</button>
           <Divide>
             <Private>
               主揪可編輯區
@@ -453,9 +452,12 @@ const ActivityContent = () => {
                   <AddOne>+</AddOne>
                 </AreaTitle>
               </PublicArea>
-              <PublicArea>待討論事項</PublicArea>
             </Public>
           </Divide>
+          <PublicArea>
+            待討論事項
+            <TodoList />
+          </PublicArea>
         </>
       )}
     </>
