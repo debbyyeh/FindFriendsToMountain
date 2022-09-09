@@ -6,11 +6,7 @@ import styled, { keyframes } from 'styled-components'
 import { Link } from 'react-router-dom'
 import { UserContext } from '../../utils/userContext'
 import hiking from './Vision.png'
-
-import 帳篷 from './帳篷.png'
-import 鍋子 from './鍋子.png'
-import 爐頭 from './爐頭.png'
-import 睡袋 from './睡袋.png'
+import equipments from '../../equipments/equipments'
 import remove from './Remove.png'
 
 const Wrapper = styled.div`
@@ -134,12 +130,6 @@ function Profile() {
   const value = useContext(UserContext)
   const equipmentSearch = useRef()
   const navigate = useNavigate()
-  const equipments = {
-    鍋子: 鍋子,
-    爐頭: 爐頭,
-    睡袋: 睡袋,
-    帳篷: 帳篷,
-  }
   useEffect(() => {
     async function getDBInfo() {
       try {
@@ -178,7 +168,6 @@ function Profile() {
 
   async function deleteEquipment(key) {
     let deleteTools = tools.filter((item, index) => index !== key)
-    console.log(deleteTools)
     const newTools = deleteTools
     setTools(deleteTools)
     try {

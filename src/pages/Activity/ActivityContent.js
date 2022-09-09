@@ -14,12 +14,11 @@ import {
 import { Link, useNavigate } from 'react-router-dom'
 import memberDefault from './memberDefault.png'
 import accommodation from './accommodation.png'
-import Car from './Car.png'
+
 import itinerary from './itinerary.png'
-import 水壺 from './水壺.png'
-import 鍋子 from './鍋子.jpg'
-import 睡袋 from './睡袋.png'
+import equipments from '../../equipments/equipments'
 import TodoList from '../../components/TodoList'
+import Cars from '../../components/Car/Cars'
 const Divide = styled.div`
   display: flex;
 `
@@ -133,7 +132,6 @@ const ActivityContent = () => {
   let url = window.location.href
   const newUrl = url.split('/activity/')
   const groupID = newUrl[1]
-  console.log(groupID)
   const [isActive, setIsActive] = useState(false)
   const [contentID, setContentID] = useState()
   const [contentInfo, setContentInfo] = useState()
@@ -158,11 +156,6 @@ const ActivityContent = () => {
   const [allBedArr, setAllBedArr] = useState([])
   //每一組床位的資訊
   const [bedInfo, setBedInfo] = useState()
-  const equipments = {
-    水壺: 水壺,
-    鍋子: 鍋子,
-    睡袋: 睡袋,
-  }
 
   useEffect(() => {
     if (makeLogin == undefined) {
@@ -211,7 +204,6 @@ const ActivityContent = () => {
     const groupDoc = await getDoc(groupContent)
     const groupOwnerInfo = groupDoc.data()
     const currgroupOwner = groupOwnerInfo.groupOwner
-    console.log(groupOwnerInfo, makeLogin.uid, currgroupOwner)
 
     if (makeLogin.uid == currgroupOwner) {
       setAuth(false)
@@ -222,12 +214,11 @@ const ActivityContent = () => {
       const joinSnap = await getDoc(joinData)
       if (joinSnap.exists()) {
         const getjoinData = joinSnap.data()
-        console.log(getjoinData)
         setJoin(getjoinData)
       }
     }
   }
-  console.log(join)
+  //FIXME
   async function testBtn() {
     if (authRef.current.value !== groupData.groupPassword) {
       alert('驗證碼錯誤')
@@ -327,7 +318,6 @@ const ActivityContent = () => {
     }
   }
 
-  console.log(member)
   return (
     <>
       {auth && (
@@ -446,11 +436,7 @@ const ActivityContent = () => {
                   })}
               </PublicArea>
               <PublicArea>
-                <AreaTitle>
-                  <img src={Car} />
-                  <div>車子分配</div>
-                  <AddOne>+</AddOne>
-                </AreaTitle>
+                <Cars />
               </PublicArea>
             </Public>
           </Divide>
