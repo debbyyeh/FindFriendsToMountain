@@ -14,9 +14,8 @@ function Home() {
     if (value.userUid !== undefined) {
       setIsLogged(true)
     }
-  }, [])
+  }, [value.userUid])
 
-  console.log(isLogged)
   return (
     <>
       <div>Find Friends to Mountain</div>

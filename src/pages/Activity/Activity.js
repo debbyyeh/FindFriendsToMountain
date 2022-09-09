@@ -218,53 +218,54 @@ function Activity() {
     ) {
       alert('表格不可為空')
       setIsInfo(false)
-    }
-    setIsInfo(true)
-    const userdocRef = doc(db, 'users', jwtToken)
-    const docRef = doc(collection(db, 'groupLists'))
-    const docSnap = await getDoc(userdocRef)
-    const id = docRef.id
-    setGroupID(id)
+    } else {
+      setIsInfo(true)
+      const userdocRef = doc(db, 'users', jwtToken)
+      const docRef = doc(collection(db, 'groupLists'))
+      const docSnap = await getDoc(userdocRef)
+      const id = docRef.id
+      setGroupID(id)
 
-    if (docSnap.exists()) {
-      console.log('Document data:', docSnap.data())
-      const leadPersonData = docSnap.data()
-      const oldLeadList = leadPersonData.leadGroup
-      let newLeadList = []
-      const leadGroupInfo = {
-        groupID: id,
-        groupName: nameRef.current.value,
-      }
-
-      newLeadList.push(leadGroupInfo, ...oldLeadList)
-      const updateLeadGroup = await updateDoc(userdocRef, {
-        leadGroup: newLeadList,
-      })
-    }
-    const imageRef = ref(
-      storage,
-      `images/${nameRef.current.value}_${id}_登山團封面照`,
-    )
-    uploadBytes(imageRef, images[0]).then(() => {
-      console.log('檔案上傳成功')
-      getDownloadURL(imageRef).then((url) => {
-        setDownloadUrl(url)
-        const newDocRef = setDoc(doc(db, 'groupLists', id), {
-          groupName: nameRef.current.value,
+      if (docSnap.exists()) {
+        console.log('Document data:', docSnap.data())
+        const leadPersonData = docSnap.data()
+        const oldLeadList = leadPersonData.leadGroup
+        let newLeadList = []
+        const leadGroupInfo = {
           groupID: id,
-          groupOwner: makeLogin.uid,
-          groupPhoto: url,
-          groupCity: cityRef.current.value,
-          groupMountain: mountainRef.current.value,
-          groupPassword: groupPassword.current.value,
-          startDate: date[0].toDateString(),
-          endDate: date[1].toDateString(),
-          groupIntro: textRef.current.value,
+          groupName: nameRef.current.value,
+        }
+
+        newLeadList.push(leadGroupInfo, ...oldLeadList)
+        const updateLeadGroup = await updateDoc(userdocRef, {
+          leadGroup: newLeadList,
         })
-        console.log(newDocRef)
-        setGroup(newDocRef)
+      }
+      const imageRef = ref(
+        storage,
+        `images/${nameRef.current.value}_${id}_登山團封面照`,
+      )
+      uploadBytes(imageRef, images[0]).then(() => {
+        console.log('檔案上傳成功')
+        getDownloadURL(imageRef).then((url) => {
+          setDownloadUrl(url)
+          const newDocRef = setDoc(doc(db, 'groupLists', id), {
+            groupName: nameRef.current.value,
+            groupID: id,
+            groupOwner: makeLogin.uid,
+            groupPhoto: url,
+            groupCity: cityRef.current.value,
+            groupMountain: mountainRef.current.value,
+            groupPassword: groupPassword.current.value,
+            startDate: date[0].toDateString(),
+            endDate: date[1].toDateString(),
+            groupIntro: textRef.current.value,
+          })
+          console.log(newDocRef)
+          setGroup(newDocRef)
+        })
       })
-    })
+    }
   }
 
   async function getMyGroup() {
@@ -375,7 +376,7 @@ function Activity() {
           {isInfo && <Preview onClick={getMyGroup}>預覽我的登山資訊</Preview>}
           {isPreview && (
             <>
-              <Card ref={printRef}>
+              <div ref={printRef}>
                 <div>{group.groupName}</div>
                 <div>
                   {group.groupCity}
@@ -383,9 +384,9 @@ function Activity() {
                 </div>
                 <div>{group.startDate}</div>
                 <div>{group.endDate}</div>
-                <Cover src={group.groupPhoto} />
+                {/* <Cover src={group.groupPhoto} /> */}
                 <div>{group.groupIntro}</div>
-              </Card>
+              </div>
               <button onClick={printTheCard}>下載成圖片分享</button>
             </>
           )}

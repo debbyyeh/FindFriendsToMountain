@@ -2,7 +2,15 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { UserContext } from '../utils/userContext'
-import { uuidv4 } from '@firebase/util'
+import {
+  collection,
+  setDoc,
+  doc,
+  getDoc,
+  updateDoc,
+  onSnapshot,
+} from 'firebase/firestore'
+import { db } from '../utils/firebase'
 
 const ListInput = styled.input`
   width: 100%;
@@ -28,115 +36,162 @@ const AddBtn = styled.button`
   border: none;
   font-size: 24px;
 `
-const CategoryLabel = styled.div`
-  width: calc(100% / 3);
-  cursor: pointer;
-
-  color: ${(props) => (props.$isActive ? '#B99362' : 'white')};
-  font-weight: ${(props) => (props.$isActive ? 'bold' : 'normal')};
-`
-const ToDoTag = styled.li`
+const ToDoTag = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
 `
+const DeleteTodo = styled.button`
+  color: white;
+  border: 1px solid white;
+`
+const Poster = styled.span`
+  width: 20%;
+`
+const PostMsg = styled.span`
+  flex-grow: 1;
+`
+const CheckedInput = styled.div`
+  width: 80%;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  font-size: 18px;
+`
+const Complete = styled.p`
+  width: 20%;
+  color: #b99362;
+`
+const DeleteAll = styled.div`
+  cursor: pointer;
+  opacity: 0.7;
+  width: 145px;
+  font-size: 14px;
+  margin-left: auto;
+`
 const TodoList = () => {
-  const [isActive, setIsActive] = useState(false)
-  const [tabIndex, setTabIndex] = useState(0)
-  const [currentPage, setCurrentPage] = useState()
-  const [todoList, setTodoList] = useState([])
-  const value = useContext(UserContext)
-  const userName = useContext(UserContext)
-  console.log(value.userUid)
-  const listRef = useRef()
+  useEffect(() => {
+    getToDoList()
+    const unsub = onSnapshot(docRef, (doc) => {
+      const data = doc.data()
+      const latestData = data.todoList
+      setLastest(latestData)
+    })
+  }, [])
 
-  function addList(e) {
-    if (listRef.current.value !== '') {
-      setTodoList([
-        ...todoList,
-        {
-          id: uuidv4(),
-          text: listRef.current.value,
-          checked: false,
-          post: value.userName,
-        },
-      ])
-      listRef.current.value = ''
+  const [getToDo, setGetTodo] = useState([])
+  const [todoList, setTodoList] = useState([])
+  const [lastest, setLastest] = useState()
+
+  const value = useContext(UserContext)
+  let url = window.location.href
+  const newUrl = url.split('/activity/')
+  const groupID = newUrl[1]
+  const listRef = useRef()
+  const docRef = doc(db, 'groupContents', groupID)
+  //取得group的todolist
+
+  async function getToDoList() {
+    console.log('取得TODOLIST資訊')
+    try {
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        const todoListData = docSnap.data()
+        const oldToDo = todoListData.todoList
+        setGetTodo(oldToDo)
+      }
+    } catch {
+      console.log('No such document!')
     }
   }
-  console.log(todoList, value.userName)
 
-  function TodoListItem({
-    item: { id, text, post, checked },
-    onChecked,
-    onDelete,
-  }) {
+  function onKeyDown(e) {
+    if (e.key == 'Enter') {
+      addTodo()
+    }
+  }
+  const ToDoListForm = ({ addTodo }) => {
+    function handleSubmit(e) {
+      e.preventDefault()
+      listRef.current.value && addTodo(listRef.current.value)
+    }
+
     return (
-      <ToDoTag>
-        <label>
-          <input
-            type="checkbox"
-            value="true"
-            checked={checked}
-            onChange={(e) => {
-              onChecked(id, e.target.checked)
-            }}
+      <>
+        <Divide>
+          <ListInput
+            type="text"
+            onKeyDown={onKeyDown}
+            ref={listRef}
+            placeholder="enter the text"
           />
-        </label>
-        <p>
-          {post}:{text}
-        </p>
-        <a
-          onClick={(e) => {
-            e.preventDefault()
-            onDelete(id)
-          }}
-        >
-          x
-        </a>
-      </ToDoTag>
+          <AddBtn onClick={handleSubmit}>+</AddBtn>
+        </Divide>
+      </>
     )
+  }
+
+  const addTodo = () => {
+    let newArr = []
+    const newAdd = {
+      text: listRef.current.value,
+      checked: false,
+      post: value.userName,
+    }
+    newArr.push(newAdd, ...lastest)
+    setTodoList(newArr)
+    updateToDoList(newArr)
+  }
+
+  const removeTodo = (index) => {
+    const newTodo = [...todoList]
+    newTodo.splice(index, 1)
+    setTodoList(newTodo)
+    updateToDoList(newTodo)
+  }
+  const stateTask = (index) => {
+    console.log('clicked')
+    const newTodo = [...todoList]
+    newTodo[index].checked = !newTodo[index].checked
+    setTodoList(newTodo)
+    updateToDoList(newTodo)
+  }
+
+  async function updateToDoList(todoList) {
+    const newArr = [...todoList]
+    const updatetodoList = await updateDoc(docRef, {
+      todoList: newArr,
+    })
+  }
+
+  function deleteCompletedItems(event) {
+    event.preventDefault()
+    setTodoList(lastest.filter((item) => item.checked == false))
+    const leftTodo = lastest.filter((item) => item.checked == false)
+    updateToDoList(leftTodo)
   }
   return (
     <>
-      <Divide>
-        <ListInput placeholder="請輸入代辦清單" ref={listRef} />
-        <AddBtn onClick={addList}>+</AddBtn>
-      </Divide>
-
-      <ListWrapper>
-        <Divide>
-          {['全部', '待完成', '已完成'].map((category, index) => (
-            <CategoryLabel
-              key={index}
-              $isActive={index === tabIndex}
-              onClick={() => {
-                setTabIndex(index)
-                setCurrentPage(index)
-              }}
-            >
-              {category}
-            </CategoryLabel>
-          ))}
-        </Divide>
-
-        {todoList &&
-          todoList.map((item, index) => {
-            return (
-              <TodoListItem
-                item={item}
-                key={index}
-                // onChecked={onChecked}
-                // onDelete={onDelete}
-              />
-            )
-          })}
-
-        {currentPage == 0 && <div>完成</div>}
-
-        {currentPage == 1 && <div>待完成</div>}
-        {currentPage == 2 && <div>已完成</div>}
-      </ListWrapper>
+      <ToDoListForm addTodo={addTodo} />
+      {lastest &&
+        lastest.map((list, index) => {
+          return (
+            <>
+              <ToDoTag key={index}>
+                <CheckedInput
+                  onClick={() => stateTask(index)}
+                  style={{
+                    textDecoration: list.checked ? 'line-through' : 'none',
+                  }}
+                >
+                  <Poster>{list.post}:</Poster>
+                  <PostMsg>{list.text}</PostMsg>
+                </CheckedInput>
+                {list.checked ? <Complete>已完成</Complete> : null}
+                <DeleteTodo onClick={() => removeTodo(index)}>x</DeleteTodo>
+              </ToDoTag>
+            </>
+          )
+        })}
+      <DeleteAll onClick={deleteCompletedItems}>清除所有已完成項目</DeleteAll>
     </>
   )
 }

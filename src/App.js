@@ -7,7 +7,6 @@ import { UserContext } from './utils/userContext'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { db } from './utils/firebase'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
-import 水壺 from './tools/水壺.png'
 
 import { Link, Routes, Route, Outlet, BrowserRouter } from 'react-router-dom'
 
@@ -39,9 +38,6 @@ const App = () => {
   const navigate = useNavigate()
   const auth = getAuth()
 
-  const equipments = {
-    水壺: 水壺,
-  }
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -70,7 +66,6 @@ const App = () => {
       } catch {
         console.log('No such document!')
       }
-      console.log(userName)
     }
   }
 
@@ -78,7 +73,6 @@ const App = () => {
     userUid,
     userName,
   }
-  console.log(userUid, userName)
 
   return (
     <>
