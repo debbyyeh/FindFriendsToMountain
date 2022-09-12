@@ -1,5 +1,3 @@
-activity
-
 import React, { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { db, storage } from '../../utils/firebase'
@@ -263,7 +261,6 @@ function Activity() {
             endDate: date[1].toDateString(),
             groupIntro: textRef.current.value,
           })
-          console.log(newDocRef)
           setGroup(newDocRef)
         })
       })
@@ -286,7 +283,6 @@ function Activity() {
 
   async function printTheCard() {
     const element = printRef.current
-    console.log(element)
     const canvas = await html2canvas(element)
 
     const data = canvas.toDataURL('image/jpg')

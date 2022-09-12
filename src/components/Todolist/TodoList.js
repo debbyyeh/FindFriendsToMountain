@@ -82,14 +82,14 @@ const TodoList = () => {
     getToDoList()
     const unsub = onSnapshot(docRef, (doc) => {
       const data = doc.data()
-      const latestData = data.todoList
-      setLastest(latestData)
+      const todotData = data.todoList
+      setLatest(todotData)
     })
   }, [])
 
   const [getToDo, setGetTodo] = useState([])
   const [todoList, setTodoList] = useState([])
-  const [lastest, setLastest] = useState()
+  const [latest, setLatest] = useState()
 
   const value = useContext(UserContext)
   let url = window.location.href
@@ -146,20 +146,19 @@ const TodoList = () => {
       checked: false,
       post: value.userName,
     }
-    newArr.push(newAdd, ...lastest)
+    newArr.push(newAdd, ...latest)
     setTodoList(newArr)
     updateToDoList(newArr)
   }
 
   const removeTodo = (index) => {
-    const newTodo = [...todoList]
+    const newTodo = [...latest]
     newTodo.splice(index, 1)
     setTodoList(newTodo)
     updateToDoList(newTodo)
   }
   const stateTask = (index) => {
-    console.log('clicked')
-    const newTodo = [...todoList]
+    const newTodo = [...latest]
     newTodo[index].checked = !newTodo[index].checked
     setTodoList(newTodo)
     updateToDoList(newTodo)
@@ -174,8 +173,8 @@ const TodoList = () => {
 
   function deleteCompletedItems(event) {
     event.preventDefault()
-    setTodoList(lastest.filter((item) => item.checked == false))
-    const leftTodo = lastest.filter((item) => item.checked == false)
+    setTodoList(latest.filter((item) => item.checked == false))
+    const leftTodo = latest.filter((item) => item.checked == false)
     updateToDoList(leftTodo)
   }
   return (
@@ -185,8 +184,8 @@ const TodoList = () => {
           <Category>待討論事項</Category>
         </AreaTitle>
         <ToDoListForm addTodo={addTodo} />
-        {lastest &&
-          lastest.map((list, index) => {
+        {latest &&
+          latest.map((list, index) => {
             return (
               <>
                 <ToDoTag key={index}>

@@ -154,8 +154,6 @@ const Accommodation = () => {
     let roommateLists = latest[bedIndex].bedArrange
     roommateLists[index] = text
     setRoommateNames(roommateLists)
-    console.log(roommateLists)
-    console.log(roommateNames)
   }
 
   function deleteBed(bedIndex) {

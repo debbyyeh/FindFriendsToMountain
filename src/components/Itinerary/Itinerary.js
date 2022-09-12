@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '../../utils/firebase'
 import itineraryIcon from './itinerary.png'
-import ContentEditable from 'react-contenteditable'
+// import ContentEditable from 'react-contenteditable'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import done from './Done.png'
 import edit from './Edit.png'
@@ -317,10 +317,8 @@ const Itinerary = () => {
   }
 
   const handleSubmit = (item, id, index) => {
-    console.log(item, item.id, index)
     let changeText = labelText
     // item.id.content = changeText
-    console.log(changeText)
   }
 
   return (
@@ -413,9 +411,6 @@ const Itinerary = () => {
                                                 }}
                                               >
                                                 <input
-                                                  contentEditable="true"
-                                                  html={item}
-                                                  disable={false}
                                                   defaultValue={item.content}
                                                   onClick={handleSubmit(
                                                     item,

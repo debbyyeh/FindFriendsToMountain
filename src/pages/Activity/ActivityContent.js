@@ -1,8 +1,6 @@
-content
-
 import React, { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
-import { db, storage } from '../../utils/firebase'
+import firebaseConfig, { db, storage } from '../../utils/firebase'
 import {
   doc,
   getDoc,
@@ -11,8 +9,8 @@ import {
   collection,
   setDoc,
   getDocs,
-  query,
-  where,
+  deleteField,
+  arrayRemove,
 } from 'firebase/firestore'
 import { Link, useNavigate } from 'react-router-dom'
 import memberDefault from './memberDefault.png'
@@ -143,6 +141,10 @@ const Line = styled.div`
   margin-top: 12px;
   margin-bottom: 12px;
 `
+const Btn = styled.button`
+  color: white;
+  border: 1px solid white;
+`
 
 const ActivityContent = () => {
   let url = window.location.href
@@ -150,23 +152,19 @@ const ActivityContent = () => {
   const groupID = newUrl[1]
   const [isActive, setIsActive] = useState(false)
   const [contentID, setContentID] = useState()
-  const [contentInfo, setContentInfo] = useState()
   const makeLogin = JSON.parse(window.localStorage.getItem('token'))
   const [groupData, setGroupData] = useState()
   const [contentData, setContentData] = useState()
-  const addNameRef = useRef()
-  const addNumberRef = useRef()
   const authRef = useRef()
-  const [addBed, setAddBed] = useState(false)
-  const [bedContent, setBedContent] = useState()
-  const [bedList, setBedList] = useState()
   const [auth, setAuth] = useState(false)
   const [content, setContent] = useState(false)
   const [ownerName, setOwnerName] = useState()
-  const [visitorUid, setVisitorUid] = useState()
-  const [join, setJoin] = useState() //visitor個人資料
-  const [member, setMember] = useState() //更新群組名單
-  const [profile, setProfile] = useState() //點選大頭貼的個人資料
+  const [clickID, setClickID] = useState()
+  const [join, setJoin] = useState()
+  const [member, setMember] = useState()
+  const [profile, setProfile] = useState()
+  const [ownerAuth, setOwnerAuth] = useState(false)
+  const [online, setOnline] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -200,9 +198,9 @@ const ActivityContent = () => {
         const docRef = doc(db, 'groupContents', id)
         const docSnap = await getDoc(docRef)
         if (docSnap.exists()) {
-          const Data = docSnap.data()
-          const memberData = Data.memberList
-          setContentData(Data)
+          const data = docSnap.data()
+          const memberData = data.memberList
+          setContentData(data)
           setMember(memberData)
         }
       } catch {
@@ -213,6 +211,12 @@ const ActivityContent = () => {
       const data = doc.data()
       const memberData = data.memberList
       setMember(memberData)
+      memberData.filter((memberID, index) => {
+        console.log(memberID.isLogged)
+        if (memberID.isLogged == true) {
+          setOnline(true)
+        }
+      })
     })
   }, [groupID, contentID])
 
@@ -222,25 +226,27 @@ const ActivityContent = () => {
     const groupOwnerInfo = groupDoc.data()
     const currgroupOwner = groupOwnerInfo.groupOwner
     const currMember = groupOwnerInfo.memberList
-    //取得memberlist裡面的where
 
     if (makeLogin.uid == currgroupOwner) {
       setAuth(false)
       setContent(true)
-    } else if (makeLogin.uid !== currgroupOwner) {
-      let secondTest = currMember.filter((memberID, index) => {
+      setOwnerAuth(true)
+    } else if (currMember.length == 0 && makeLogin.uid !== currgroupOwner) {
+      setAuth(true)
+      console.log('第一次登入')
+      const joinData = doc(db, 'users', makeLogin.uid)
+      const joinSnap = await getDoc(joinData)
+      if (joinSnap.exists()) {
+        const getjoinData = joinSnap.data()
+        setJoin(getjoinData)
+      }
+    } else if (currMember.length > 0) {
+      currMember.filter((memberID, index) => {
         if (memberID.joinID.includes(makeLogin.uid)) {
           window.alert('歡迎回來')
           setAuth(false)
           setContent(true)
-        } else {
-          setAuth(true)
-          const joinData = doc(db, 'users', makeLogin.uid)
-          const joinSnap = getDoc(joinData)
-          if (joinSnap.exists()) {
-            const getjoinData = joinSnap.data()
-            setJoin(getjoinData)
-          }
+          setOnline(true)
         }
       })
     }
@@ -254,15 +260,16 @@ const ActivityContent = () => {
       setAuth(false)
       setContent(true)
       //取得他的資料，更新個人joinlist
+      //更新memberList
       const joinData = doc(db, 'users', makeLogin.uid)
       const groupContent = doc(db, 'groupContents', groupData.groupID)
-      const oldjoinList = join.joinGroup
-      console.log(oldjoinList)
+      const oldjoinList = await join.joinGroup
       let newjoinList = []
       const joinInfo = {
         groupID: groupData.groupID,
         groupName: groupData.groupName,
       }
+      console.log(joinInfo)
       newjoinList.push(joinInfo, ...oldjoinList)
       const updatejoinGroup = await updateDoc(joinData, {
         joinGroup: newjoinList,
@@ -280,16 +287,16 @@ const ActivityContent = () => {
       const updateMember = await updateDoc(groupContent, {
         memberList: newMember,
       })
+      setMember(newMember)
     }
   }
 
-  function addOneBed() {
-    setAddBed((current) => !current)
-  }
-
   async function seeTheProfile(index) {
+    console.log('看大頭')
     setIsActive(true)
     const profileID = member[index].joinID
+    console.log(profileID)
+    setClickID(profileID)
     console.log(profileID)
     try {
       const docRef = doc(db, 'users', profileID)
@@ -301,6 +308,36 @@ const ActivityContent = () => {
     } catch {
       console.log('No such document!')
     }
+  }
+  async function removeMember() {
+    console.log(clickID)
+
+    // window.confirm('確定刪除嗎')
+    // if (window.confirm('確定刪除嗎') == true) {
+    //   window.alert('已刪除團員')
+    //   try {
+    //     const docRef = doc(db, 'users', clickID)
+    //     const docSnap = await getDoc(docRef)
+    //     if (docSnap.exists()) {
+    //       const userData = docSnap.data()
+    //       const joinIDList = userData.joinGroup
+    //       console.log(joinIDList)
+    //       // let deleteRef = doc(db, `/users/${clickID}/joinGroup`)
+    //       let deleteRef = db.collection('users').doc(`${clickID}`)
+    //       joinIDList.filter((list, index) => {
+    //         //刪除他的joinID 群組的member
+    //         console.log(list)
+    //         deleteRef.update({
+    //           joinGroup: arrayRemove(list),
+    //         })
+    //       })
+    //     }
+    //   } catch {
+    //     console.log('No such document!')
+    //   }
+    // } else {
+    //   window.alert('已取消刪除')
+    // }
   }
 
   return (
@@ -333,6 +370,7 @@ const ActivityContent = () => {
                       return (
                         <div key={index} id={index}>
                           <div>name:{item.joinName}</div>
+                          {online && <div>上線中</div>}
                           <MemberPic
                             src={item.joinPic}
                             onClick={() => seeTheProfile(index)}
@@ -343,7 +381,6 @@ const ActivityContent = () => {
                   ) : (
                     <MemberDefault></MemberDefault>
                   )}
-
                   <ActiveBackground isActive={isActive}>
                     <ActivePost
                       onClick={(e) => {
@@ -358,6 +395,7 @@ const ActivityContent = () => {
                             <>
                               <Divide key={index}>
                                 <div>{item}</div>
+
                                 <IconImage
                                   style={{
                                     backgroundImage: `url(${equipments[item]})`,
@@ -369,6 +407,12 @@ const ActivityContent = () => {
                         })
                       ) : (
                         <p>目前尚無清單</p>
+                      )}
+                      {ownerAuth && (
+                        <>
+                          <Btn onClick={() => removeMember()}>剔除團員</Btn>
+                          <Btn>開放權限</Btn>
+                        </>
                       )}
                     </ActivePost>
                   </ActiveBackground>
