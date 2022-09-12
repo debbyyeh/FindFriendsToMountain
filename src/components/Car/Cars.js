@@ -85,7 +85,6 @@ const Cars = () => {
   const [maxSeat, setMaxSeat] = useState(0)
   const [carInfo, setCarInfo] = useState()
   const [getCar, setGetCar] = useState()
-  const [passenger, setPassenger] = useState()
   const [latest, setLatest] = useState()
   const carGroupName = useRef()
   const seatNum = useRef()
@@ -143,8 +142,8 @@ const Cars = () => {
   const addCar = () => {
     let newCar = []
     const addCarInfo = {
+      currentNum: 0,
       whoseCar: carGroupName.current.value,
-      currentNumber: 0,
       maxNum: Number(seatNum.current.value),
       seat: Number(seatNum.current.value),
       passengerArrange: [],
@@ -160,15 +159,13 @@ const Cars = () => {
     console.log(carIndex) //先找到他的車子順序
     let passengerLists = latest[carIndex].passengerArrange
     passengerLists[index] = text
-    console.log(passengerLists)
 
     setPassengerNames(passengerLists)
-    console.log(passengerLists)
+    updatePassengerList()
   }
 
   function deleteCar(carIndex) {
     const newCar = [...latest]
-    console.log(newCar)
     newCar.splice(carIndex, 1)
     updateCarList(newCar)
     setCarInfo(newCar)
@@ -182,11 +179,9 @@ const Cars = () => {
   }
   async function updatePassengerList() {
     const newArr = [...latest]
-    console.log(newArr)
     const updateCarsToData = await updateDoc(docRef, {
       carLists: newArr,
     })
-    console.log('更新車位名單')
   }
   //取出車子裡的資料
   async function getCarArrangeLists(carIndex) {
@@ -217,8 +212,11 @@ const Cars = () => {
                   <Divide>
                     <CategoryPhoto src={carIcon} />
                     <LeftNum>
-                      目前還有 {Number(car.maxNum - chooseMember.length)}/{' '}
-                      {Number(car.maxNum)}位置
+                      目前還有{' '}
+                      {Number(
+                        car.maxNum - latest[carIndex].passengerArrange.length,
+                      )}
+                      / {Number(car.maxNum)}位置
                     </LeftNum>
                     <DeleteBtn onClick={() => deleteCar(carIndex)}>x</DeleteBtn>
                   </Divide>
@@ -226,7 +224,6 @@ const Cars = () => {
                     {Array(car.maxNum)
                       .fill(undefined)
                       .map((_, index) => {
-                        console.log(chooseMember)
                         return (
                           <CarseatContainer
                             defaultValue={
@@ -243,9 +240,6 @@ const Cars = () => {
                       })}
                   </SeatContainer>
                   <Btn onClick={updatePassengerList}>儲存安排</Btn>
-                  {/* <Btn onClick={() => getCarArrangeLists(carIndex)}>
-                    顯示名字
-                  </Btn> */}
                 </CarContainer>
               </>
             )

@@ -140,7 +140,6 @@ const Accommodation = () => {
     let newBed = []
     const addBedInfo = {
       whoseBed: bedGroupName.current.value,
-      currentNumber: 0,
       maxNum: Number(seatNum.current.value),
       seat: Number(seatNum.current.value),
       bedArrange: [],
@@ -180,7 +179,7 @@ const Accommodation = () => {
     const updateCarsToData = await updateDoc(docRef, {
       bedLists: newArr,
     })
-    console.log('更改床位名單')
+    window.alert('更改成功')
   }
 
   async function getBedArrangeLists(bedIndex) {
