@@ -1,3 +1,5 @@
+content
+
 import React, { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { db, storage } from '../../utils/firebase'
@@ -5,6 +7,7 @@ import {
   doc,
   getDoc,
   updateDoc,
+  onSnapshot,
   collection,
   setDoc,
   getDocs,
@@ -50,10 +53,10 @@ const MemberPic = styled.img`
   height: 60px;
   object-fit: cover;
 `
-const LocationIntro = styled.textarea`
+const LocationIntro = styled.div`
   border: 1px solid white;
   height: 300px;
-  width: 300px;
+  width: 200px;
 `
 const AddOne = styled.div`
   font-size: 18px;
@@ -165,10 +168,6 @@ const ActivityContent = () => {
   const [member, setMember] = useState() //更新群組名單
   const [profile, setProfile] = useState() //點選大頭貼的個人資料
   const navigate = useNavigate()
-  //總床位
-  const [allBedArr, setAllBedArr] = useState([])
-  //每一組床位的資訊
-  const [bedInfo, setBedInfo] = useState()
 
   useEffect(() => {
     if (makeLogin == undefined) {
@@ -210,6 +209,11 @@ const ActivityContent = () => {
         console.log('No such document!')
       }
     }
+    const unsub = onSnapshot(doc(db, 'groupContents', groupID), (doc) => {
+      const data = doc.data()
+      const memberData = data.memberList
+      setMember(memberData)
+    })
   }, [groupID, contentID])
 
   async function testAuth() {
@@ -217,18 +221,28 @@ const ActivityContent = () => {
     const groupDoc = await getDoc(groupContent)
     const groupOwnerInfo = groupDoc.data()
     const currgroupOwner = groupOwnerInfo.groupOwner
+    const currMember = groupOwnerInfo.memberList
+    //取得memberlist裡面的where
 
     if (makeLogin.uid == currgroupOwner) {
       setAuth(false)
       setContent(true)
     } else if (makeLogin.uid !== currgroupOwner) {
-      setAuth(true)
-      const joinData = doc(db, 'users', makeLogin.uid)
-      const joinSnap = await getDoc(joinData)
-      if (joinSnap.exists()) {
-        const getjoinData = joinSnap.data()
-        setJoin(getjoinData)
-      }
+      let secondTest = currMember.filter((memberID, index) => {
+        if (memberID.joinID.includes(makeLogin.uid)) {
+          window.alert('歡迎回來')
+          setAuth(false)
+          setContent(true)
+        } else {
+          setAuth(true)
+          const joinData = doc(db, 'users', makeLogin.uid)
+          const joinSnap = getDoc(joinData)
+          if (joinSnap.exists()) {
+            const getjoinData = joinSnap.data()
+            setJoin(getjoinData)
+          }
+        }
+      })
     }
   }
   //FIXME
@@ -266,7 +280,6 @@ const ActivityContent = () => {
       const updateMember = await updateDoc(groupContent, {
         memberList: newMember,
       })
-      setMember(newMember)
     }
   }
 
@@ -312,7 +325,7 @@ const ActivityContent = () => {
                     地點
                     {groupData.groupCity}|<span>{groupData.groupMountain}</span>
                   </div>
-                  <div>景點簡介</div>
+                  <div>團主版規</div>
                   <LocationIntro value={groupData.groupIntro} />
                   <div>團員</div>
                   {member.length > 0 ? (
