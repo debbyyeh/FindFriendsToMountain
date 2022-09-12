@@ -5,6 +5,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import styled, { keyframes } from 'styled-components'
 import { Link } from 'react-router-dom'
 import { UserContext } from '../../utils/userContext'
+import Map from '../Map/Map'
 import hiking from './Vision.png'
 import equipments from '../../equipments/equipments'
 import remove from './Remove.png'
@@ -33,7 +34,7 @@ const CategoryDivide = styled.div`
   height: 600px;
 `
 const Category = styled.div`
-  width: calc(100% / 3);
+  width: calc(100% / 4);
   text-align: center;
   padding: 12px;
   font-size: 20px;
@@ -201,7 +202,7 @@ function Profile() {
         )}
         <CategoryDivide>
           <Divide>
-            {['我發起的登山團', '加入的登山團', '我的登山裝備'].map(
+            {['我發起的登山團', '加入的登山團', '我的登山裝備', '高山地圖'].map(
               (text, index) => (
                 <Category
                   $isActive={index === tabIndex}
@@ -288,6 +289,11 @@ function Profile() {
                   )}
                 </Divide>
               </Tools>
+            </>
+          )}
+          {currentPage == 3 && (
+            <>
+              <Map />
             </>
           )}
         </CategoryDivide>
