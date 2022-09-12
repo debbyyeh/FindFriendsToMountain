@@ -309,6 +309,7 @@ function Activity() {
       groupOwner: makeLogin.uid,
       memberList: [],
       todoList: [],
+      itinerary: [],
     })
     navigate(`/activity/${groupID}`)
   }
