@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import { db, storage, auth } from '../../utils/firebase'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore'
+import Map from '../Map/Map'
 import styled, { keyframes } from 'styled-components'
 import { Link } from 'react-router-dom'
 import { UserContext } from '../../utils/userContext'
@@ -33,7 +34,7 @@ const CategoryDivide = styled.div`
   height: 600px;
 `
 const Category = styled.div`
-  width: calc(100% / 3);
+  width: calc(100% / 4);
   text-align: center;
   padding: 12px;
   font-size: 20px;
@@ -118,7 +119,9 @@ const DefaultImg = styled.img`
   margin: 0 auto;
   object-cover: cover;
 `
-
+const Grouplink = styled(Link)`
+  color: white;
+`
 function Profile() {
   const [getUserData, setGetUserData] = useState()
   const [joinGroup, setJoinGroup] = useState([])
@@ -130,6 +133,7 @@ function Profile() {
   const value = useContext(UserContext)
   const equipmentSearch = useRef()
   const navigate = useNavigate()
+  const docRef = doc(db, 'users', value.userUid)
   useEffect(() => {
     async function getDBInfo() {
       try {
@@ -138,17 +142,21 @@ function Profile() {
         if (docSnap.exists()) {
           const userData = docSnap.data()
           setGetUserData(userData)
-          setJoinGroup(userData.joinGroup)
-          setLeadGroup(userData.leadGroup)
           setTools(userData.equipment)
         }
       } catch {
         console.log('No such document!')
       }
     }
+    const unsub = onSnapshot(docRef, (doc) => {
+      const data = doc.data()
+      const joinData = data.joinGroup
+      const leadData = data.leadGroup
+      setJoinGroup(joinData)
+      setLeadGroup(leadData)
+    })
     getDBInfo()
   }, [value.userUid])
-  console.log(value.userUid)
 
   async function addTool() {
     if (equipmentSearch.current.value == '') {
@@ -201,7 +209,7 @@ function Profile() {
         )}
         <CategoryDivide>
           <Divide>
-            {['我發起的登山團', '加入的登山團', '我的登山裝備'].map(
+            {['我發起的登山團', '加入的登山團', '我的登山裝備', '高山地圖'].map(
               (text, index) => (
                 <Category
                   $isActive={index === tabIndex}
@@ -223,9 +231,9 @@ function Profile() {
                   return (
                     <div key={index}>
                       <div>name:{item.groupName}</div>
-                      <Link to={`/activity/${item.groupID}`}>
+                      <Grouplink to={`/activity/${item.groupID}`}>
                         ID:{item.groupID}
-                      </Link>
+                      </Grouplink>
                     </div>
                   )
                 })
@@ -245,9 +253,9 @@ function Profile() {
                   return (
                     <div key={index}>
                       <div>name:{item.groupName}</div>
-                      <Link to={`/activity/${item.groupID}`}>
+                      <Grouplink to={`/activity/${item.groupID}`}>
                         ID:{item.groupID}
-                      </Link>
+                      </Grouplink>
                     </div>
                   )
                 })
@@ -288,6 +296,11 @@ function Profile() {
                   )}
                 </Divide>
               </Tools>
+            </>
+          )}
+          {currentPage == 3 && (
+            <>
+              <Map />
             </>
           )}
         </CategoryDivide>

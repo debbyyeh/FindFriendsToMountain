@@ -160,7 +160,7 @@ const CalendarContainer = styled.div`
     background-color: #b99362;
   }
   .react-calendar--selectRange .react-calendar__tile--hover {
-    background-color: #b99362;
+    background-color: #6f876f;
   }
 `
 
@@ -328,8 +328,8 @@ function Activity() {
             <InfoInput type="text" placeholder="縣市" ref={cityRef} />
             <FormLabel>開團山名</FormLabel>
             <InfoInput type="text" placeholder="山名" ref={mountainRef} />
-            <FormLabel>路線介紹</FormLabel>
-            <InfoInput type="text" placeholder="簡介" ref={textRef} />
+            <FormLabel>團主版規</FormLabel>
+            <InfoInput type="text" placeholder="版規規定" ref={textRef} />
           </Basic>
           <FormDate>
             <FormLabel>開團日期</FormLabel>
@@ -385,7 +385,7 @@ function Activity() {
                 </div>
                 <div>{group.startDate}</div>
                 <div>{group.endDate}</div>
-                {/* <Cover src={group.groupPhoto} /> */}
+                <Cover src={group.groupPhoto} />
                 <div>{group.groupIntro}</div>
               </div>
               <button onClick={printTheCard}>下載成圖片分享</button>
