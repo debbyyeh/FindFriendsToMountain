@@ -12,9 +12,16 @@ import {
 } from 'firebase/firestore'
 import { db } from '../../utils/firebase'
 
+const CarWrapper = styled.div`
+  display: flex;
+`
 const Divide = styled.div`
   display: flex;
   align-items: center;
+`
+const Btn = styled.button`
+  color: white;
+  border: 1px solid white;
 `
 const AreaTitle = styled.div`
   display: flex;
@@ -36,11 +43,11 @@ const AddOne = styled.div`
   cursor: pointer;
 `
 const CarContainer = styled.div`
-  width: 100%;
+  width: 20%;
+  margin-right: 50px;
 `
 const SeatContainer = styled.div`
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
 `
 const CarOwner = styled.div`
@@ -73,10 +80,9 @@ const Cars = () => {
   const [num, setNum] = useState(0)
   const [seat, setSeat] = useState(0)
   const [member, setMember] = useState()
-  const [chooseMember, setChooseMember] = useState()
+  const [chooseMember, setChooseMember] = useState([])
 
   const [maxSeat, setMaxSeat] = useState(0)
-  const [getAllTent, setGetAllTent] = useState()
   const [carInfo, setCarInfo] = useState()
   const [getCar, setGetCar] = useState()
   const [passenger, setPassenger] = useState()
@@ -89,6 +95,7 @@ const Cars = () => {
   const [passengerNames, setPassengerNames] = useState([])
   useEffect(() => {
     getMemberList()
+    getCarArrangeLists()
     const unsub = onSnapshot(docRef, (doc) => {
       const data = doc.data()
       const latestData = data.carLists
@@ -118,14 +125,17 @@ const Cars = () => {
         seatNum.current.value &&
         addCar(carGroupName.current.value, seatNum.current.value)
       setPassengerNames(Array(Number(seatNum.current.value)).fill(undefined))
-      // console.log()
     }
 
     return (
       <>
-        <input ref={carGroupName} placeholder="誰的車" />
-        <input type="number" min="1" ref={seatNum} placeholder="幾個座位" />
-        <button onClick={handleSubmit}>安排</button>
+        {add && (
+          <>
+            <input ref={carGroupName} placeholder="誰的車" />
+            <input type="number" min="1" ref={seatNum} placeholder="幾個座位" />
+            <button onClick={handleSubmit}>安排</button>
+          </>
+        )}
       </>
     )
   }
@@ -145,30 +155,45 @@ const Cars = () => {
     updateCarList(newCar)
   }
 
-  function findPassenger(index, text) {
-    let passengerLists = passengerNames
+  function findPassenger(carIndex, index, text) {
+    console.log(passengerNames)
+    console.log(carIndex) //先找到他的車子順序
+    let passengerLists = latest[carIndex].passengerArrange
     passengerLists[index] = text
+    console.log(passengerLists)
+
     setPassengerNames(passengerLists)
     console.log(passengerLists)
-    console.log(passengerNames)
   }
 
-  function deleteCar(index) {
-    const newCar = [...carInfo]
+  function deleteCar(carIndex) {
+    const newCar = [...latest]
     console.log(newCar)
-    newCar.splice(index, 1)
+    newCar.splice(carIndex, 1)
     updateCarList(newCar)
     setCarInfo(newCar)
   }
-  async function updateCarList(carInfo) {
-    console.log(carInfo)
-    carInfo[carInfo.length - 1].passengerArrange = passengerNames
 
-    console.log(passengerNames)
+  async function updateCarList(carInfo) {
     const newArr = [...carInfo]
     const updateCarsToData = await updateDoc(docRef, {
       carLists: newArr,
     })
+  }
+  async function updatePassengerList() {
+    const newArr = [...latest]
+    console.log(newArr)
+    const updateCarsToData = await updateDoc(docRef, {
+      carLists: newArr,
+    })
+    console.log('更新車位名單')
+  }
+  //取出車子裡的資料
+  async function getCarArrangeLists(carIndex) {
+    let arrangeLists = latest[carIndex].passengerArrange //取到firebase的資料，所有人的
+    // let eachMember = arrangeLists[carIndex]
+    console.log(arrangeLists)
+    setChooseMember(arrangeLists)
   }
 
   function showInput() {
@@ -179,41 +204,53 @@ const Cars = () => {
       <AreaTitle>
         <CategoryPhoto src={carIcon} />
         <Category>車子分配</Category>
-        <AddOne onClick={showInput}>+</AddOne>
+        <AddOne onClick={showInput}>{add ? '-' : '+'}</AddOne>
       </AreaTitle>
       <CarListForm addCar={addCar} />
-      {latest &&
-        latest.map((car, index) => {
-          return (
-            <>
-              <CarContainer key={index}>
-                <CarOwner>{car.whoseCar}的車子</CarOwner>
-                <Divide>
-                  <CategoryPhoto src={carIcon} />
-                  <LeftNum>
-                    目前還有 {Number(car.maxNum)}/ {Number(car.maxNum)}位置
-                  </LeftNum>
-                  <DeleteBtn onClick={() => deleteCar(index)}>x</DeleteBtn>
-                </Divide>
-                <SeatContainer>
-                  {Array(car.maxNum)
-                    .fill(undefined)
-                    .map((_, index) => (
-                      <CarseatContainer
-                        type="text"
-                        key={index}
-                        placeholder="乘客"
-                        onChange={(e) => {
-                          findPassenger(index, e.target.value)
-                        }}
-                      />
-                    ))}
-                </SeatContainer>
-                <button onClick={() => updateCarList(carInfo)}>Save</button>
-              </CarContainer>
-            </>
-          )
-        })}
+      <CarWrapper>
+        {latest &&
+          latest.map((car, carIndex) => {
+            return (
+              <>
+                <CarContainer key={carIndex}>
+                  <CarOwner>{car.whoseCar}的車子</CarOwner>
+                  <Divide>
+                    <CategoryPhoto src={carIcon} />
+                    <LeftNum>
+                      目前還有 {Number(car.maxNum - chooseMember.length)}/{' '}
+                      {Number(car.maxNum)}位置
+                    </LeftNum>
+                    <DeleteBtn onClick={() => deleteCar(carIndex)}>x</DeleteBtn>
+                  </Divide>
+                  <SeatContainer>
+                    {Array(car.maxNum)
+                      .fill(undefined)
+                      .map((_, index) => {
+                        console.log(chooseMember)
+                        return (
+                          <CarseatContainer
+                            defaultValue={
+                              latest[carIndex].passengerArrange[index]
+                            }
+                            type="text"
+                            key={index}
+                            placeholder="乘客"
+                            onChange={(e) => {
+                              findPassenger(carIndex, index, e.target.value)
+                            }}
+                          />
+                        )
+                      })}
+                  </SeatContainer>
+                  <Btn onClick={updatePassengerList}>儲存安排</Btn>
+                  {/* <Btn onClick={() => getCarArrangeLists(carIndex)}>
+                    顯示名字
+                  </Btn> */}
+                </CarContainer>
+              </>
+            )
+          })}
+      </CarWrapper>
     </>
   )
 }

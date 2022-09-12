@@ -13,24 +13,25 @@ import {
 } from 'firebase/firestore'
 import { Link, useNavigate } from 'react-router-dom'
 import memberDefault from './memberDefault.png'
-import accommodation from './accommodation.png'
 
-import itinerary from './itinerary.png'
 import equipments from '../../equipments/equipments'
-import TodoList from '../../components/TodoList'
+import TodoList from '../../components/Todolist/TodoList'
+import Itinerary from '../../components/Itinerary/Itinerary'
 import Cars from '../../components/Car/Cars'
+import Accommodation from '../../components/Accommodation/Accommodation'
 const Divide = styled.div`
   display: flex;
 `
 const Private = styled.div`
   width: 20%;
+  margin-right: 10%;
 `
 const Public = styled.div`
-  width: 80%;
-  display: flex;
+  width: 70%;
+  ${'' /* display: flex; */}
 `
 const PublicArea = styled.div`
-  width: calc(100% / 4);
+  width: calc(100% / 2);
 `
 const AreaTitle = styled.div`
   display: flex;
@@ -126,6 +127,18 @@ const ActivePost = styled.div`
   width: 10%;
   height: 10%;
   z-index: 100;
+`
+
+const Discussion = styled.div`
+  display: flex;
+`
+
+const Line = styled.div`
+  width: 100%;
+  height: 10px;
+  background-color: black;
+  margin-top: 12px;
+  margin-bottom: 12px;
 `
 
 const ActivityContent = () => {
@@ -261,47 +274,6 @@ const ActivityContent = () => {
     setAddBed((current) => !current)
   }
 
-  //選帳篷後送回data 按下新增
-  async function addBedList() {
-    //輸入的帳篷名稱跟人數送回data後再渲染
-    setBedContent(true)
-    const beddocRef = doc(db, 'groupContents', contentID)
-    const docSnap = await getDoc(beddocRef)
-    if (docSnap.exists()) {
-      console.log('Document data:', docSnap.data()) //取到groupcontent
-      const groupInfo = docSnap.data()
-      const oldBedLists = groupInfo.bedLists //[]
-      const newBedList = {
-        bedName: addNameRef.current.value,
-        bedLen: addNumberRef.current.value,
-        bedNameLists: [],
-      }
-      let newList = []
-      newList.push(newBedList, ...oldBedLists)
-      console.log(newBedList)
-      setBedInfo(newList)
-
-      //更新
-      const updateBedList = await updateDoc(beddocRef, {
-        bedLists: newList,
-      })
-    }
-  }
-
-  async function deleteBed(key) {
-    let deleteBeds = bedInfo.filter((item, index) => index !== key)
-    const newBeds = deleteBeds
-    setBedInfo(newBeds)
-    try {
-      const beddocRef = doc(db, 'groupContents', contentID)
-      const updateBed = await updateDoc(beddocRef, {
-        bedLists: newBeds,
-      })
-    } catch (error) {
-      console.log('資料更新失敗')
-    }
-  }
-
   async function seeTheProfile(index) {
     setIsActive(true)
     const profileID = member[index].joinID
@@ -362,7 +334,6 @@ const ActivityContent = () => {
                   <ActiveBackground isActive={isActive}>
                     <ActivePost
                       onClick={(e) => {
-                        console.log(e.target)
                         setIsActive(false)
                       }}
                       isActive={isActive}
@@ -393,57 +364,13 @@ const ActivityContent = () => {
             </Private>
 
             <Public>
-              <PublicArea>
-                <AreaTitle>
-                  <img src={itinerary} />
-                  <div>行程規劃</div>
-                </AreaTitle>
-              </PublicArea>
-              <PublicArea>
-                <AreaTitle>
-                  <img src={accommodation} />
-                  <div>住宿分配</div>
-                  <AddOne onClick={addOneBed}>+</AddOne>
-                </AreaTitle>
-                {addBed && (
-                  <>
-                    <AddingName
-                      type="text"
-                      ref={addNameRef}
-                      placeholder="名稱:Debby的帳篷"
-                    />
-                    <AddingNumber
-                      type="text"
-                      ref={addNumberRef}
-                      placeholder="容納人數"
-                    />
-                    <AddingInputBtn onClick={addBedList}>新增</AddingInputBtn>
-                  </>
-                )}
-                {bedInfo &&
-                  Object.values(bedInfo).map((bed, index) => {
-                    return (
-                      <BedContent key={index}>
-                        <Display>
-                          <BedTitle>{bed.bedName}</BedTitle>
-                          <Delete onClick={() => deleteBed(index)}>x</Delete>
-                        </Display>
-                        <BedDisplay>
-                          <BedList>{index}</BedList>
-                        </BedDisplay>
-                      </BedContent>
-                    )
-                  })}
-              </PublicArea>
-              <PublicArea>
-                <Cars />
-              </PublicArea>
+              <Accommodation />
+              <Line />
+              <Cars />
             </Public>
           </Divide>
-          <PublicArea>
-            待討論事項
-            <TodoList />
-          </PublicArea>
+          <TodoList />
+          <Itinerary />
         </>
       )}
     </>

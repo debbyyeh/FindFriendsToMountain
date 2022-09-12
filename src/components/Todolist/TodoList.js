@@ -1,7 +1,7 @@
-// import getFirebaseData from '../utils/getFirebaseData'
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
-import { UserContext } from '../utils/userContext'
+import { UserContext } from '../../utils/userContext'
+
 import {
   collection,
   setDoc,
@@ -10,8 +10,11 @@ import {
   updateDoc,
   onSnapshot,
 } from 'firebase/firestore'
-import { db } from '../utils/firebase'
+import { db } from '../../utils/firebase'
 
+const DiscussionArea = styled.div`
+  width: 45%;
+`
 const ListInput = styled.input`
   width: 100%;
   border: 1px solid white;
@@ -28,6 +31,13 @@ const ListWrapper = styled.div`
   padding: 16px;
   overflow: hidden;
 `
+const AreaTitle = styled.div`
+  display: flex;
+  align-items: center;
+`
+const CategoryPhoto = styled.img``
+const Category = styled.div``
+
 const Divide = styled.div`
   display: flex;
 `
@@ -170,28 +180,33 @@ const TodoList = () => {
   }
   return (
     <>
-      <ToDoListForm addTodo={addTodo} />
-      {lastest &&
-        lastest.map((list, index) => {
-          return (
-            <>
-              <ToDoTag key={index}>
-                <CheckedInput
-                  onClick={() => stateTask(index)}
-                  style={{
-                    textDecoration: list.checked ? 'line-through' : 'none',
-                  }}
-                >
-                  <Poster>{list.post}:</Poster>
-                  <PostMsg>{list.text}</PostMsg>
-                </CheckedInput>
-                {list.checked ? <Complete>已完成</Complete> : null}
-                <DeleteTodo onClick={() => removeTodo(index)}>x</DeleteTodo>
-              </ToDoTag>
-            </>
-          )
-        })}
-      <DeleteAll onClick={deleteCompletedItems}>清除所有已完成項目</DeleteAll>
+      <DiscussionArea>
+        <AreaTitle>
+          <Category>待討論事項</Category>
+        </AreaTitle>
+        <ToDoListForm addTodo={addTodo} />
+        {lastest &&
+          lastest.map((list, index) => {
+            return (
+              <>
+                <ToDoTag key={index}>
+                  <CheckedInput
+                    onClick={() => stateTask(index)}
+                    style={{
+                      textDecoration: list.checked ? 'line-through' : 'none',
+                    }}
+                  >
+                    <Poster>{list.post}:</Poster>
+                    <PostMsg>{list.text}</PostMsg>
+                  </CheckedInput>
+                  {list.checked ? <Complete>已完成</Complete> : null}
+                  <DeleteTodo onClick={() => removeTodo(index)}>x</DeleteTodo>
+                </ToDoTag>
+              </>
+            )
+          })}
+        <DeleteAll onClick={deleteCompletedItems}>清除所有已完成項目</DeleteAll>
+      </DiscussionArea>
     </>
   )
 }
