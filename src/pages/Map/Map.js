@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { db } from '../../utils/firebase'
-import { getDocs, collection } from 'firebase/firestore'
+import { getDocs, collection, setDoc, doc, getDoc } from 'firebase/firestore'
+import { UserContext } from '../../utils/userContext'
 import { useMediaQuery } from 'react-responsive'
 const CityWrap = styled.div`
   position: absolute;
@@ -29,12 +30,47 @@ const HighMountainList = styled.li`
   font-size: 24px;
   color: #577d45;
 `
+
+const HighMountain = styled.div`
+  background-color: #577d45;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  ${'' /* position: relative;
+  top: 700px; */}
+`
+const WalkingPlace = styled(HighMountain)`
+  background-color: white;
+  color: black;
+  ${'' /* top: 600px; */}
+`
+
+const Signature = styled.div`
+  position: relative;
+`
 const Map = () => {
+  const value = useContext(UserContext)
   const [clickCity, setClickCity] = useState('')
   const [clickMountainList, setClickMountainList] = useState()
   const [highMountainList, setHighMountainList] = useState([])
   const [position, setPosition] = useState('')
   const [mountainLists, setMountainLists] = useState([])
+  const cityRef = useRef()
+  const mountainNameRef = useRef()
+  const [choose, setChoose] = useState()
+  const [categoryChoose, setCategoryChoose] = useState()
+  const citys = [
+    {
+      label: '台北市',
+      value: '台北市',
+    },
+    {
+      label: '高雄市',
+      value: '高雄市',
+    },
+  ]
   const isDesktop = useMediaQuery({
     query: '(min-width: 768px)',
   })
@@ -114,6 +150,64 @@ const Map = () => {
       setPosition('')
     }
   }, [clickCity])
+
+  // const MapForm = ({ addToMap }) => {
+  //   function handleSubmit(e) {
+  //     e.preventDefault()
+  //     // console.log('click')
+  //     choose &&
+  //       categoryChoose &&
+  //       mountainNameRef.current.value &&
+  //       addToMap(choose, categoryChoose, mountainNameRef.current.value)
+  //   }
+
+  //   return (
+  //     <>
+  //       <select onChange={(e) => setChoose(e.target.value)}>
+  //         {citys.map((option) => {
+  //           return <option value={option.value}>{option.label}</option>
+  //         })}
+  //       </select>
+  //       <select onChange={(e) => setCategoryChoose(e.target.value)}>
+  //         <option value="place">步道</option>
+  //         <option value="highMountain">高山</option>
+  //       </select>
+  //       <input placeholder="山的名稱" type="text" ref={mountainNameRef} />
+  //       <button onClick={handleSubmit}>加入我的地圖</button>
+  //     </>
+  //   )
+  // }
+  async function addToMap() {
+    console.log(choose, categoryChoose)
+    if (
+      choose !== undefined &&
+      categoryChoose !== undefined &&
+      mountainNameRef.current.value !== ''
+    ) {
+      console.log('complete')
+      try {
+        const docRef = doc(db, 'users', value.userUid)
+        const docSnap = await getDoc(docRef)
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+          const mapData = data.map
+        }
+      } catch {
+        console.log('No such document!')
+      }
+      const newDocRef = setDoc(
+        doc(db, 'mountainLists', 'IilbH4K0J4A9XpAaBpDj'),
+        {
+          tag: choose,
+          place: [],
+          highMountain: [],
+        },
+      )
+    } else {
+      window.alert('表格不能為空')
+    }
+  }
+
   return (
     <>
       {isDesktop && (
@@ -184,6 +278,21 @@ const Map = () => {
           )}
         </>
       )}
+      <Signature>
+        <WalkingPlace>步道</WalkingPlace>
+        <HighMountain>百岳</HighMountain>
+      </Signature>
+      <select onChange={(e) => setChoose(e.target.value)}>
+        {citys.map((city) => {
+          return <option value={city.value}>{city.label}</option>
+        })}
+      </select>
+      <select onChange={(e) => setCategoryChoose(e.target.value)}>
+        <option value="place">步道</option>
+        <option value="highMountain">高山</option>
+      </select>
+      <input placeholder="山的名稱" type="text" ref={mountainNameRef} />
+      <button onClick={addToMap}>加入我的地圖</button>
       <svg
         id="cf503461-00bd-459a-aeb5-062ebc913211"
         data-name="圖層 1"
@@ -504,19 +613,19 @@ const Map = () => {
           <path
             id="b83ee7c9-49c5-43e6-acea-f06d1c113084"
             data-name="path2643"
-            class="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
+            className="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
             d="M65.59,235.62,65,236l-.44.5-1.69-.25-.63.31-.31.69v1.88l-.31.63-.06.88-.56.44h-.94l-.63.31.19.94.44.63-.31.69-.56.56-.69.25h-.25l.44.75,1.76.13.31.82.88-.06L63,244.28l.75-.19.82.19.38.56.69-.31.38-.63L66,243l.38-.63,1.82-.06.82-.25.44-.5,1-2.89-.13-.82-2.07-1.26-.5-.56-.63-.31-.88-.19-.63.06Z"
           />
           <path
             id="d79029f3-0676-44b4-95ba-4a92345eb565"
             data-name="path2645"
-            class="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
+            className="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
             d="M46.69,248.23,47,249l.44.63-.25.5.94.06.63.31.56-.38-.13-.44-.94-.06-.44-1.44-1.13.06h0Z"
           />
           <path
             id="69a6ddb2-05bc-4235-b68c-837d8cf3e8ef"
             data-name="path2647"
-            class="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
+            className="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
             d="M45.75,250.81l-.44.56,1.57.38.5-.38-1.63-.56Z"
           />
           <path
@@ -524,19 +633,19 @@ const Map = () => {
             data-name="path2651"
             data-name-zh="金門縣"
             onClick={getMountainLists}
-            class="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
+            className="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
             d="M105.89,223.38l-.25-.88-.44-.63v-.94l-.44-.56.38-.44h-.82l.06-.5-.63-.06-.5.13L103,219l-1.07,1.19-.31-.63.63-.38-.56-.38-.63.38-.38.56.69.56.5.69-.25.75-.82.13-1.13.82-.82.13-.82-.06-.31.19-.19.63.31.5.06.88.88-.94.69.31h.94l-.06.5h-.94l.63.56.31.63-.56.38v.94l-.63-.19-.82-1.13-.5-.44-.13.63.38.63v.19l-.63.69-.63.38-.38.56-.63.31h-.94l.88.82-.25.31.38,1.63-.19.5h-.38l-1.19.94-.38.63-5.52-.75-7.41-5.34-.82-.19-.25-.19-.44.5-.88.13L77,229.46l-.82.13-1.38,2.57,1.51.88.82.19L77,232.6l-.5-.57.63-.31,1.88.06.31-.75.63-.38.5.56-.06,1.19-.5.5-1.63.31L78,234v1.26l.25.19.5.82.5,1.63v1.88l.13.5,1.07.13.44.5-.06.88-.69.25-.44-1.19-.31.63-1.51.19-.06,1.57-.57.44-2.76.06-.38-.31.06-.88-.56,1.13-.75-.13-.19.63.69.5.63.25,1.13,1.51,1,.82.38.69,1.82.13.69.31.38.75.88.31,1,.13,1.38.88.31-.57,1.07-.19.25-.69.5-.44.38-1.63L87.19,244l.5-.44.44-.63.57-.44.13-.31.82-.13.57-.38.82-.19.5-.44.63-.31.88-.06,1.38-.56,5.4-.38,1,.38,1.13.94.63.31h.94l1.57.63,1.63,1.63-.06.75-.44.56-.56.38-.38.13.75.31H107l.69-.25.56-.44.82-.19.44-.63,1.57-.38.25-.69-.31-.56.19-.69.56-.25.94.19.44-.5.25-.56-.94-1.13-.13-.69,1.26-.75.69-.06.38.38.69-.57-.25-.56.06-.63.31-.5-.63-.31h-.94l-.19-.5-.5-.5-.5-2.32v-1.51l1-.63.25-.75-.44-.5-1.38.5-.63-.19-.31-.63-.38-1.57.13-.82-.44-.38-.63-.31-.13-2.32-3.83-.19h0Z"
           />
           <path
             id="87972721-81c8-4058-acb3-6963aa0ed3e0"
             data-name="path2655"
-            class="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
+            className="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
             d="M107.46,220l-.75.25.31.31H108l-.5-.56h0Z"
           />
           <path
             id="1618ff3b-8feb-42b3-b000-0d7dc2b4b993"
             data-name="path2657"
-            class="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
+            className="96fdfe13-4732-40bb-9e9c-cdc6e310fcb9"
             d="M111.85,244l-.38.38.88-.06-.5-.31Z"
           />
         </g>

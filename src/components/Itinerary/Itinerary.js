@@ -142,16 +142,14 @@ const TextArea = styled.input``
 
 const Itinerary = () => {
   const [getItinerary, setGetItinerary] = useState([])
-  const [lastest, setLastest] = useState()
+  const [latest, setLatest] = useState()
   const [labelText, setLabelText] = useState()
-  console.log(labelText)
   const [dayNum, setDayNum] = useState(0)
 
   let url = window.location.href
   const newUrl = url.split('/activity/')
   const groupID = newUrl[1]
   const docRef = doc(db, 'groupContents', groupID)
-  const [allItinerary, setAllItinerary] = useState([]) //儲存所有剛剛的資料
   const [visibleInput, setVisibleInput] = useState(false)
   const itineraryRef = useRef()
   const dayChoose = useRef()
@@ -161,27 +159,31 @@ const Itinerary = () => {
 
   useEffect(() => {
     getItineraryList()
+    updateItinerary()
     const unsub = onSnapshot(docRef, (doc) => {
       const data = doc.data()
-      const latestData = data.itinerary
-      setLastest(latestData)
+      const latestData = data.itineraryList
+      setLatest(latestData) //監聽
     })
   }, [])
 
+  console.log(latest)
+
   async function getItineraryList() {
-    console.log('取得TODOLIST資訊')
+    console.log('取得itinerary資訊')
     try {
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
+        console.log('找到firebase')
         const itineraryData = docSnap.data()
-        const oldItinerary = itineraryData.itinerary
+        const oldItinerary = itineraryData.itineraryList
         setGetItinerary(oldItinerary)
+        //舊資料firebase抓出來的
       }
     } catch {
       console.log('No such document!')
     }
   }
-
   function onKeyDown(e) {
     if (e.key === 'Enter') {
       const dayCard = Number(dayChoose.current.value)
@@ -192,25 +194,28 @@ const Itinerary = () => {
     }
   }
 
-  const updateItinerary = async (allItinerary) => {
-    const newArr = [...allItinerary]
+  //updateDoc
+  const updateItinerary = async () => {
     const updateitinerary = await updateDoc(docRef, {
-      itinerary: newArr,
+      itineraryList: columns,
     })
+    console.log('update')
   }
 
   const itemsFromBackend = [
     { id: uuidv4(), content: '9:00 711集合，最後購買機會!' },
     { id: uuidv4(), content: '10:00 武陵農場' },
   ]
-
-  const columnsFromDayNum = {
-    [123456]: {
+  const itineraryData = {
+    123456: {
       name: '欲安排行程',
       items: itemsFromBackend,
     },
   }
-  const [columns, setColumns] = useState(columnsFromDayNum)
+
+  const [columns, setColumns] = useState(itineraryData)
+
+  console.log(columns)
 
   const [columnCounter, setColumnCounter] = useState(0)
   function addColumns(columns) {
@@ -230,6 +235,7 @@ const Itinerary = () => {
       })
       addColumnRef.current.value = ''
     }
+    updateItinerary(columns)
   }
   function deleteBoard(columns) {
     console.log(123)
@@ -244,7 +250,6 @@ const Itinerary = () => {
         content: `${cardInfoRef.current.value}`,
       }
       newItems.push(...oldCardItems, newCardItem)
-      console.log(newItems)
       setColumns({
         ...columns,
         [123456]: {
@@ -252,27 +257,31 @@ const Itinerary = () => {
           items: newItems,
         },
       })
+      updateItinerary(columns)
     }
   }
 
-  function handleDelete(item, columns, columnId, index) {
-    let oldItems = columns.items
-    console.log(index)
-    console.log(Object.entries(columns))
-    const newItems = oldItems.filter((oldItem) => oldItem.id !== item.id)
-    console.log(newItems)
-    // setColumns({
-    //   ...columns,
-    //   [source.droppableId]: {
-    //     items: newItems,
-    //   },
-    // })
+  function handleDelete(item, index, column, columnId) {
+    const oldItems = column.items
+    const newItems = [...oldItems]
+    newItems.splice(index, 1)
+    setColumns({
+      ...columns,
+      [columnId]: {
+        name: column.name,
+        items: newItems,
+      },
+    })
+    updateItinerary(columns)
   }
 
   const onDragEnd = (result, columns, setColumns) => {
+    console.log(columns)
     const { source, destination } = result
-    if (!result.destination) return
-
+    if (!result.destination) {
+      updateItinerary(columns)
+      return
+    }
     if (source.droppableId !== destination.droppableId) {
       const sourceColumn = columns[source.droppableId]
       const destColumn = columns[destination.droppableId]
@@ -291,6 +300,7 @@ const Itinerary = () => {
           items: destItems,
         },
       })
+      updateItinerary(columns)
     } else {
       const column = columns[source.droppableId]
       const copiedItems = [...column.items]
@@ -303,12 +313,12 @@ const Itinerary = () => {
           items: copiedItems,
         },
       })
+      updateItinerary(columns)
     }
   }
 
   const handleShowInput = (item) => {
     console.log(item.id, 'click')
-
     setVisibleInput((current) => !current)
   }
 
@@ -337,110 +347,113 @@ const Itinerary = () => {
             <DragDropContext
               onDragEnd={(result) => onDragEnd(result, columns, setColumns)}
             >
-              {Object.entries(columns).map(([columnId, column], index) => {
-                return (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                    }}
-                    key={columnId}
-                  >
-                    <h2 contentEditable="true">{column.name}</h2>
-                    <div style={{ margin: 8 }}>
-                      {columnId == 123456 && (
-                        <AddCardBtn>
-                          新增一個卡片
-                          <input
-                            ref={cardInfoRef}
-                            placeholder="請輸入行程內容"
-                          />
-                          <button onClick={() => addCardInfo(column)}>
-                            新增行程
-                          </button>
-                        </AddCardBtn>
-                      )}
-                      <DeleteBoard onClick={deleteBoard(columns)}>
-                        x
-                      </DeleteBoard>
-                      <Droppable droppableId={columnId} key={columnId}>
-                        {(provided, snapshot) => {
-                          return (
-                            <>
-                              <Board
-                                {...provided.droppableProps}
-                                ref={provided.innerRef}
-                                style={{
-                                  background: snapshot.isDraggingOver
-                                    ? 'rgb(200,229,207)'
-                                    : 'white',
-                                  padding: 4,
-                                  width: 250,
-                                  minHeight: 500,
-                                }}
-                              >
-                                <SetDate>{column.date}</SetDate>
-                                {column.items.map((item, index) => {
-                                  return (
-                                    <Draggable
-                                      key={item.id}
-                                      draggableId={item.id}
-                                      index={index}
-                                    >
-                                      {(provided, snapshot) => {
-                                        return (
-                                          <>
-                                            <Divide>
-                                              <div
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                                style={{
-                                                  userSelect: 'none',
-                                                  padding: 16,
-                                                  margin: '0 0 8px 0',
-                                                  minHeight: '50px',
-                                                  width: '100%',
-                                                  backgroundColor: snapshot.isDragging
-                                                    ? '#263B4A'
-                                                    : '#456C86',
-                                                  color: 'white',
-                                                  ...provided.draggableProps
-                                                    .style,
-                                                }}
-                                              >
-                                                <input
-                                                  defaultValue={item.content}
-                                                  onClick={handleSubmit(
-                                                    item,
-                                                    index,
-                                                  )}
-                                                  ref={changeTextRef}
-                                                  onInput={(e) =>
-                                                    setLabelText(
-                                                      e.currentTarget
-                                                        .textContent,
-                                                    )
-                                                  }
-                                                />
-
-                                                <EditBtn
-                                                // onClick={handleSubmit}
-                                                ></EditBtn>
-                                                <DeleteCard
-                                                  onClick={() =>
-                                                    handleDelete(
-                                                      (index = { index }),
+              {latest &&
+                Object.entries(latest).map(([columnId, column], index) => {
+                  return (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                      }}
+                      key={columnId}
+                    >
+                      <h2 contentEditable="true">{column.name}</h2>
+                      <div style={{ margin: 8 }}>
+                        {columnId == 123456 && (
+                          <AddCardBtn>
+                            新增一個卡片
+                            <input
+                              ref={cardInfoRef}
+                              placeholder="請輸入行程內容"
+                            />
+                            <button onClick={() => addCardInfo(column)}>
+                              新增行程
+                            </button>
+                          </AddCardBtn>
+                        )}
+                        <DeleteBoard onClick={deleteBoard(columns)}>
+                          x
+                        </DeleteBoard>
+                        <Droppable droppableId={columnId} key={columnId}>
+                          {(provided, snapshot) => {
+                            return (
+                              <>
+                                <Board
+                                  {...provided.droppableProps}
+                                  ref={provided.innerRef}
+                                  style={{
+                                    background: snapshot.isDraggingOver
+                                      ? 'rgb(200,229,207)'
+                                      : 'white',
+                                    padding: 4,
+                                    width: 250,
+                                    minHeight: 500,
+                                  }}
+                                >
+                                  <SetDate>{column.date}</SetDate>
+                                  {column.items.map((item, index) => {
+                                    return (
+                                      <Draggable
+                                        key={item.id}
+                                        draggableId={item.id}
+                                        index={index}
+                                      >
+                                        {(provided, snapshot) => {
+                                          return (
+                                            <>
+                                              <Divide>
+                                                <div
+                                                  ref={provided.innerRef}
+                                                  {...provided.draggableProps}
+                                                  {...provided.dragHandleProps}
+                                                  style={{
+                                                    userSelect: 'none',
+                                                    padding: 16,
+                                                    margin: '0 0 8px 0',
+                                                    minHeight: '50px',
+                                                    width: '100%',
+                                                    backgroundColor: snapshot.isDragging
+                                                      ? '#263B4A'
+                                                      : '#456C86',
+                                                    color: 'white',
+                                                    ...provided.draggableProps
+                                                      .style,
+                                                  }}
+                                                >
+                                                  <div
+                                                    defaultValue={item.content}
+                                                    onClick={handleSubmit(
                                                       item,
                                                       index,
-                                                      column,
-                                                    )
-                                                  }
-                                                >
-                                                  delete
-                                                </DeleteCard>
-                                                {/* {item.id.labelText ==
+                                                    )}
+                                                    ref={changeTextRef}
+                                                    onInput={(e) =>
+                                                      setLabelText(
+                                                        e.currentTarget
+                                                          .textContent,
+                                                      )
+                                                    }
+                                                  >
+                                                    {item.content}
+                                                  </div>
+
+                                                  <EditBtn
+                                                  // onClick={handleSubmit}
+                                                  ></EditBtn>
+                                                  <DeleteCard
+                                                    onClick={() =>
+                                                      handleDelete(
+                                                        item,
+                                                        index,
+                                                        column,
+                                                        columnId,
+                                                      )
+                                                    }
+                                                  >
+                                                    delete
+                                                  </DeleteCard>
+                                                  {/* {item.id.labelText ==
                                                 undefined ? (
                                                   <div
                                                     onClick={handleSubmit(
@@ -451,26 +464,27 @@ const Itinerary = () => {
                                                     完成設定
                                                   </div>
                                                 ) : null} */}
-                                              </div>
-                                            </Divide>
-                                          </>
-                                        )
-                                      }}
-                                    </Draggable>
-                                  )
-                                })}
-                                {provided.placeholder}
-                              </Board>
-                            </>
-                          )
-                        }}
-                      </Droppable>
+                                                </div>
+                                              </Divide>
+                                            </>
+                                          )
+                                        }}
+                                      </Draggable>
+                                    )
+                                  })}
+                                  {provided.placeholder}
+                                </Board>
+                              </>
+                            )
+                          }}
+                        </Droppable>
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
             </DragDropContext>
           </div>
+          <button onClick={() => updateItinerary(columns)}>儲存看板</button>
         </Kanban>
       </div>
     </>

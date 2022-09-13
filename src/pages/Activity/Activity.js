@@ -214,7 +214,8 @@ function Activity() {
       groupPassword.current.value == '' ||
       cityRef.current.value == '' ||
       mountainRef.current.value == '' ||
-      textRef.current.value == ''
+      textRef.current.value == '' ||
+      images == undefined
     ) {
       alert('表格不可為空')
       setIsInfo(false)
@@ -268,11 +269,11 @@ function Activity() {
   }
 
   async function getMyGroup() {
-    setIsPreview(true)
     try {
       const docRef = doc(db, 'groupLists', groupID)
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
+        setIsPreview(true)
         const mountainData = docSnap.data()
         setGroup(mountainData)
       }
