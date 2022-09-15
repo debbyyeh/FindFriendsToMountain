@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { db } from '../../utils/firebase'
-import { getDocs, collection, setDoc, doc, getDoc } from 'firebase/firestore'
+import {
+  getDocs,
+  collection,
+  setDoc,
+  doc,
+  getDoc,
+  updateDoc,
+} from 'firebase/firestore'
 import { UserContext } from '../../utils/userContext'
 import { useMediaQuery } from 'react-responsive'
 const CityWrap = styled.div`
@@ -55,6 +62,7 @@ const Map = () => {
   const [clickCity, setClickCity] = useState('')
   const [clickMountainList, setClickMountainList] = useState()
   const [highMountainList, setHighMountainList] = useState([])
+  const [trailList, setTrailList] = useState([])
   const [position, setPosition] = useState('')
   const [mountainLists, setMountainLists] = useState([])
   const cityRef = useRef()
@@ -74,19 +82,25 @@ const Map = () => {
   const isDesktop = useMediaQuery({
     query: '(min-width: 768px)',
   })
-  const getMountainLists = (e) => {
+  const getMountainLists = async (e) => {
     let tagname = e.target.getAttribute('data-name-zh')
-    const placeData = mountainLists.place_data
-    let result = placeData.filter((obj) => {
-      return obj.tag == tagname
-    })
-    setClickCity(result[0].tag)
-    const placeList = result[0].place
-    const highMountainLists = result[0].highMountain
-    if (placeList) {
-      setClickMountainList(placeList)
-      if (highMountainLists) {
+    const docRef = doc(db, 'users', value.userUid)
+    const docSnap = await getDoc(docRef)
+    if (docSnap.exists()) {
+      const data = docSnap.data()
+      const mapData = data.mountainLists
+      let result = mapData.filter((obj) => {
+        return obj.tag == tagname
+      })
+      console.log(result)
+      setClickCity(result[0].tag)
+      const placeList = result[0].category
+      const highMountainLists = placeList.highMountain
+      const trailLists = placeList.trail
+
+      if (highMountainLists || trailLists) {
         setHighMountainList(highMountainLists)
+        setTrailList(trailLists)
       } else {
         setHighMountainList([])
       }
@@ -97,8 +111,8 @@ const Map = () => {
       <>
         <MountainWrapper>
           <CityName>{targetCity}</CityName>
-          {clickMountainList &&
-            clickMountainList.map((item, index) => {
+          {trailList &&
+            trailList.map((item, index) => {
               return <CityMountainList key={index}>{item}</CityMountainList>
             })}
           {highMountainList &&
@@ -110,18 +124,18 @@ const Map = () => {
     )
   }
   useEffect(() => {
-    async function loadMountainList() {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'mountainLists'))
-        querySnapshot.forEach((doc) => {
-          const list = doc.data()
-          setMountainLists(list)
-        })
-      } catch (e) {
-        console.error()
-      }
-    }
-    loadMountainList()
+    // async function loadMountainList() {
+    //   try {
+    //     const querySnapshot = await getDocs(collection(db, 'mountainLists'))
+    //     querySnapshot.forEach((doc) => {
+    //       const list = doc.data()
+    //       setMountainLists(list)
+    //     })
+    //   } catch (e) {
+    //     console.error()
+    //   }
+    // }
+    // loadMountainList()
 
     let northwest = ['桃園市', '新竹縣', '新竹市']
     let middle = ['彰化市', '彰化縣', '台中市', '苗栗縣', '苗栗市']
@@ -151,60 +165,49 @@ const Map = () => {
     }
   }, [clickCity])
 
-  // const MapForm = ({ addToMap }) => {
-  //   function handleSubmit(e) {
-  //     e.preventDefault()
-  //     // console.log('click')
-  //     choose &&
-  //       categoryChoose &&
-  //       mountainNameRef.current.value &&
-  //       addToMap(choose, categoryChoose, mountainNameRef.current.value)
-  //   }
-
-  //   return (
-  //     <>
-  //       <select onChange={(e) => setChoose(e.target.value)}>
-  //         {citys.map((option) => {
-  //           return <option value={option.value}>{option.label}</option>
-  //         })}
-  //       </select>
-  //       <select onChange={(e) => setCategoryChoose(e.target.value)}>
-  //         <option value="place">步道</option>
-  //         <option value="highMountain">高山</option>
-  //       </select>
-  //       <input placeholder="山的名稱" type="text" ref={mountainNameRef} />
-  //       <button onClick={handleSubmit}>加入我的地圖</button>
-  //     </>
-  //   )
-  // }
   async function addToMap() {
-    console.log(choose, categoryChoose)
     if (
       choose !== undefined &&
       categoryChoose !== undefined &&
       mountainNameRef.current.value !== ''
     ) {
       console.log('complete')
-      try {
-        const docRef = doc(db, 'users', value.userUid)
-        const docSnap = await getDoc(docRef)
-        if (docSnap.exists()) {
-          const data = docSnap.data()
-          const mapData = data.map
-        }
-      } catch {
-        console.log('No such document!')
+      const docRef = doc(db, 'users', value.userUid)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        console.log('選到資料夾')
+        const data = docSnap.data()
+        const mapData = data.mountainLists
+        // mapData.filter((data, index) => {
+        //   //選到相對應城市
+        //   console.log(data)
+        //   if (data.tag == choose) {
+        //     console.log(`選到${choose}`)
+        //     const trailData = data.category.trail
+        //     const highData = data.category.highMountain
+        //     if (categoryChoose == 'trail') {
+        //       let newArr = {
+        //         tag {}
+        //         category: {
+        //           trail: [mountainNameRef.current.value, ...trailData],
+        //           highMountain: highData,
+        //         },
+        //       }
+        //     } else if (categoryChoose == 'highMountain') {
+        //       let newArr = {
+        //         tag: choose,
+        //         category: {
+        //           trail: trailData,
+        //           highMountain: [mountainNameRef.current.value, ...highData],
+        //         },
+        //       }
+        //       const newDocRef = updateDoc(doc(db, 'users', value.userUid), {
+        //         mountainLists: [...mapData, newArr],
+        //       })
+        //     }
+        //   }
+        // })
       }
-      const newDocRef = setDoc(
-        doc(db, 'mountainLists', 'IilbH4K0J4A9XpAaBpDj'),
-        {
-          tag: choose,
-          place: [],
-          highMountain: [],
-        },
-      )
-    } else {
-      window.alert('表格不能為空')
     }
   }
 
@@ -288,7 +291,7 @@ const Map = () => {
         })}
       </select>
       <select onChange={(e) => setCategoryChoose(e.target.value)}>
-        <option value="place">步道</option>
+        <option value="trail">步道</option>
         <option value="highMountain">高山</option>
       </select>
       <input placeholder="山的名稱" type="text" ref={mountainNameRef} />

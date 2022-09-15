@@ -7,28 +7,55 @@ import { UserContext } from './utils/userContext'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { db } from './utils/firebase'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import PoppinsRegular from './fonts/Poppins-Regular.ttf'
+import PoppinsBold from './fonts/Poppins-Bold.ttf'
+import PoppinsThin from './fonts/Poppins-Light.ttf'
 
 import { Link, Routes, Route, Outlet, BrowserRouter } from 'react-router-dom'
 
 const GlobalStyle = createGlobalStyle`
-  @font-face{
-    font-family:'poppins';
-  } 
+    @font-face {
+    font-family: Poppins;
+    src: url(${PoppinsRegular}) format('opentype');
+    font-weight: normal;
+  }
+  @font-face {
+    font-family: Poppins;
+    src: url(${PoppinsBold}) format('opentype');
+    font-weight: bold;
+  }
+  @font-face {
+    font-family: Poppins;
+    src: url(${PoppinsThin}) format('opentype');
+    font-weight: light;
+  }
+  body {
+    font-family:Poppins;
+  }
   * {
     box-sizing: border-box;
   }
   li{
     list-style-type:none;
   }
+  a{
+    display:block;
+    text-decoration:none;
+    color:#222322;
+  }
   input{
     background-color:transparent;
     outline:none;
     cursor:pointer;
+    background:transparent;
   }
   button{
     background-color:transparent;
     outline:none;
     cursor:pointer;
+  }
+  #root{
+    min-height:100vh;
   }
 `
 

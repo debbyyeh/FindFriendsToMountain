@@ -6,11 +6,13 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import html2canvas from 'html2canvas'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Calendar from 'react-calendar'
+import activityLogo from './activityLogo.png'
 import 'react-calendar/dist/Calendar.css'
 
 const Wrapper = styled.div`
-  width: calc(1280px - 30px);
+  max-width: 1280px;
   margin: 0 auto;
+  min-height: 100vh;
 `
 const Divide = styled.div`
   display: flex;
@@ -79,6 +81,30 @@ const FormDate = styled.div`
 const Photo = styled.div`
   width: 30%;
 `
+
+const CircleBig = styled.div`
+  position: absolute;
+
+  bottom: -100px;
+  border-radius: 50%;
+  width: 800px;
+  height: 800px;
+  ${'' /* background-color: rgb(48, 61, 48); */}
+  ${'' /* opacity: 1;
+  z-index: 1; */}
+`
+const CircleSmall = styled.div`
+  position: absolute;
+
+  ${'' /* bottom: -100px; */}
+  background-image: url(${activityLogo});
+  width:1200px;
+  height:1200px;
+  opacity: 99;
+  background-repeat: no-repeat;
+  background-position: center;
+`
+
 const CalendarContainer = styled.div`
   margin: 0 auto;
   background-color: transparent;
@@ -316,7 +342,11 @@ function Activity() {
   return (
     <>
       <Wrapper>
-        <Divide>
+        <CircleBig>
+          <CircleSmall></CircleSmall>
+        </CircleBig>
+
+        {/* <Divide> 
           <Basic>
             <div>這是活動頁面1</div>
             <FormLabel>登山團名稱</FormLabel>
@@ -354,7 +384,7 @@ function Activity() {
             {/* <p>startDate</p>
             <InfoInput type="date" ref={startDateRef} />
             <p>endDate</p>
-            <InfoInput type="date" ref={endDateRef} /> */}
+            <InfoInput type="date" ref={endDateRef} /> 
             <FormLabel>封面照片</FormLabel>
             <UploadPic>
               {imageURLs ? (
@@ -391,7 +421,7 @@ function Activity() {
             </>
           )}
           {isPreview && <Next onClick={setTheContent}>繼續編輯下一步</Next>}
-        </PrintArea>
+        {/* </PrintArea> */}
       </Wrapper>
     </>
   )

@@ -13,6 +13,17 @@ const Divide = styled.div`
   display: flex;
   align-items: center;
 `
+
+const IconCircle = styled.div`
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #ac6947;
+  z-index: 100;
+`
 const LogoIcon = styled(Link)`
   display: block;
   background-image: url(${Logo});
@@ -57,8 +68,10 @@ function Header() {
     <>
       <Wrapper>
         <Divide>
-          <LogoIcon to="/" />
-          <Link to="LogIn" />
+          <IconCircle>
+            <LogoIcon to="/" />
+            <Link to="LogIn" />
+          </IconCircle>
 
           {isLogged && (
             <>

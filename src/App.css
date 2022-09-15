@@ -1,31 +1,16 @@
-.rdrDateDisplayWrapper{
-  background-color: transparent;
-}
-.rdrNextPrevButton{
-  background-color: transparent;
-}
-.rdrMonthAndYearPickers select:hover{
-  background-color:transparent
-}
-.rdrDayToday .rdrDayNumber span:after{
-  background:#577D45;
-}
-.rdrDateDisplayItem{
-  border:none;
-}
-
 :root {
     --color-gold: #B99362;
 }
 body {
-    background-color: rgb(48,61,48);
+    background-color: rgb(48,61,48); 
+    /* background-color: #5E7E68;  */
     /* background-color: rgb(200,229,207); */
-    /* background-color:rgb(5,105,102); */
+    /* background-color:rgba(8, 114, 111, 0.863);  */
+    /* background-image:linear-gradient(45deg,#6D9196,#BFA695,#DE8362 ); */
     /* background-color:rgb(55,137,113);   */
-    color:white;
-    max-width:1280px;
+    color: #222322;
+    padding: 150px 0 120px;
     margin:0 auto;
-    padding-top:70px;
     /* color:rgb(194,173,62); */
     /* color:rgb(5,105,102) */
 }
@@ -33,7 +18,7 @@ svg {
     height: 100vh;
 }
 path {
-    stroke: white;
+    stroke: #222322;
     fill: transparent;
     transition: 0.5s;
     cursor: pointer;

@@ -14,10 +14,33 @@ const Wrapper = styled.div`
   width: calc(1280px - 30px);
   margin: 0 auto;
 `
+const ProfileWrapper = styled.div`
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+  position: relative;
+`
 
 const PersonPhoto = styled.img`
   width: 100px;
   height: 100px;
+  object-fit: cover;
+
+  position: relative;
+  bottom: 20px;
+  right: -10px;
+`
+const PersonName = styled.div`
+  font-size: 20px;
+  margin-bottom: 24px;
+  width: 25px;
+  height: 3px;
+  border-radius: 20px;
+  background-color: #ac6947;
+  position: relative;
+  top: -35px;
+  left: -10px;
 `
 const Divide = styled.div`
   display: flex;
@@ -192,12 +215,13 @@ function Profile() {
 
   return (
     <>
-      <div>個人頁面</div>
       <Wrapper>
         {getUserData && (
           <>
-            <div>{getUserData.name}</div>
-            <PersonPhoto src={getUserData.photoURL} alt="userphoto" />
+            <ProfileWrapper>
+              <PersonName>{getUserData.name}</PersonName>
+              <PersonPhoto src={getUserData.photoURL} alt="userphoto" />
+            </ProfileWrapper>
           </>
         )}
         <CategoryDivide>

@@ -141,7 +141,6 @@ const Step = styled.div`
 const TextArea = styled.input``
 
 const Itinerary = () => {
-  const [getItinerary, setGetItinerary] = useState([])
   const [latest, setLatest] = useState()
   const [labelText, setLabelText] = useState()
   const [dayNum, setDayNum] = useState(0)
@@ -159,7 +158,7 @@ const Itinerary = () => {
 
   useEffect(() => {
     getItineraryList()
-    updateItinerary()
+    // updateItinerary()
     const unsub = onSnapshot(docRef, (doc) => {
       const data = doc.data()
       const latestData = data.itineraryList
@@ -170,15 +169,11 @@ const Itinerary = () => {
   console.log(latest)
 
   async function getItineraryList() {
-    console.log('取得itinerary資訊')
     try {
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
-        console.log('找到firebase')
         const itineraryData = docSnap.data()
         const oldItinerary = itineraryData.itineraryList
-        setGetItinerary(oldItinerary)
-        //舊資料firebase抓出來的
       }
     } catch {
       console.log('No such document!')
@@ -189,7 +184,6 @@ const Itinerary = () => {
       const dayCard = Number(dayChoose.current.value)
       setDayNum(dayCard)
       console.log(dayCard)
-      // completeInfo()
       dayChoose.current.value = ''
     }
   }
@@ -207,15 +201,13 @@ const Itinerary = () => {
     { id: uuidv4(), content: '10:00 武陵農場' },
   ]
   const itineraryData = {
-    123456: {
+    [123456]: {
       name: '欲安排行程',
       items: itemsFromBackend,
     },
   }
 
   const [columns, setColumns] = useState(itineraryData)
-
-  console.log(columns)
 
   const [columnCounter, setColumnCounter] = useState(0)
   function addColumns(columns) {
@@ -276,7 +268,6 @@ const Itinerary = () => {
   }
 
   const onDragEnd = (result, columns, setColumns) => {
-    console.log(columns)
     const { source, destination } = result
     if (!result.destination) {
       updateItinerary(columns)

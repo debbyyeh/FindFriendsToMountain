@@ -18,28 +18,37 @@ import {
   getDoc,
 } from 'firebase/firestore'
 import { useNavigate, Link } from 'react-router-dom'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { useForm } from 'react-hook-form'
 import Map from '../Map/Map'
 import backgroundImage from './background.jpg'
 
 const Wrapper = styled.div`
+  max-width: 1280px;
+
+  margin: 0 auto;
+`
+const PhotoWrapper = styled.div`
   background-image: url(${backgroundImage});
   background-size: cover;
-  margin: 0 auto;
-  width: 1200px;
-  height: 900px;
+  width: 40%;
+  height: 1200px;
   position: absolute;
-  top: 70%;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, -60%);
+  transform: translate(-50%, -50%);
 
   display: flex;
+
+  @media screen and (max-width: 1400px) {
+    max-width: 1280px;
+  }
 `
+
 const InfoWrapper = styled.div`
-  background-color: rgb(0, 0, 0, 0.9);
+  background-color: #222322;
   height: 100%;
-  width: 600px;
+  width: 50%;
   position: absolute;
   transform: translateY(-50%);
   transform: ${(props) => {
@@ -48,13 +57,18 @@ const InfoWrapper = styled.div`
   transition: 0.5s;
 `
 const ChangeModeDiv = styled.div`
-  color: white;
+  cursor: pointer;
+  color: #f6ead6;
+  font-weight: 700;
   z-index: 100;
-  width: 150px;
-  height: 50px;
-  background-color: rgb(200, 229, 207);
+  ${'' /* width: 180px; */}
+  height: 60px;
+
+  text-align: center;
+
+  background-color: #222322;
   position: absolute;
-  left: 57%;
+  left: 58%;
   transform: ${(props) => {
     return props.toggle ? 'translateX(-57%) ' : 'translateX(-157%)'
   }};
@@ -62,6 +76,36 @@ const ChangeModeDiv = styled.div`
 `
 const Divide = styled.div`
   display: flex;
+  align-items: center;
+  margin-bottom: 100px;
+`
+const MainTitle = styled.h2`
+  font-size: 36px;
+  color: #f6ead6;
+  margin-bottom: 150px;
+`
+const Title = styled.div`
+  font-size: 32px;
+  color: #f6ead6;
+  margin-top: -40px;
+`
+const Label = styled.label`
+  position: absolute;
+  bottom: 35px;
+  left: 0;
+  transition: all 0.3s ease;
+  color: #f6ead6;
+  font-size: 32px;
+  @media screen and (max-width: 768px) {
+    font-size: 20px;
+  }
+`
+
+const Underline = styled.div`
+  position: absolute;
+  bottom: 0px;
+  height: 2px;
+  width: 100%;
 `
 const SignUp = styled.div`
   width: 50%;
@@ -71,36 +115,104 @@ const SignUp = styled.div`
   transform: translateX(-100%);
 `
 const LoginForm = styled.form`
-  width: 100%;
+  width: 50%;
   z-index: 10;
-  padding: 20px 30px;
+  padding: 20px 50px;
+`
+const SignUpForm = styled.form`
+  width: 100%;
+  padding: 20px 50px;
+`
+const InputData = styled.div`
+  width: 100%;
+  height: 40px;
+  position: relative;
+  margin-bottom: 100px;
 `
 const InfoInput = styled.input`
-  border: 1px solid white;
-  height: 30px;
-  padding: 4px 12px;
-  color: white;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-bottom: 1px solid #f6ead6;
+  font-size: 28px;
+
+  padding: 8px 12px;
+  color: #875839;
+
+  &:focus ~ label {
+    transform: translateY(-30px);
+    font-size: 32px;
+    color: #ac6947;
+    font-weight: bold;
+  }
+`
+const Btn = styled.button`
+  color: #f6ead6;
+  border: 1px solid #f6ead6;
+  width: 50%;
+  margin: 0 auto;
+  padding: 30px;
+  font-size: 24px;
+  display: inherit;
+
+  &:active {
+    transform: translateY(0.2rem);
+  }
 `
 const UploadPic = styled.div`
-  margin-top: 20px;
-  width: 100px;
-  height: 100px;
+  margin: 20px auto 100px auto;
+  width: 180px;
+  height: 180px;
   background-color: #d9d9d9;
   border-radius: 8px;
 `
 const UploadPhoto = styled.img`
-  width: 100px;
+  width: 180px;
   aspect-ratio: 1/1;
   background-color: #d9d9d9;
   border-radius: 8px;
   object-fit: cover;
 `
 const AfterUpload = styled.div`
-  width: 100px;
+  width: 120px;
   aspect-ratio: 1/1;
   background-color: #d9d9d9;
   border-radius: 8px;
 `
+const FileInput = styled.input`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+`
+const FileLabel = styled.label`
+  ${'' /* border: 1px solid #ccc; */}
+  display: inline-block;
+  cursor: pointer;
+
+  width: 180px;
+  height: 50px;
+  margin-top: 16px;
+  color: white;
+  text-align: center;
+  font-size: 24px;
+`
+const Note = styled.p`
+  margin-left: 0;
+  color: #5e7e68;
+  font-size: 20px;
+  margin-top: 0;
+`
+const Text = styled.div`
+  color: #f6ead6;
+  font-size: 24px;
+  padding: 16px;
+`
+
 function Login() {
   const [signUp, setSignUp] = useState(false)
   const [login, setLogin] = useState(true)
@@ -156,6 +268,10 @@ function Login() {
         }
       })
   }
+  let categoryContent = {
+    trail: [],
+    highMountain: [],
+  }
 
   const onSubmit = async (data) => {
     if (images.length < 1) {
@@ -178,6 +294,84 @@ function Login() {
                     id: jwtUid,
                     name: data.nickname,
                     photoURL: url,
+                    mountainLists: [
+                      {
+                        tag: '台北市',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '桃園市',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '新竹縣',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '新竹市',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '彰化市',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '彰化縣',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '台中市',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '苗栗縣',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '苗栗市',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '新北市',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '基隆市',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '花蓮縣',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '南投縣',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '台東縣',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '雲林縣',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '嘉義縣',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '嘉義市',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '台南市',
+                        category: categoryContent,
+                      },
+                      {
+                        tag: '高雄市',
+                        category: categoryContent,
+                      },
+                    ],
                     joinGroup: [],
                     leadGroup: [],
                     equipment: [],
@@ -220,129 +414,149 @@ function Login() {
 
   return (
     <>
-      <div>這是登入頁</div>
-
       <Wrapper>
-        <InfoWrapper toggle={mode}></InfoWrapper>
-        <ChangeModeDiv
-          toggle={mode}
-          onClick={() => {
-            setMode(!mode)
-            setSignUp((current) => !current)
-            setLogin((current) => !current)
-          }}
-        >
-          {signUp ? <p>我要登入</p> : <p>沒有帳號，註冊去!</p>}
-        </ChangeModeDiv>
-        {login && (
-          <>
-            {/* <LoginForm> */}
-            <LoginForm onSubmit={handleSubmit(signInCheck)}>
-              <h2>登入帳號</h2>
-              <label htmlFor="email">Email</label>
-              <InfoInput
-                name="email"
-                type="text"
-                placeholder="請輸入 email"
-                {...register('email', {
-                  required: {
-                    value: true,
-                    message: '欄位必填',
-                  },
-                  pattern: {
-                    value: /^\S+@\S+$/i,
-                    message: '格式有誤!',
-                  },
-                })}
-              />
-              <p>{errors.email?.message}</p>
-              <label htmlFor="pwd">密碼</label>
-              <InfoInput
-                type="password"
-                placeholder="password"
-                {...register('password', {
-                  required: {
-                    value: true,
-                    message: '請輸入資料內容!',
-                  },
-                  minLength: {
-                    value: 6,
-                    message: '密碼長度至少6位元',
-                  },
-                })}
-              />
-              <p>{errors.password?.message}</p>
-              <InfoInput type="submit" value="登入" />
-            </LoginForm>
-            <div onClick={signUpUse}>還沒有帳號，註冊去</div>
-            {/* </LoginForm> */}
-          </>
-        )}
-        {signUp && (
-          <SignUp>
-            <LoginForm onSubmit={handleSubmit(onSubmit)}>
-              <h2>註冊帳號</h2>
-              <label htmlFor="email">Email</label>
-              <InfoInput
-                name="email"
-                type="text"
-                placeholder="請輸入 email"
-                {...register('email', {
-                  required: {
-                    value: true,
-                    message: '欄位必填',
-                  },
-                  pattern: {
-                    value: /^\S+@\S+$/i,
-                    message: '格式有誤!',
-                  },
-                })}
-              />
-              <p>{errors.email?.message}</p>
-              <label htmlFor="name">使用者暱稱</label>
-              <InfoInput
-                type="text"
-                placeholder="Nnickname"
-                {...register('nickname', {})}
-              />
-              <p>{errors.Nickname?.message}</p>
-              <label htmlFor="pwd">密碼</label>
-              <InfoInput
-                type="password"
-                placeholder="password"
-                {...register('password', {
-                  required: {
-                    value: true,
-                    message: '請輸入資料內容!',
-                  },
-                  minLength: {
-                    value: 6,
-                    message: '密碼長度至少6位元',
-                  },
-                })}
-              />
-              <p>{errors.password?.message}</p>
-              <UploadPic>
-                {imageURLs ? (
-                  <UploadPhoto src={imageURLs} alt="uploadImage" />
-                ) : (
-                  <AfterUpload></AfterUpload>
-                )}
-              </UploadPic>
-              {!photoNote && <span>照片不得為空</span>}
-              <InfoInput
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={getPhotoInfo}
-              />
-              <InfoInput type="submit" value="註冊帳號" />
-              <br />
-            </LoginForm>
-          </SignUp>
-        )}
-
-        {/* <Map /> */}
+        <PhotoWrapper>
+          <InfoWrapper toggle={mode}></InfoWrapper>
+          <ChangeModeDiv
+            toggle={mode}
+            onClick={() => {
+              setMode(!mode)
+              setSignUp((current) => !current)
+              setLogin((current) => !current)
+            }}
+          >
+            {signUp ? <Text>我要登入</Text> : <Text>沒有帳號，註冊去!</Text>}
+          </ChangeModeDiv>
+          {login && (
+            <>
+              <LoginForm onSubmit={handleSubmit(signInCheck)}>
+                <MainTitle>登入帳號</MainTitle>
+                <InputData>
+                  <InfoInput
+                    name="email"
+                    type="text"
+                    {...register('email', {
+                      required: {
+                        value: true,
+                        message: '欄位必填',
+                      },
+                      pattern: {
+                        value: /^\S+@\S+$/i,
+                        message: '格式有誤!',
+                      },
+                    })}
+                  />
+                  <Underline></Underline>
+                  <Label htmlFor="email">Email</Label>
+                  <Note>{errors.email?.message}</Note>
+                </InputData>
+                <InputData>
+                  <InfoInput
+                    type="password"
+                    {...register('password', {
+                      required: {
+                        value: true,
+                        message: '請輸入資料內容!',
+                      },
+                      minLength: {
+                        value: 6,
+                        message: '密碼長度至少6位元',
+                      },
+                    })}
+                  />
+                  <Underline></Underline>
+                  <Label htmlFor="pwd">密碼</Label>
+                  <Note>{errors.password?.message}</Note>
+                </InputData>
+                <Btn type="submit" value="登入">
+                  登入
+                </Btn>
+              </LoginForm>
+            </>
+          )}
+          {signUp && (
+            <SignUp>
+              <SignUpForm onSubmit={handleSubmit(onSubmit)}>
+                <MainTitle>註冊帳號</MainTitle>
+                <InputData>
+                  <InfoInput
+                    name="email"
+                    type="text"
+                    {...register('email', {
+                      required: {
+                        value: true,
+                        message: '欄位必填',
+                      },
+                      pattern: {
+                        value: /^\S+@\S+$/i,
+                        message: '格式有誤!',
+                      },
+                    })}
+                  />
+                  <Underline></Underline>
+                  <Label htmlFor="email">Email</Label>
+                  <Note>{errors.email?.message}</Note>
+                </InputData>
+                <InputData>
+                  <InfoInput
+                    type="text"
+                    name="name"
+                    {...register('nickname', {
+                      required: {
+                        value: true,
+                        message: '欄位必填',
+                      },
+                    })}
+                  />
+                  <Underline></Underline>
+                  <Label htmlFor="name">使用者暱稱</Label>
+                  <Note>{errors.nickname?.message}</Note>
+                </InputData>
+                <InputData>
+                  <InfoInput
+                    type="password"
+                    {...register('password', {
+                      required: {
+                        value: true,
+                        message: '請輸入資料內容!',
+                      },
+                      minLength: {
+                        value: 6,
+                        message: '密碼長度至少6位元',
+                      },
+                    })}
+                  />
+                  <Underline></Underline>
+                  <Label htmlFor="pwd">密碼</Label>
+                  <Note>{errors.password?.message}</Note>
+                </InputData>
+                <Title>照片</Title>
+                {/* <Divide> */}
+                <UploadPic>
+                  {imageURLs ? (
+                    <UploadPhoto src={imageURLs} alt="uploadImage" />
+                  ) : (
+                    <AfterUpload></AfterUpload>
+                  )}
+                  <FileLabel>
+                    上傳照片
+                    <FileInput
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      style={{ display: 'none' }}
+                      onChange={getPhotoInfo}
+                    />
+                  </FileLabel>
+                </UploadPic>
+                {/* </Divide> */}
+                <Btn type="submit" value="註冊帳號">
+                  註冊帳號
+                </Btn>
+              </SignUpForm>
+            </SignUp>
+          )}
+        </PhotoWrapper>
       </Wrapper>
     </>
   )
