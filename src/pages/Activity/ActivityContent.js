@@ -140,6 +140,7 @@ const MemberPic = styled.img`
   object-fit: cover;
   margin: 8px;
 `
+
 const Intro = styled.div`
   position: relative;
   padding: 15px;
@@ -360,6 +361,7 @@ const ActivityContent = () => {
       }
     }
 
+
     const unsub = onSnapshot(doc(db, 'groupContents', groupID), (doc) => {
       const data = doc.data()
       const memberData = data.memberList
@@ -374,6 +376,7 @@ const ActivityContent = () => {
     })
 
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+
   }, [groupID, contentID])
 
   async function testAuth() {
@@ -383,12 +386,14 @@ const ActivityContent = () => {
     const currgroupOwner = groupOwnerInfo.groupOwner
     const currMember = groupOwnerInfo.memberList
 
+
     if (makeLogin.uid == currgroupOwner) {
       setAuth(false)
       setContent(true)
       setOwnerAuth(true)
       getOwnerProfile(currgroupOwner)
     } else if (makeLogin.uid !== currgroupOwner) {
+
       console.log(currMember)
       if (currMember.length == 0) {
         setAuth(true)
@@ -459,6 +464,11 @@ const ActivityContent = () => {
         console.log(newMemberInfo, '更新團體資料')
         setMember(newMember)
       }
+      newMember.push(newMemberInfo, ...oldmemberList)
+      const updateMember = await updateDoc(groupContent, {
+        memberList: newMember,
+      })
+
     }
   }
 
@@ -572,6 +582,7 @@ const ActivityContent = () => {
                     ></BackColor>
                     地點：
                     {groupData.groupCity}|<span>{groupData.groupMountain}</span>
+
                   </Text>
                   <Text fontSize="24px" position="relative">
                     日期：

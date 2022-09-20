@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import { db, storage, auth } from '../../utils/firebase'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore'
+import Map from '../Map/Map'
 import styled, { keyframes } from 'styled-components'
 import { Link } from 'react-router-dom'
 import { UserContext } from '../../utils/userContext'
@@ -281,7 +282,9 @@ const DefaultImg = styled.img`
   margin: 0 auto;
   object-fit: cover;
 `
-
+const Grouplink = styled(Link)`
+  color: white;
+`
 function Profile() {
   const [getUserData, setGetUserData] = useState()
   const [joinGroup, setJoinGroup] = useState([])
@@ -293,6 +296,7 @@ function Profile() {
   const value = useContext(UserContext)
   const equipmentSearch = useRef()
   const navigate = useNavigate()
+  const docRef = doc(db, 'users', value.userUid)
   useEffect(() => {
     async function getDBInfo() {
       try {
@@ -303,13 +307,19 @@ function Profile() {
           setGetUserData(userData)
           setJoinGroup(userData.joinGroup)
           setLeadGroup(userData.leadGroup)
-
           setTools(userData.equipment)
         }
       } catch {
         console.log('No such document!')
       }
     }
+    const unsub = onSnapshot(docRef, (doc) => {
+      const data = doc.data()
+      const joinData = data.joinGroup
+      const leadData = data.leadGroup
+      setJoinGroup(joinData)
+      setLeadGroup(leadData)
+    })
     getDBInfo()
 
     //得到群組的圖片
@@ -329,8 +339,6 @@ function Profile() {
       }
     }
   }, [value.userUid])
-  console.log(value.userUid)
-  console.log(leadGroup)
   async function addTool() {
     if (equipmentSearch.current.value == '') {
       alert('請輸入中文登山裝備')
@@ -384,6 +392,7 @@ function Profile() {
         <CategoryDivide>
           <Divide>
             {['發起的團', '加入的團', '登山裝備', '高山地圖'].map(
+
               (text, index) => (
                 <Category
                   $isActive={index === tabIndex}
@@ -472,6 +481,7 @@ function Profile() {
                         </ActivityImage>
                       </Content>
                     </ActivityCard>
+
                   )
                 })
               ) : (
