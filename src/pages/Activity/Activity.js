@@ -13,7 +13,9 @@ import 'react-calendar/dist/Calendar.css'
 import { ProgressBar, Step } from 'react-step-progress-bar'
 
 const Wrapper = styled.div`
-  max-width: 1280px;
+  max-width: calc(1320px - 40px);
+  padding-left: 20px;
+  padding-right: 20px;
   margin: 0 auto;
   font-family: Poppins;
 `
@@ -604,28 +606,17 @@ function Activity() {
     <>
       <Wrapper>
         <Divide>
-
-          <Basic>
-            <div>這是活動頁面1</div>
-            <FormLabel>登山團名稱</FormLabel>
-            <InfoInput type="text" ref={nameRef} />
-            <FormLabel>群組密碼</FormLabel>
-            <InfoInput type="text" ref={groupPassword} />
-            <FormLabel>開團路線</FormLabel>
-            <InfoInput type="text" placeholder="縣市" ref={cityRef} />
-            <FormLabel>開團山名</FormLabel>
-            <InfoInput type="text" placeholder="山名" ref={mountainRef} />
-            <FormLabel>團主版規</FormLabel>
-            <InfoInput type="text" placeholder="版規規定" ref={textRef} />
-          </Basic>
-          <FormDate>
-            <FormLabel>開團日期</FormLabel>
-            <CalendarContainer>
-              <Calendar
-                // calendarType="US"
-                onChange={setDate}
-                value={date}
-                selectRange={true}
+          <Basic id="basic">
+            <InputData>
+              <InfoInput type="text" ref={nameRef} />
+              <Underline></Underline>
+              <Label>登山團名稱</Label>
+            </InputData>
+            <InputData>
+              <InfoInput
+                type="text"
+                placeholder="請輸入密碼"
+                ref={groupPassword}
               />
               <Underline></Underline>
               <Label>群組密碼</Label>
@@ -733,20 +724,8 @@ function Activity() {
         {/* <PrintArea>
           {isPreview && (
             <>
-
-              <div ref={printRef}>
-                <div>{group.groupName}</div>
-                <div>
-                  {group.groupCity}
-                  <span>{group.groupMountain}</span>
-                </div>
-                <div>{group.startDate}</div>
-                <div>{group.endDate}</div>
-                <Cover src={group.groupPhoto} />
-                <div>{group.groupIntro}</div>
-              </div>
-              <button onClick={printTheCard}>下載成圖片分享</button>
-
+              <div ref={printRef}></div>
+              
             </>
           )}
           

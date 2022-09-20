@@ -6,7 +6,6 @@ import Map from '../Map/Map'
 import styled, { keyframes } from 'styled-components'
 import { Link } from 'react-router-dom'
 import { UserContext } from '../../utils/userContext'
-import Map from '../Map/Map'
 import hiking from './Vision.png'
 import mountain from './Done.png'
 import equipments from '../../equipments/equipments'
@@ -392,7 +391,6 @@ function Profile() {
         <CategoryDivide>
           <Divide>
             {['發起的團', '加入的團', '登山裝備', '高山地圖'].map(
-
               (text, index) => (
                 <Category
                   $isActive={index === tabIndex}
@@ -481,7 +479,6 @@ function Profile() {
                         </ActivityImage>
                       </Content>
                     </ActivityCard>
-
                   )
                 })
               ) : (

@@ -23,13 +23,16 @@ import { useForm } from 'react-hook-form'
 import backgroundImage from './background.jpg'
 
 const Wrapper = styled.div`
-  max-width: calc(1280px - 30px);
+  max-width: calc(1320px - 40px);
+  padding-left: 20px;
+  padding-right: 20px;
   margin: 0 auto;
+  font-family: Poppins;
 `
 const PhotoWrapper = styled.div`
   background-image: url(${backgroundImage});
   background-size: cover;
-  width: 40%;
+  width: 80%;
   height: 80vh;
   position: absolute;
   top: 55%;
@@ -193,7 +196,7 @@ const UploadPic = styled.div`
   background-color: #d9d9d9;
   border-radius: 8px;
   @media screen and (max-width: 1280px) {
-    margin-bottom: 60px;
+    margin-bottom: 40px;
   }
 `
 const UploadPhoto = styled.img`

@@ -222,6 +222,23 @@ const ActivePost = styled.div`
   z-index: 100;
   max-height: 200px;
   overflow: scroll;
+  &::-webkit-scrollbar {
+    ${'' /* display: none; */}
+    background: transparent;
+    border-radius: 4px;
+    width: 3px;
+  }
+  &::-webkit-scrollbar-track-piece {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid #f6ead6;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: transparent;
+  }
 `
 
 const Btn = styled.button`
@@ -361,7 +378,6 @@ const ActivityContent = () => {
       }
     }
 
-
     const unsub = onSnapshot(doc(db, 'groupContents', groupID), (doc) => {
       const data = doc.data()
       const memberData = data.memberList
@@ -376,7 +392,6 @@ const ActivityContent = () => {
     })
 
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
-
   }, [groupID, contentID])
 
   async function testAuth() {
@@ -386,14 +401,12 @@ const ActivityContent = () => {
     const currgroupOwner = groupOwnerInfo.groupOwner
     const currMember = groupOwnerInfo.memberList
 
-
     if (makeLogin.uid == currgroupOwner) {
       setAuth(false)
       setContent(true)
       setOwnerAuth(true)
       getOwnerProfile(currgroupOwner)
     } else if (makeLogin.uid !== currgroupOwner) {
-
       console.log(currMember)
       if (currMember.length == 0) {
         setAuth(true)
@@ -464,11 +477,6 @@ const ActivityContent = () => {
         console.log(newMemberInfo, '更新團體資料')
         setMember(newMember)
       }
-      newMember.push(newMemberInfo, ...oldmemberList)
-      const updateMember = await updateDoc(groupContent, {
-        memberList: newMember,
-      })
-
     }
   }
 
@@ -582,7 +590,6 @@ const ActivityContent = () => {
                     ></BackColor>
                     地點：
                     {groupData.groupCity}|<span>{groupData.groupMountain}</span>
-
                   </Text>
                   <Text fontSize="24px" position="relative">
                     日期：
@@ -714,9 +721,7 @@ const ActivityContent = () => {
                       isActive={isActive}
                     >
                       {profile && (
-                        <Text marginBottom="12px">
-                          這是{profile.name}的清單
-                        </Text>
+                        <Text marginBottom="12px">{profile.name}的清單</Text>
                       )}
                       {isActive && profile && profile.equipment.length > 0 ? (
                         profile.equipment.map((item, index) => {

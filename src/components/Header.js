@@ -27,6 +27,7 @@ const IconCircle = styled.div`
   border-radius: 50%;
   background-color: #ac6947;
   z-index: 100;
+  position: relative;
   @media screen and (max-width: 1280px) {
     width: 80px;
     height: 80px;
@@ -85,6 +86,24 @@ const Btn = styled.button`
     }
   }
 `
+const LogoText = styled.div`
+  position: absolute;
+  bottom: -31px;
+  left: 74px;
+  font-size: 24px;
+  font-weight: 800;
+  transform: rotate(-18deg);
+`
+const LogoSecond = styled(LogoText)`
+  left: 100px;
+  transform: rotate(-37deg);
+  bottom: -16px;
+`
+const LogoThird = styled(LogoText)`
+  left: 117px;
+  bottom: 15px;
+  transform: rotate(-67deg);
+`
 
 function Header() {
   const navigate = useNavigate()
@@ -114,6 +133,9 @@ function Header() {
       <Wrapper>
         <Divide>
           <IconCircle>
+            <LogoText>找</LogoText>
+            <LogoSecond>山</LogoSecond>
+            <LogoThird>遊</LogoThird>
             <LogoIcon to="/" />
             <Link to="LogIn" />
           </IconCircle>

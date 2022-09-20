@@ -84,13 +84,10 @@ const GlobalStyle = createGlobalStyle`
   }
   #root{
     min-height:100vh;
-    padding: 150px 0px 120px;
-    @media screen and (max-width: 1280px) {
-      padding: 70px 0px 120px;
-    }
-     @media screen and (max-width: 767px) {
+    padding: 70px 0px 120px;
+    @media screen and (max-width: 767px) {
       padding: 40px 0px 60px;
-    }
+    };
   }
 
 `
