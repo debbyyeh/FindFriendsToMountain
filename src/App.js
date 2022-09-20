@@ -29,8 +29,34 @@ const GlobalStyle = createGlobalStyle`
     src: url(${PoppinsThin}) format('opentype');
     font-weight: light;
   }
+  @font-face {
+    font-family: Poppins;
+    src: url(${PoppinsRegular}) format('opentype');
+    font-weight: normal;
+  }
   body {
+    background-color: rgb(48,61,48); 
+    color:  #F6EAD6;
+    margin:0 auto;
     font-family:Poppins;
+    font-weight:500;
+    letter-spacing:1px;
+    &::-webkit-scrollbar-button {
+      display: none;
+      /* background: transparent;
+      border-radius: 4px; */
+    }
+    &::-webkit-scrollbar-track-piece {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background-color: rgba(0,0,0,0.4);
+      border: 1px solid slategrey
+    }
+    &::-webkit-scrollbar-track {
+      box-shadow: transparent;
+    }
   }
   * {
     box-sizing: border-box;
@@ -48,15 +74,25 @@ const GlobalStyle = createGlobalStyle`
     outline:none;
     cursor:pointer;
     background:transparent;
+    border:none;
   }
   button{
     background-color:transparent;
     outline:none;
+    border:none;
     cursor:pointer;
   }
   #root{
     min-height:100vh;
+    padding: 150px 0px 120px;
+    @media screen and (max-width: 1280px) {
+      padding: 70px 0px 120px;
+    }
+     @media screen and (max-width: 767px) {
+      padding: 40px 0px 60px;
+    }
   }
+
 `
 
 const App = () => {

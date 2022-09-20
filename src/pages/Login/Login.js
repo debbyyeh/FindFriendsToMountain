@@ -20,28 +20,30 @@ import {
 import { useNavigate, Link } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 import { useForm } from 'react-hook-form'
-import Map from '../Map/Map'
 import backgroundImage from './background.jpg'
 
 const Wrapper = styled.div`
-  max-width: 1280px;
-
+  max-width: calc(1280px - 30px);
   margin: 0 auto;
 `
 const PhotoWrapper = styled.div`
   background-image: url(${backgroundImage});
   background-size: cover;
   width: 40%;
-  height: 1200px;
+  height: 80vh;
   position: absolute;
-  top: 50%;
+  top: 55%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -55%);
 
   display: flex;
 
-  @media screen and (max-width: 1400px) {
-    max-width: 1280px;
+  @media screen and (max-width: 1280px) {
+    width: calc(100% - 30px);
+    height: 80vh;
+  }
+  @media screen and (max-width: 576px) {
+    width: 100%;
   }
 `
 
@@ -61,7 +63,6 @@ const ChangeModeDiv = styled.div`
   color: #f6ead6;
   font-weight: 700;
   z-index: 100;
-  ${'' /* width: 180px; */}
   height: 60px;
 
   text-align: center;
@@ -83,11 +84,24 @@ const MainTitle = styled.h2`
   font-size: 36px;
   color: #f6ead6;
   margin-bottom: 150px;
+
+  @media screen and (max-width: 1280px) {
+    font-size: 28px;
+    margin-bottom: 80px;
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 20px;
+    margin-bottom: 40px;
+  }
 `
 const Title = styled.div`
   font-size: 32px;
   color: #f6ead6;
   margin-top: -40px;
+
+  @media screen and (max-width: 1280px) {
+    font-size: 24px;
+  }
 `
 const Label = styled.label`
   position: absolute;
@@ -96,38 +110,25 @@ const Label = styled.label`
   transition: all 0.3s ease;
   color: #f6ead6;
   font-size: 32px;
-  @media screen and (max-width: 768px) {
-    font-size: 20px;
+  @media screen and (max-width: 1280px) {
+    font-size: 24px;
+    bottom: 10px;
   }
 `
-
 const Underline = styled.div`
   position: absolute;
   bottom: 0px;
   height: 2px;
   width: 100%;
 `
-const SignUp = styled.div`
-  width: 50%;
-  z-index: 10;
-  position: absolute;
-  left: 100%;
-  transform: translateX(-100%);
-`
-const LoginForm = styled.form`
-  width: 50%;
-  z-index: 10;
-  padding: 20px 50px;
-`
-const SignUpForm = styled.form`
-  width: 100%;
-  padding: 20px 50px;
-`
 const InputData = styled.div`
   width: 100%;
   height: 40px;
   position: relative;
   margin-bottom: 100px;
+  @media screen and (max-width: 1280px) {
+    margin-bottom: 80px;
+  }
 `
 const InfoInput = styled.input`
   width: 100%;
@@ -145,7 +146,29 @@ const InfoInput = styled.input`
     color: #ac6947;
     font-weight: bold;
   }
+  @media screen and (max-width: 1280px) {
+    &:focus ~ label {
+      font-size: 28px;
+    }
+  }
 `
+const SignUp = styled.div`
+  width: 50%;
+  z-index: 10;
+  position: absolute;
+  left: 100%;
+  transform: translateX(-100%);
+`
+const LoginForm = styled.form`
+  width: 50%;
+  z-index: 10;
+  padding: 20px 50px;
+`
+const SignUpForm = styled.form`
+  width: 100%;
+  padding: 20px 50px;
+`
+
 const Btn = styled.button`
   color: #f6ead6;
   border: 1px solid #f6ead6;
@@ -158,6 +181,10 @@ const Btn = styled.button`
   &:active {
     transform: translateY(0.2rem);
   }
+
+  @media screen and (max-width: 1280px) {
+    padding: 18px;
+  }
 `
 const UploadPic = styled.div`
   margin: 20px auto 100px auto;
@@ -165,6 +192,9 @@ const UploadPic = styled.div`
   height: 180px;
   background-color: #d9d9d9;
   border-radius: 8px;
+  @media screen and (max-width: 1280px) {
+    margin-bottom: 60px;
+  }
 `
 const UploadPhoto = styled.img`
   width: 180px;
@@ -179,18 +209,8 @@ const AfterUpload = styled.div`
   background-color: #d9d9d9;
   border-radius: 8px;
 `
-const FileInput = styled.input`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-`
+const FileInput = styled.input``
 const FileLabel = styled.label`
-  ${'' /* border: 1px solid #ccc; */}
   display: inline-block;
   cursor: pointer;
 
@@ -211,6 +231,10 @@ const Text = styled.div`
   color: #f6ead6;
   font-size: 24px;
   padding: 16px;
+  @media screen and (max-width: 1280px) {
+    font-size: 20px;
+    padding: 12px 0;
+  }
 `
 
 function Login() {
@@ -280,7 +304,6 @@ function Login() {
       JSON.stringify(data)
       createUserWithEmailAndPassword(auth, data.email, data.password)
         .then((userCredential) => {
-          console.log(userCredential)
           onAuthStateChanged(auth, (currentUser) => {
             const getjwtToken = currentUser.accessToken
             const jwtUid = currentUser.uid
@@ -294,84 +317,7 @@ function Login() {
                     id: jwtUid,
                     name: data.nickname,
                     photoURL: url,
-                    mountainLists: [
-                      {
-                        tag: '台北市',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '桃園市',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '新竹縣',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '新竹市',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '彰化市',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '彰化縣',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '台中市',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '苗栗縣',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '苗栗市',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '新北市',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '基隆市',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '花蓮縣',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '南投縣',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '台東縣',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '雲林縣',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '嘉義縣',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '嘉義市',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '台南市',
-                        category: categoryContent,
-                      },
-                      {
-                        tag: '高雄市',
-                        category: categoryContent,
-                      },
-                    ],
+                    mountainLists: [],
                     joinGroup: [],
                     leadGroup: [],
                     equipment: [],
@@ -406,7 +352,7 @@ function Login() {
           if (errorCode == 'auth/email-already-in-use') {
             alert('帳號重複註冊')
           } else if (errorCode == 'auth/invalid-email') {
-            alert('無效網址')
+            alert('無效Email')
           }
         })
     }

@@ -1,32 +1,24 @@
 :root {
     --color-gold: #B99362;
 }
-body {
-    background-color: rgb(48,61,48); 
-    /* background-color: #5E7E68;  */
-    /* background-color: rgb(200,229,207); */
-    /* background-color:rgba(8, 114, 111, 0.863);  */
-    /* background-image:linear-gradient(45deg,#6D9196,#BFA695,#DE8362 ); */
-    /* background-color:rgb(55,137,113);   */
-    color: #222322;
-    padding: 150px 0 120px;
-    margin:0 auto;
-    /* color:rgb(194,173,62); */
-    /* color:rgb(5,105,102) */
-}
+body::-webkit-scrollbar {
+        display: none; /* for Chrome, Safari, and Opera */}
 svg {
-    height: 100vh;
+    /* height: 40vh; */
+    /* width:100%; */
+    margin-left:150px;
+    /* position: absolute; */
 }
 path {
-    stroke: #222322;
+    stroke: #AC6947;
     fill: transparent;
     transition: 0.5s;
     cursor: pointer;
 }
 path:hover {
-    fill: #577D45;
-    transform: translate(-5px, -5px);
+    fill: #875839;
+    transform: translate(-1px, 0px);
 }
 path:focus {
-    fill: #577D45;
+    fill: #875839;
 }

@@ -16,12 +16,17 @@ const DiscussionArea = styled.div`
   width: 45%;
 `
 const ListInput = styled.input`
-  width: 100%;
-  border: 1px solid white;
+  width: 70%;
+  border-bottom: dashed 3px #222322;
+  margin-top: 12px;
+  margin-bottom: 14px;
   height: 40px;
   padding-left: 12px;
-  color: white;
+  color: #222322;
   font-size: 18px;
+  &:focus {
+    border: solid 3px #222322;
+  }
 `
 const ListWrapper = styled.div`
   border: 1px solid white;
@@ -31,44 +36,49 @@ const ListWrapper = styled.div`
   padding: 16px;
   overflow: hidden;
 `
-const AreaTitle = styled.div`
-  display: flex;
-  align-items: center;
-`
+
 const CategoryPhoto = styled.img``
 const Category = styled.div``
 
-const Divide = styled.div`
-  display: flex;
-`
 const AddBtn = styled.button`
-  color: white;
+  color: #222322;
+  padding: 0px;
   border: none;
-  font-size: 24px;
+  font-size: 20px;
+  transform: rotate(4deg);
+  transform-origin: center;
+  border-radius: 5px;
+  ${'' /* background-color: rgba(172, 105, 71, 0.8); */}
+  padding-bottom: 3px;
+  box-shadow: 0 2px 0 rgb(135, 88, 57);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  span {
+    ${'' /* background: #875839; */}
+    display: block;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 2px solid rgb(135, 88, 57);
+  }
+
+  &:active,
+  &:focus {
+    transform: translateY(4px);
+    padding-bottom: 0px;
+    outline: 0;
+  }
 `
-const ToDoTag = styled.div`
-  display: flex;
-  align-items: center;
-`
-const DeleteTodo = styled.button`
-  color: white;
-  border: 1px solid white;
-`
-const Poster = styled.span`
-  width: 20%;
-`
-const PostMsg = styled.span`
-  flex-grow: 1;
-`
+
 const CheckedInput = styled.div`
-  width: 80%;
+  width: 100%;
   margin-top: 12px;
   margin-bottom: 12px;
   font-size: 18px;
 `
 const Complete = styled.p`
   width: 20%;
-  color: #b99362;
+  color: #ac6947;
+  font-weight: 900;
 `
 const DeleteAll = styled.div`
   cursor: pointer;
@@ -77,7 +87,40 @@ const DeleteAll = styled.div`
   font-size: 14px;
   margin-left: auto;
 `
-const TodoList = () => {
+
+const ToDoContainer = styled.div`
+  width: 100%;
+  height: auto;
+  min-height: 500px;
+  min-width: 250px;
+  background: #f1f5f8;
+  background-image: radial-gradient(#bfc0c1 7.2%, transparent 0);
+  background-size: 25px 25px;
+  border-radius: 20px;
+  box-shadow: 4px 3px 7px 2px #00000040;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+`
+
+const ToDoTitle = styled.div`
+  width: 250px;
+  color: #F6EAD;
+  transform: rotate(2deg);
+  padding: 8px 16px;
+  border-radius: 20% 5% 20% 5%/5% 20% 25% 20%;
+  background-color: #ac6947;
+  font-size: 24px;
+`
+const TodoList = ({
+  Text,
+  DivideBorder,
+  Divide,
+  Btn,
+  InfoInput,
+  BackColor,
+  SrcImage,
+}) => {
   useEffect(() => {
     getToDoList()
     const unsub = onSnapshot(docRef, (doc) => {
@@ -121,7 +164,11 @@ const TodoList = () => {
   const ToDoListForm = ({ addTodo }) => {
     function handleSubmit(e) {
       e.preventDefault()
-      listRef.current.value && addTodo(listRef.current.value)
+      if (listRef.current.value == '') {
+        window.alert('不可為空')
+      } else {
+        listRef.current.value && addTodo(listRef.current.value)
+      }
     }
 
     return (
@@ -133,7 +180,9 @@ const TodoList = () => {
             ref={listRef}
             placeholder="enter the text"
           />
-          <AddBtn onClick={handleSubmit}>+</AddBtn>
+          <AddBtn onClick={handleSubmit}>
+            <span>Submit</span>
+          </AddBtn>
         </Divide>
       </>
     )
@@ -179,33 +228,72 @@ const TodoList = () => {
   }
   return (
     <>
-      <DiscussionArea>
-        <AreaTitle>
-          <Category>待討論事項</Category>
-        </AreaTitle>
-        <ToDoListForm addTodo={addTodo} />
-        {latest &&
-          latest.map((list, index) => {
-            return (
-              <>
-                <ToDoTag key={index}>
-                  <CheckedInput
-                    onClick={() => stateTask(index)}
-                    style={{
-                      textDecoration: list.checked ? 'line-through' : 'none',
-                    }}
-                  >
-                    <Poster>{list.post}:</Poster>
-                    <PostMsg>{list.text}</PostMsg>
-                  </CheckedInput>
-                  {list.checked ? <Complete>已完成</Complete> : null}
-                  <DeleteTodo onClick={() => removeTodo(index)}>x</DeleteTodo>
-                </ToDoTag>
-              </>
-            )
-          })}
-        <DeleteAll onClick={deleteCompletedItems}>清除所有已完成項目</DeleteAll>
-      </DiscussionArea>
+      <DivideBorder width="50%" height="auto" border="none">
+        <ToDoContainer>
+          <ToDoTitle>待討論事項/留言板</ToDoTitle>
+          <ToDoListForm addTodo={addTodo} />
+          <Text
+            textAlign="left"
+            color="#222322"
+            fontSize="14px"
+            position="relative"
+          >
+            輸入需協助事項，完成後點選訊息更改狀態即可
+          </Text>
+          {latest &&
+            latest.map((list, index) => {
+              return (
+                <>
+                  <Divide alignItmes="center" key={index}>
+                    <Divide justifyContent="flex-start">
+                      <Text fontSize="24px" color="#222322">
+                        {list.post}:
+                      </Text>
+                      <CheckedInput
+                        onClick={() => stateTask(index)}
+                        style={{
+                          color: '#AC6947',
+                          textDecoration: list.checked
+                            ? 'line-through'
+                            : 'none',
+                        }}
+                      >
+                        <Text fontSize="20px" color="#222322" marginLeft="8px">
+                          {list.text}
+                        </Text>
+                      </CheckedInput>
+                    </Divide>
+                    {list.checked ? <Complete>已完成</Complete> : null}
+                    <Btn
+                      color="#222322"
+                      width="30px"
+                      height="30px"
+                      border="1px solid #222322"
+                      borderRadius="50%"
+                      padding="0px"
+                      lineHeight="8px"
+                      onClick={() => removeTodo(index)}
+                    >
+                      x
+                    </Btn>
+                  </Divide>
+                </>
+              )
+            })}
+          <Btn
+            marginLeft="auto"
+            color="#222322"
+            width="200px"
+            border="1px solid #222322"
+            position="absolute"
+            bottom="30px"
+            left="60%"
+            onClick={deleteCompletedItems}
+          >
+            清除所有已完成項目
+          </Btn>
+        </ToDoContainer>
+      </DivideBorder>
     </>
   )
 }
