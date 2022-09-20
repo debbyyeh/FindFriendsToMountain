@@ -6,12 +6,31 @@ import { UserContext } from '../utils/userContext'
 import { getAuth, signOut } from 'firebase/auth'
 
 const Wrapper = styled.div`
-  max-width: 1280px;
+  max-width: calc(1320px - 40px);
+  padding-left: 20px;
+  padding-right: 20px;
   margin: 0 auto;
+  font-family: Poppins;
 `
 const Divide = styled.div`
   display: flex;
   align-items: center;
+  margin-bottom: 60px;
+`
+
+const IconCircle = styled.div`
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #ac6947;
+  z-index: 100;
+  @media screen and (max-width: 1280px) {
+    width: 80px;
+    height: 80px;
+  }
 `
 const LogoIcon = styled(Link)`
   display: block;
@@ -20,15 +39,53 @@ const LogoIcon = styled(Link)`
   height: 90px;
   background-repeat: no-repeat;
   background-size: contain;
+  @media screen and (max-width: 1280px) {
+    width: 60px;
+    height: 60px;
+  }
 `
 const LoginClick = styled(Link)`
-  color: white;
-  margin-right: 20px;
-  text-decoration: none;
+  color: #f6ead6;
+  margin-left: 20px;
+  font-size: 24px;
+  &:after {
+    content: '';
+    border-bottom: 2px solid #ac6947;
+    margin: auto;
+    position: relative;
+    top: 5px;
+    width: 0%;
+    display: block;
+    transition: all 0.3s;
+  }
+  &:hover {
+    &:after {
+      width: 100%;
+    }
+  }
 `
-const FindMyGroup = styled.div`
-  cursor: pointer;
+const Btn = styled.button`
+  color: #f6ead6;
+  padding: 8px 12px;
+  margin-left: 12px;
+  font-size: 20px;
+  &:after {
+    content: '';
+    border-bottom: 2px solid #ac6947;
+    margin: auto;
+    position: relative;
+    top: 5px;
+    width: 0%;
+    display: block;
+    transition: all 0.3s;
+  }
+  &:hover {
+    &:after {
+      width: 100%;
+    }
+  }
 `
+
 function Header() {
   const navigate = useNavigate()
   const value = useContext(UserContext)
@@ -39,7 +96,6 @@ function Header() {
       setIsLogged(true)
     }
   }, [value.userUid])
-  async function findMyGroup() {}
   function logOut() {
     signOut(auth)
       .then(() => {
@@ -57,14 +113,15 @@ function Header() {
     <>
       <Wrapper>
         <Divide>
-          <LogoIcon to="/" />
-          <Link to="LogIn" />
+          <IconCircle>
+            <LogoIcon to="/" />
+            <Link to="LogIn" />
+          </IconCircle>
 
           {isLogged && (
             <>
               <LoginClick to="profile">回到個人頁面</LoginClick>
-              <FindMyGroup onClick={findMyGroup}>查看我加入的群組</FindMyGroup>
-              <button onClick={logOut}>登出</button>
+              <Btn onClick={logOut}>登出</Btn>
             </>
           )}
         </Divide>

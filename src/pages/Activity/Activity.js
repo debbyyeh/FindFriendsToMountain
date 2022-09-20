@@ -1,23 +1,179 @@
-import React, { useState, useEffect, useRef } from 'react'
-import styled from 'styled-components'
+import React, { useState, useEffect, useRef, useContext } from 'react'
+import styled, { keyframes } from 'styled-components'
 import { db, storage } from '../../utils/firebase'
 import { collection, setDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import html2canvas from 'html2canvas'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { UserContext } from '../../utils/userContext'
+import { Link, useNavigate } from 'react-router-dom'
+import { HashLink } from 'react-router-hash-link'
 import Calendar from 'react-calendar'
+import cover from './cover.jpg'
 import 'react-calendar/dist/Calendar.css'
+import { ProgressBar, Step } from 'react-step-progress-bar'
 
 const Wrapper = styled.div`
-  width: calc(1280px - 30px);
+  max-width: 1280px;
   margin: 0 auto;
+  font-family: Poppins;
 `
 const Divide = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: ${(props) => props.justifyContent || 'space-between'};
+  align-items: ${(props) => props.alignItems || 'center'};
+  flex-direction: ${(props) => props.flexDirection || 'row'};
+  margin-bottom: ${(props) => props.marginBottom || '0px'};
+  margin-top: ${(props) => props.marginTop || '0px'};
+  flex-wrap: ${(props) => props.flexWrap || 'no-wrap'};
 `
-const Card = styled.div`
-  border: 1px solid white;
+const FlexDivide = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 45%;
+  margin-left: 5%;
+  @media screen and (max-width: 1280px) {
+    margin-left: 3%;
+  }
+`
+
+const StepDivide = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+// const Step = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   position: relative;
+//   &:actve {
+//     ${((props) => props.complete && 'cursor:pointer', 'pointer-events: all')}
+//   }
+//   &:not(:last-child) {
+//     &:before,
+//     &:after {
+//       display: block;
+//       position: absolute;
+//       top: 50%;
+//       left: 50%;
+//       height: 0.25rem;
+//       content: '';
+//       transform: translateY(-50%);
+//       will-change: width;
+//       z-index: -1;
+//     }
+//   }
+//   &:before {
+//     width: 100%;
+//     background-color: gray;
+//   }
+//   &:after {
+//     ${'' /* width: 0; */}
+//     background-color: pink;
+//     width: ${(props) => (props.complete ? '100% !important' : '0')};
+//     opacity: ${(props) => (props.complete ? '1' : '0')};
+//     transition: ${(props) =>
+//       props.complete
+//         ? 'width 0.6s ease-in-out, opacity 0.6s ease-in-out'
+//         : 'none'};
+//   }
+// `
+const StepIcon = styled.span`
+  position: relative;
+  width: 3rem;
+  height: 3rem;
+  background-color: transparent;
+  border: 0.25rem solid gray;
+  border-radius: 50%;
+  color: white;
+  font-size: 2rem;
+  &:before {
+    display: block;
+    color: white;
+  }
+`
+const StepLabel = styled.div`
+  position: absolute;
+  bottom: -2rem;
+  left: 50%;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  transform: translateX(-50%);
+  width: 200px;
+  color: ${(props) => (props.complete ? 'gray' : 'none')};
+  transition: ${(props) =>
+    props.complete ? 'color 0.3s ease-in-out' : 'none'};
+  transition-delay: ${(props) => (props.complete ? '0.5s' : 'none')};
+`
+
+const Label = styled.label`
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  transition: all 0.3s ease;
+  color: #f6ead6;
+  font-size: 32px;
+  @media screen and (max-width: 1280px) {
+    font-size: 24px;
+  }
+`
+const Text = styled.div`
+  color: #f6ead6;
+  font-size: 32px;
+  margin-bottom: 12px;
+  @media screen and (max-width: 1280px) {
+    font-size: 24px;
+  }
+`
+const SubText = styled.p`
+  font-weight: 300;
+  font-size: 20px;
+  margin-top: 12px;
+  text-align: center;
+`
+const Underline = styled.div`
+  position: absolute;
+  bottom: 0px;
+  height: 2px;
+  width: 100%;
+`
+const InputData = styled.div`
+  width: 100%;
+  height: 40px;
+  position: relative;
+  margin-bottom: 100px;
+  @media screen and (max-width: 1280px) {
+    margin-bottom: 80px;
+  }
+`
+const InfoInput = styled.input`
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-bottom: 1px solid #f6ead6;
+  font-size: 28px;
+
+  padding: 8px 12px;
+  color: #875839;
+
+  &:focus ~ label {
+    transform: translateY(-30px);
+    font-size: 32px;
+    color: #ac6947;
+    font-weight: bold;
+  }
+  @media screen and (max-width: 1280px) {
+    &:focus ~ label {
+      font-size: 28px;
+    }
+  }
+`
+const FileInput = styled.input``
+const FileLabel = styled.label`
+  display: inline-block;
+  cursor: pointer;
+  color: #f6ead6;
+  text-align: center;
+  font-size: 20px;
+  margin: 12px auto;
 `
 const PrintArea = styled.div`
   width: 500px;
@@ -25,60 +181,66 @@ const PrintArea = styled.div`
   margin-top: 70px;
 `
 const Preview = styled.button`
-  color: white;
+  color: #f6ead6;
   margin: 0 auto;
+  font-size: 24px;
+  ${'' /* position: absolute;
+  top: 110%;
+  left: 50%; */}
+  ${'' /* transform: translateX(-50%); */}
+  width: 300px;
 `
 const UploadPic = styled.div`
-  margin-top: 20px;
-  width: 100px;
-  height: 100px;
+  width: 100%;
+  height: 320px;
   background-color: #d9d9d9;
   border-radius: 8px;
+  ${'' /* @media screen and (max-width: 1280px) {
+    margin-bottom: 60px;
+  } */}
 `
 const UploadPhoto = styled.img`
   width: 100%;
-  aspect-ratio: 1/1;
+  height: 320px;
   background-color: #d9d9d9;
   border-radius: 8px;
   object-fit: cover;
 `
 const AfterUpload = styled.div`
-  width: 100px;
+  width: 120px;
   aspect-ratio: 1/1;
   background-color: #d9d9d9;
   border-radius: 8px;
 `
-const FormLabel = styled.label`
-  display: block;
-  font-size: 20px;
-  color: white;
-`
-const InfoInput = styled.input`
-  border: 1px solid white;
-  height: 30px;
-  color: white;
-  font-size: 24px;
+const TextInput = styled.textarea`
+  resize: none;
   width: 100%;
-`
-const Cover = styled.img`
-  width: 150px;
-  height: 200px;
-  object-fit: cover;
-`
-const Next = styled.button`
-  color: white;
-  cursor: pointer;
+  height: 300px;
+  background-color: transparent;
+
+  color: #f6ead6;
+  font-size: 24px;
+  line-height: 40px;
+  padding: 20px;
+  &:focus {
+    outline: none;
+  }
 `
 
 const Basic = styled.div`
-  width: 20%;
+  width: 45%;
+  margin-top: 50px;
 `
 const FormDate = styled.div`
-  width: 40%;
+  width: 100%;
+  height: 50%;
+  margin-bottom: 50px;
 `
 const Photo = styled.div`
-  width: 30%;
+  width: 100%;
+  height: 45%;
 `
+
 const CalendarContainer = styled.div`
   margin: 0 auto;
   background-color: transparent;
@@ -107,7 +269,6 @@ const CalendarContainer = styled.div`
     border: 0;
     border-radius: 3px;
     color: white;
-    padding: 5px 0;
     &:hover {
       background-color: #a5c1a5;
     }
@@ -123,6 +284,7 @@ const CalendarContainer = styled.div`
     .react-calendar__tile {
       max-width: initial !important;
       height: 40px;
+      font-size: 20px;
     }
   }
   .react-calendar__month-view__days__day--neighboringMonth {
@@ -163,6 +325,122 @@ const CalendarContainer = styled.div`
     background-color: #6f876f;
   }
 `
+const DownloadBtn = styled.button`
+  color: #f6ead6;
+  ${'' /* border: 1px solid #f6ead6; */}
+  width: 30%;
+  margin: 30px auto;
+  padding: 30px;
+  font-size: 24px;
+  display: inherit;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) inset;
+
+  ${'' /* position: relative; */}
+
+  &:active {
+    box-shadow: none;
+  }
+
+  @media screen and (max-width: 1280px) {
+    padding: 18px;
+  }
+`
+const Btn = styled.button`
+  color: ${(props) => props.color || '#F6EAD6'};
+  width: ${(props) => props.width || '0px'};
+  height: ${(props) => props.height || '40px'};
+  font-size: ${(props) => props.fontSize || '16px'};
+  border-radius: ${(props) => props.borderRadius || '0'};
+  border: ${(props) => props.border || '1px solid #F6EAD6'};
+  padding: ${(props) => props.padding || 'none'};
+  margin: ${(props) => props.margin || '0px 0px 0px 0px'};
+  position: ${(props) => props.position || 'none'};
+  top: ${(props) => props.top || 'none'};
+  left: ${(props) => props.left || 'none'};
+  bottom: ${(props) => props.bottom || 'none'};
+  line-height: ${(props) => props.lineHeight || 'none'};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  &:active {
+    transform: translateY(0.2rem);
+  }
+`
+
+const Card = styled.div`
+  background-image: url(${cover});
+  background-size: cover;
+  width: 400px;
+  height: 650px;
+  background-position: center;
+  background-repeat: no-repeat;
+  ${'' /* position: relative; */}
+  margin: 0 auto;
+  padding: 20px;
+  ${'' /* border-radius: 12px; */}
+`
+const Contents = styled.div`
+  width: 100%;
+  height: 100%;
+  color: #f6ead6;
+  font-weight: 700;
+  background-color: rgba(19, 31, 25, 0.5);
+  padding: 14px;
+  ${'' /* border-radius: 12px; */}
+  ${'' /* position: absolute; */}
+  ${'' /* right: 0; */}
+  ${'' /* top: 0; */}
+`
+
+const ContentInfo = styled.div`
+  margin-top: 8px;
+`
+
+const slide = keyframes`
+  0% {
+    height: 0px;
+  }
+  
+  33% {
+    height: 20px;
+  }
+  55%{
+    height:40px;
+  }
+  
+  66% {
+    height: 60px;
+  }
+  88% {
+    height: 80px;
+  }
+  95% {
+    height:90px;
+  }
+  100% {
+    height: 100px;
+  }
+`
+const SlideDown = styled.div`
+  ${'' /* position: absolute; */}
+  ${'' /* top: 120%;
+  left: 50%; */}
+  width: 2px;
+  height: 200px;
+  background-color: white;
+  height: 200px;
+  transition: height 2s ease-in-out;
+  animation: ${slide} 2s linear;
+`
+const SlideDownDefault = styled.div`
+  ${'' /* position: absolute; */}
+  ${'' /* top: 120%; */}
+  ${'' /* left: 50%; */}
+  width: 2px;
+  height: 400px;
+  background-color: rgb(48, 61, 48);
+  height: 200px;
+`
 
 function Activity() {
   const nameRef = useRef()
@@ -170,8 +448,6 @@ function Activity() {
   const cityRef = useRef()
   const mountainRef = useRef()
   const textRef = useRef()
-  const startDateRef = useRef()
-  const endDateRef = useRef()
   const printRef = useRef()
   const [images, setImages] = useState()
   const [imageURLs, setImageURLs] = useState()
@@ -181,19 +457,18 @@ function Activity() {
   const [isInfo, setIsInfo] = useState(false)
   const [isPreview, setIsPreview] = useState(false)
   const [date, setDate] = useState(new Date())
+  const [complete, setComplete] = useState(false)
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const makeLogin = JSON.parse(window.localStorage.getItem('token'))
-  const jwtToken = makeLogin.uid
+  const value = useContext(UserContext)
   function getPhotoInfo(e) {
     setImages([...e.target.files])
-    console.log(e.target.files[0])
     const newImageUrls = URL.createObjectURL(e.target.files[0])
     setImageURLs(newImageUrls)
   }
 
   useEffect(() => {
     async function getMyGroup() {
-      console.log('取得登山資訊')
       try {
         const docRef = doc(db, 'groupLists', groupID)
         const docSnap = await getDoc(docRef)
@@ -214,33 +489,19 @@ function Activity() {
       groupPassword.current.value == '' ||
       cityRef.current.value == '' ||
       mountainRef.current.value == '' ||
-      textRef.current.value == ''
+      textRef.current.value == '' ||
+      images == undefined
     ) {
       alert('表格不可為空')
       setIsInfo(false)
     } else {
-      setIsInfo(true)
-      const userdocRef = doc(db, 'users', jwtToken)
+      setComplete((current) => !current)
+      setLoading(true)
+      const userdocRef = doc(db, 'users', value.userUid)
       const docRef = doc(collection(db, 'groupLists'))
       const docSnap = await getDoc(userdocRef)
       const id = docRef.id
       setGroupID(id)
-
-      if (docSnap.exists()) {
-        console.log('Document data:', docSnap.data())
-        const leadPersonData = docSnap.data()
-        const oldLeadList = leadPersonData.leadGroup
-        let newLeadList = []
-        const leadGroupInfo = {
-          groupID: id,
-          groupName: nameRef.current.value,
-        }
-
-        newLeadList.push(leadGroupInfo, ...oldLeadList)
-        const updateLeadGroup = await updateDoc(userdocRef, {
-          leadGroup: newLeadList,
-        })
-      }
       const imageRef = ref(
         storage,
         `images/${nameRef.current.value}_${id}_登山團封面照`,
@@ -252,28 +513,54 @@ function Activity() {
           const newDocRef = setDoc(doc(db, 'groupLists', id), {
             groupName: nameRef.current.value,
             groupID: id,
-            groupOwner: makeLogin.uid,
+            groupOwner: value.userUid,
             groupPhoto: url,
             groupCity: cityRef.current.value,
             groupMountain: mountainRef.current.value,
             groupPassword: groupPassword.current.value,
-            startDate: date[0].toDateString(),
-            endDate: date[1].toDateString(),
+            startDate: `${date[0].getFullYear()} -
+              ${date[0].getMonth() + 1} 
+               -
+              ${date[0].getDate()}`,
+
+            endDate: `${date[1].getFullYear()} -
+              ${date[1].getMonth() + 1} 
+               -
+              ${date[1].getDate()}`,
+
             groupIntro: textRef.current.value,
           })
-          console.log(newDocRef)
           setGroup(newDocRef)
+
+          if (docSnap.exists()) {
+            setIsInfo(true)
+            const leadPersonData = docSnap.data()
+            const oldLeadList = leadPersonData.leadGroup
+            let newLeadList = []
+            const leadGroupInfo = {
+              groupID: id,
+              groupName: nameRef.current.value,
+              groupPhoto: url,
+              startDate: date[0].toDateString(),
+              endDate: date[1].toDateString(),
+            }
+
+            newLeadList.push(leadGroupInfo, ...oldLeadList)
+            const updateLeadGroup = updateDoc(userdocRef, {
+              leadGroup: newLeadList,
+            })
+          }
         })
       })
     }
   }
 
   async function getMyGroup() {
-    setIsPreview(true)
     try {
       const docRef = doc(db, 'groupLists', groupID)
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
+        setIsPreview(true)
         const mountainData = docSnap.data()
         setGroup(mountainData)
       }
@@ -282,42 +569,42 @@ function Activity() {
     }
   }
 
-  async function printTheCard() {
-    const element = printRef.current
-    console.log(element)
-    const canvas = await html2canvas(element)
+  // async function printTheCard() {
+  //   const element = printRef.current
+  //   const canvas = await html2canvas(element)
 
-    const data = canvas.toDataURL('image/jpg')
-    const link = document.createElement('a')
-    console.log(canvas, data)
-    if (typeof link.download === 'string') {
-      link.href = data
-      link.download = 'image/jpg'
+  //   const data = canvas.toDataURL('image/jpg')
+  //   const link = document.createElement('a')
+  //   if (typeof link.download === 'string') {
+  //     link.href = data
+  //     link.download = 'image/jpg'
 
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    } else {
-      window.open(data)
-    }
-  }
+  //     document.body.appendChild(link)
+  //     link.click()
+  //     document.body.removeChild(link)
+  //   } else {
+  //     window.open(data)
+  //   }
+  // }
 
   function setTheContent() {
     const groupRef = setDoc(doc(db, 'groupContents', groupID), {
       bedLists: [],
       carLists: [],
-      groupOwner: makeLogin.uid,
+      groupOwner: value.userUid,
       memberList: [],
       todoList: [],
       itinerary: [],
     })
+    console.log(groupRef)
     navigate(`/activity/${groupID}`)
   }
-  console.log(group)
+
   return (
     <>
       <Wrapper>
         <Divide>
+
           <Basic>
             <div>這是活動頁面1</div>
             <FormLabel>登山團名稱</FormLabel>
@@ -340,43 +627,113 @@ function Activity() {
                 value={date}
                 selectRange={true}
               />
-            </CalendarContainer>
+              <Underline></Underline>
+              <Label>群組密碼</Label>
+            </InputData>
+            <InputData>
+              <InfoInput type="text" placeholder="縣市" ref={cityRef} />
+              <Underline></Underline>
+              <Label>開團縣市</Label>
+            </InputData>
+            <InputData>
+              <InfoInput type="text" placeholder="山名" ref={mountainRef} />
+              <Underline></Underline>
+              <Label>開團山名</Label>
+            </InputData>
+            <Text>團主版規</Text>
+            <TextInput type="text" placeholder="版規規定" ref={textRef} />
+          </Basic>
+          <FlexDivide>
+            <FormDate id="formdate">
+              <Text>開團日期</Text>
+              <CalendarContainer>
+                <Calendar
+                  calendarType="US"
+                  onChange={setDate}
+                  value={date}
+                  selectRange={true}
+                />
+              </CalendarContainer>
 
-            {date.length > 0 ? (
-              <>
-                <div>startDate:{date[0].toDateString()}</div>
-                <div>EndDate:{date[1].toDateString()}</div>
-              </>
-            ) : (
-              <span>Select Date:{date.toDateString()}</span>
-            )}
-          </FormDate>
-          <Photo>
-            {/* <p>startDate</p>
-            <InfoInput type="date" ref={startDateRef} />
-            <p>endDate</p>
-            <InfoInput type="date" ref={endDateRef} /> */}
-            <FormLabel>封面照片</FormLabel>
-            <UploadPic>
-              {imageURLs ? (
-                <UploadPhoto src={imageURLs} alt="uploadImage" />
+              {date.length > 0 ? (
+                <>
+                  <SubText>
+                    活動開始：{date[0].getFullYear()}-{date[0].getMonth() + 1}-
+                    {date[0].getDate()}
+                  </SubText>
+                  <SubText>
+                    活動結束：{date[1].getFullYear()}-{date[1].getMonth() + 1}-
+                    {date[1].getDate()}
+                  </SubText>
+                </>
               ) : (
-                <AfterUpload></AfterUpload>
+                <span>Select Date:{date.toDateString()}</span>
               )}
-            </UploadPic>
-            <InfoInput
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={getPhotoInfo}
-            />
-            <button onClick={settingCard}>完成設定</button>
-          </Photo>
+            </FormDate>
+            <Photo id="photo">
+              <Text>封面照片</Text>
+              <UploadPic>
+                {imageURLs ? (
+                  <UploadPhoto src={imageURLs} alt="uploadImage" />
+                ) : (
+                  <AfterUpload></AfterUpload>
+                )}
+              </UploadPic>
+              <FileLabel>
+                選擇照片
+                <FileInput
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={getPhotoInfo}
+                  style={{ display: 'none' }}
+                />
+              </FileLabel>
+            </Photo>
+          </FlexDivide>
         </Divide>
-        <PrintArea>
+        <Divide flexDirection="column">
+          <DownloadBtn onClick={settingCard}>完成設定</DownloadBtn>
+          {complete && <SlideDown></SlideDown>}
           {isInfo && <Preview onClick={getMyGroup}>預覽我的登山資訊</Preview>}
+        </Divide>
+
+        {isPreview && (
+          <>
+            <Card ref={printRef}>
+              <Contents>
+                <ContentInfo>團名：{group.groupName}</ContentInfo>
+                <ContentInfo>
+                  {group.groupCity}｜{group.groupMountain}
+                </ContentInfo>
+                <Divide>
+                  <ContentInfo>
+                    日期：{group.startDate} - {group.endDate}
+                  </ContentInfo>
+                </Divide>
+                <ContentInfo>團長的話：{group.groupIntro}</ContentInfo>
+              </Contents>
+            </Card>
+            <SubText>若需修改請更改資訊後再按一次完成設定!</SubText>
+          </>
+        )}
+
+        {isPreview && (
+          <Btn
+            width="200px"
+            margin="0px auto 0px"
+            padding="32px"
+            onClick={setTheContent}
+            borderRadius="12px"
+          >
+            繼續編輯下一步
+          </Btn>
+        )}
+
+        {/* <PrintArea>
           {isPreview && (
             <>
+
               <div ref={printRef}>
                 <div>{group.groupName}</div>
                 <div>
@@ -389,10 +746,11 @@ function Activity() {
                 <div>{group.groupIntro}</div>
               </div>
               <button onClick={printTheCard}>下載成圖片分享</button>
+
             </>
           )}
-          {isPreview && <Next onClick={setTheContent}>繼續編輯下一步</Next>}
-        </PrintArea>
+          
+        </PrintArea> */}
       </Wrapper>
     </>
   )
