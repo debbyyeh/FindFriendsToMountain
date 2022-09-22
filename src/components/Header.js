@@ -19,8 +19,8 @@ const Divide = styled.div`
 `
 
 const IconCircle = styled.div`
-  width: 120px;
-  height: 120px;
+  width: 70px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,26 +29,18 @@ const IconCircle = styled.div`
   z-index: 100;
   position: relative;
   @media screen and (max-width: 1280px) {
-    width: 80px;
-    height: 80px;
-  }
-  @media screen and (max-width: 767px) {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
   }
 `
 const LogoIcon = styled(Link)`
   display: block;
   background-image: url(${Logo});
-  width: 90px;
-  height: 90px;
+  width: 60px;
+  height: 60px;
   background-repeat: no-repeat;
   background-size: contain;
-  @media screen and (max-width: 1280px) {
-    width: 60px;
-    height: 60px;
-  }
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: 1279px) {
     width: 30px;
     height: 30px;
   }

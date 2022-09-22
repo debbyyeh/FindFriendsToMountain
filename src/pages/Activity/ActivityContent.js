@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import firebaseConfig, { db, storage } from '../../utils/firebase'
 import {
@@ -9,9 +9,9 @@ import {
   collection,
   setDoc,
   getDocs,
-  deleteField,
   arrayRemove,
 } from 'firebase/firestore'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { Link, useNavigate } from 'react-router-dom'
 import memberDefault from './memberDefault.png'
 import logo from './Mountain.png'
@@ -22,11 +22,15 @@ import TodoList from '../../components/Todolist/TodoList'
 import Itinerary from '../../components/Itinerary/Itinerary'
 import Cars from '../../components/Car/Cars'
 import Accommodation from '../../components/Accommodation/Accommodation'
+import { UserContext } from '../../utils/userContext'
 
-const BackCover = styled.img`
+const BackCover = styled.div`
   width: 100%;
   height: 560px;
-  object-fit: cover;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
   @media screen and (max-width: 1279px) {
     ${(props) => props.hideOnMobile && 'display: none;'}
   }
@@ -51,14 +55,14 @@ const BackColor = styled.div`
   left: ${(props) => props.left || '0px'};
   right: ${(props) => props.right || '0px'};
   @media screen and (max-width: 1279px) {
-    background-color: ${(props) => props.backgroundColor || '#ac6947'};
-    width: ${(props) => props.width || '0px'};
-    height: ${(props) => props.height || '0px'};
-    z-index: ${(props) => props.zIndex || '-1'};
-    position: ${(props) => props.position || 'absolute'};
-    top: ${(props) => props.top || '0px'};
-    left: ${(props) => props.left || '0px'};
-    right: ${(props) => props.right || '0px'};
+    background-color: ${(props) => props.tablet_backgroundColor || '#ac6947'};
+    width: ${(props) => props.tablet_width || '0px'};
+    height: ${(props) => props.tablet_height || '0px'};
+    z-index: ${(props) => props.tablet_zIndex || '-1'};
+    position: ${(props) => props.tablet_position || 'absolute'};
+    top: ${(props) => props.tablet_top || '0px'};
+    left: ${(props) => props.tablet_left || '0px'};
+    right: ${(props) => props.tablet_right || '0px'};
   }
 `
 const WidthContainer = styled.div`
@@ -89,10 +93,12 @@ const Divide = styled.div`
   margin-top: ${(props) => props.marginTop || '0px'};
   flex-wrap: ${(props) => props.flexWrap || 'no-wrap'};
   @media screen and (max-width: 1279px) {
-    flex-direction: ${(props) => props.flexDirection || 'row'};
+    flex-direction: ${(props) => props.tablet_flexDirection || 'row'};
+  }
+  @media screen and (max-width: 767px) {
+    flex-direction: ${(props) => props.mobile_flexDirection || 'row'};
   }
 `
-
 const DivideBorder = styled.div`
   position: ${(props) => props.position || 'none'};
   width: ${(props) => props.width || '0px'};
@@ -103,7 +109,6 @@ const DivideBorder = styled.div`
   border-radius: 24px;
   padding: 20px;
 `
-
 const Text = styled.div`
   color: ${(props) => props.color || '#f6ead6'};
   font-size: ${(props) => props.fontSize || '16px'};
@@ -126,17 +131,20 @@ const Text = styled.div`
     left: ${(props) => props.mobile_left || 'none'};
   }
 `
-
+const OwnerText = styled.span``
 const UnderCover = styled.div`
-  width: 100%;
+  width: 60%;
   height: 100%;
+  margin: 0 auto;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 24px;
   padding: 16px;
 
   position: relative;
+  @media screen and (max-width: 1279px) {
+    width: 100%;
+  }
 `
-
 const MemberDefault = styled.div`
   background-image: url(${memberDefault});
   background-size: cover;
@@ -150,33 +158,6 @@ const MemberPic = styled.img`
   height: 60px;
   object-fit: cover;
   margin: 8px;
-`
-
-const Intro = styled.div`
-  position: relative;
-  padding: 15px;
-  margin: 4px 0 20px;
-  border: 1px solid #ac6947;
-  text-align: left;
-  color: #f6ead6;
-  background: transparent;
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  border-radius: 20px;
-  width: 200px;
-  height: auto;
-
-  &:after {
-    content: ' ';
-    position: absolute;
-    width: 0;
-    height: 0;
-    left: auto;
-    right: 38px;
-    bottom: -23px;
-    border: 11px solid;
-    border-color: #ac6947 transparent transparent;
-  }
 `
 
 const Scroll = styled.div`
@@ -202,6 +183,10 @@ const IconImage = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  @media screen and (max-width: 1279px) {
+    width: 30px;
+    height: 30px;
+  }
 `
 
 const IconWrapper = styled.div`
@@ -210,34 +195,52 @@ const IconWrapper = styled.div`
   height: 60px;
   border-radius: 50%;
   background-color: #222322;
+  @media screen and (max-width: 1279px) {
+    width: 40px;
+    height: 40px;
+  }
 `
 
 const ActiveBackground = styled.div`
   position: absolute;
-  top: 0;
-  left: -50%;
+  top: 50%;
+  left: -100%;
   width: 200px;
   height: auto;
   padding: 20px;
   border-radius: 24px;
   background-color: rgba(34, 35, 3, 0.2);
-
+  transform: translate(100%, -50%);
   display: ${(props) => (props.isActive ? 'block' : 'none')};
+  @media screen and (max-width: 1279px) {
+    width: 180px;
+    height: 200px;
+    top: -10%;
+    bottom: 0%;
+    left: 50%;
+    transform: translate(-50%, 90%);
+  }
 `
 const OwnerBackground = styled(ActiveBackground)`
-  left: 70%;
+  left: 100%;
+  right: 0;
+  top: -20%;
+  transform: translate(-100%, 20%);
   display: ${(props) => (props.rule ? 'block' : 'none')};
+  @media screen and (max-width: 1279px) {
+    left: 110%;
+    width: 150px;
+  }
 `
-
 const ActivePost = styled.div`
   z-index: 100;
-  max-height: 200px;
+  max-height: 150px;
   overflow: scroll;
   &::-webkit-scrollbar {
-    ${'' /* display: none; */}
-    background: transparent;
+    display: none;
+    ${'' /* background: transparent;
     border-radius: 4px;
-    width: 3px;
+    width: 3px; */}
   }
   &::-webkit-scrollbar-track-piece {
     background: transparent;
@@ -251,7 +254,6 @@ const ActivePost = styled.div`
     box-shadow: transparent;
   }
 `
-
 const Btn = styled.button`
   color: ${(props) => props.color || '#F6EAD6'};
   width: ${(props) => props.width || '0px'};
@@ -272,6 +274,24 @@ const Btn = styled.button`
   &:active {
     transform: translateY(0.2rem);
   }
+  @media screen and (max-width: 1279px) {
+    width: ${(props) => props.tablet_width || '0px'};
+    height: ${(props) => props.tablet_height || '0px'};
+    padding: ${(props) => props.tablet_padding || 'none'};
+    margin: ${(props) => props.tablet_margin || '0px 0px 0px 0px'};
+    font-size: ${(props) => props.tablet_fontSize || '16px'};
+    left: ${(props) => props.tablet_left || 'none'};
+  }
+`
+const EditBtn = styled.button`
+  font-size: 14px;
+  width: ${(props) => props.width || '120px'};
+  position: absolute;
+  left: ${(props) => props.left || '0px'};
+  bottom: ${(props) => props.bottom || '0px'};
+  color: ${(props) => props.color || '#F6EAD6'};
+  border: ${(props) => props.border || 'none'};
+  padding: ${(props) => props.padding || 'none'};
 `
 const InfoInput = styled.input`
   width: ${(props) => props.width || '0px'};
@@ -286,7 +306,28 @@ const InfoInput = styled.input`
 
   box-shadow: ${(props) => props.boxShadow || '0 0 10px rgba(0, 0, 0, 0.6)'};
 `
-
+const DateInput = styled.input`
+  width: 150px;
+  font-size: 20px;
+  color: #f6ead6;
+  border-bottom: 1px solid #f6ead6;
+`
+const FileInput = styled.input``
+const FileLabel = styled.label`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-block;
+  cursor: pointer;
+  color: #f6ead6;
+  text-align: center;
+  font-size: 20px;
+  margin: 12px auto;
+  @media screen and (max-width: 767px) {
+    font-size: 14px;
+  }
+`
 const PopupWrapper = styled.div`
   position: absolute;
   background-color: rgba(0, 0, 0, 0.5);
@@ -314,11 +355,60 @@ const PopImage = styled.div`
   width: 90px;
   height: 90px;
 `
-
 const SrcImage = styled.img`
   width: ${(props) => props.width || '0px'};
   height: ${(props) => props.height || '0px'};
   object-fit: ${(props) => props.objectFit || 'cover'};
+`
+const Intro = styled.div`
+  position: relative;
+  padding: 15px;
+  margin: 4px 0 20px;
+  border: 1px solid #ac6947;
+  text-align: left;
+  color: #f6ead6;
+  background: transparent;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  border-radius: 20px;
+  width: 200px;
+  height: auto;
+  &:after {
+    content: ' ';
+    position: absolute;
+    width: 0;
+    height: 0;
+    left: auto;
+    right: 38px;
+    bottom: -23px;
+    border: 11px solid;
+    border-color: #ac6947 transparent transparent;
+  }
+`
+const NewIntroWrapper = styled.input`
+  position: relative;
+  padding: 15px;
+  margin: 4px 0 20px;
+  border: 1px solid #ac6947;
+  text-align: left;
+  color: #f6ead6;
+  background: transparent;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  border-radius: 20px;
+  width: 200px;
+  height: auto;
+  &:after {
+    content: ' ';
+    position: absolute;
+    width: 0;
+    height: 0;
+    left: auto;
+    right: 38px;
+    bottom: -23px;
+    border: 11px solid;
+    border-color: #ac6947 transparent transparent;
+  }
 `
 
 const ActivityContent = () => {
@@ -338,26 +428,34 @@ const ActivityContent = () => {
   const [join, setJoin] = useState()
   const [member, setMember] = useState()
   const [profile, setProfile] = useState()
-  const [ownerAuth, setOwnerAuth] = useState(false)
+  const [ownerAuth, setOwnerAuth] = useState() //ownerID
+  const [memberAuth, setMemberAuth] = useState() //不是owner的id
   const [online, setOnline] = useState(false)
   const [rule, setRule] = useState(false)
   const [ownerProfile, setOwnerProfile] = useState()
-  const [showBtn, setShowBtn] = useState('myBtn noen')
+  const [isHovering, setIsHovering] = useState(false)
+  const [isEditable, setIsEditable] = useState(false)
+  const newNameRef = useRef()
+  const newCityRef = useRef()
+  const newMountainRef = useRef()
+  const newIntro = useRef()
+  const [newStart, setNewStart] = useState()
+  const [newEnd, setNewEnd] = useState()
+  const [images, setImages] = useState()
+  const [imageURLs, setImageURLs] = useState()
+  const [downloadUrl, setDownloadUrl] = useState([])
   const navigate = useNavigate()
+  const value = useContext(UserContext)
 
   useEffect(() => {
+    //groupList
     if (makeLogin == undefined) {
       alert('您尚未登入會員')
       navigate('/login')
     } else {
-      getPromise()
       getOwnerProfile()
       testAuth()
     }
-
-    //groupList
-    //改成promiseall
-    let newGetPromise = [getGroupInfo(), getContentInfo()]
     async function getGroupInfo() {
       const id = groupID
       setContentID(groupID)
@@ -388,10 +486,12 @@ const ActivityContent = () => {
         console.log('No such document!')
       }
     }
+    let newGetPromise = [getGroupInfo(), getContentInfo()]
     async function getPromise() {
       await Promise.all(newGetPromise)
     }
 
+    getPromise()
     const unsub = onSnapshot(doc(db, 'groupContents', groupID), (doc) => {
       const data = doc.data()
       const memberData = data.memberList
@@ -415,21 +515,21 @@ const ActivityContent = () => {
     const currgroupOwner = groupOwnerInfo.groupOwner
     const currMember = groupOwnerInfo.memberList
 
-    if (makeLogin.uid == currgroupOwner) {
+    if (value.userUid == currgroupOwner) {
       setAuth(false)
       setContent(true)
-      setOwnerAuth(true)
+      setOwnerAuth(value.userUid)
       getOwnerProfile(currgroupOwner)
-    } else if (makeLogin.uid !== currgroupOwner) {
-      console.log(currMember)
+    } else if (value.userUid !== currgroupOwner) {
       if (currMember.length == 0) {
         setAuth(true)
         setContent(false)
       } else {
         currMember.filter((memberID, index) => {
-          if (memberID.joinID.includes(makeLogin.uid)) {
+          if (memberID.joinID.includes(value.userUid)) {
             setAuth(false)
             setContent(true)
+            setMemberAuth(value.userUid)
             setOnline(true)
             getOwnerProfile(currgroupOwner)
           }
@@ -458,6 +558,7 @@ const ActivityContent = () => {
       alert('驗證成功')
       setAuth(false)
       setContent(true)
+      setMemberAuth(value.userUid)
       const joinData = doc(db, 'users', makeLogin.uid)
       const joinSnap = await getDoc(joinData)
       console.log(joinSnap)
@@ -512,40 +613,74 @@ const ActivityContent = () => {
   async function seeOwnerProfile() {
     setRule((current) => !current)
   }
-  async function removeMember() {
-    console.log(clickID)
+  function getPhotoInfo(e) {
+    setImages([...e.target.files])
+    const newImageUrls = URL.createObjectURL(e.target.files[0])
+    setImageURLs(newImageUrls)
+  }
+  // async function removeMember() {
+  //   console.log(clickID)
 
-    // window.confirm('確定刪除嗎')
-    // if (window.confirm('確定刪除嗎') == true) {
-    //   window.alert('已刪除團員')
-    //   try {
-    //     const docRef = doc(db, 'users', clickID)
-    //     const docSnap = await getDoc(docRef)
-    //     if (docSnap.exists()) {
-    //       const userData = docSnap.data()
-    //       const joinIDList = userData.joinGroup
-    //       console.log(joinIDList)
-    //       // let deleteRef = doc(db, `/users/${clickID}/joinGroup`)
-    //       let deleteRef = db.collection('users').doc(`${clickID}`)
-    //       joinIDList.filter((list, index) => {
-    //         //刪除他的joinID 群組的member
-    //         console.log(list)
-    //         deleteRef.update({
-    //           joinGroup: arrayRemove(list),
-    //         })
-    //       })
-    //     }
-    //   } catch {
-    //     console.log('No such document!')
-    //   }
-    // } else {
-    //   window.alert('已取消刪除')
-    // }
+  //   window.confirm('確定刪除嗎')
+  //   if (window.confirm('確定刪除嗎') == true) {
+  //     window.alert('已刪除團員')
+  //     try {
+  //       const docRef = doc(db, 'users', clickID)
+  //       const docSnap = await getDoc(docRef)
+  //       if (docSnap.exists()) {
+  //         const userData = docSnap.data()
+  //         const joinIDList = userData.joinGroup
+  //         console.log(joinIDList)
+  //         // let deleteRef = doc(db, `/users/${clickID}/joinGroup`)
+  //         let deleteRef = db.collection('users').doc(`${clickID}`)
+  //         joinIDList.filter((list, index) => {
+  //           //刪除他的joinID 群組的member
+  //           console.log(list)
+  //           deleteRef.update({
+  //             joinGroup: arrayRemove(list),
+  //           })
+  //         })
+  //       }
+  //     } catch {
+  //       console.log('No such document!')
+  //     }
+  //   } else {
+  //     window.alert('已取消刪除')
+  //   }
+  // }
+
+  async function editFunction() {
+    const imageRef = ref(
+      storage,
+      `images/${newNameRef.current.value}_${groupID}_登山團封面照`,
+    )
+    uploadBytes(imageRef, images[0]).then(() => {
+      console.log('檔案上傳成功')
+      getDownloadURL(imageRef).then((url) => {
+        setDownloadUrl(url)
+        let newFile = {
+          groupID: groupID,
+          groupName: newNameRef.current.value,
+          groupCity: newCityRef.current.value,
+          groupPhoto: url,
+          startDate: newStart,
+          endDate: newEnd,
+          groupMountain: newMountainRef.current.value,
+          groupIntro: newIntro.current.value,
+          groupOwner: value.userUid,
+          groupPassword: groupData.groupPassword,
+        }
+        console.log(newFile)
+        const newDocRef = updateDoc(doc(db, 'groupLists', groupID), newFile)
+        setGroupData(newFile)
+        setIsEditable(false)
+        imageURLs = undefined
+      })
+    })
   }
 
   return (
     <>
-      {/* <Wrapper> */}
       {auth && (
         <>
           <PopupWrapper>
@@ -570,14 +705,154 @@ const ActivityContent = () => {
           </PopupWrapper>
         </>
       )}
-      {/* </Wrapper> */}
       {content && (
         <>
           {groupData && (
-            <BackCoverMB hideOnDesktop src={groupData.groupPhoto} />
+            <BackCoverMB
+              hideOnDesktop
+              style={{ backgroundImage: `url(${groupData.groupPhoto})` }}
+            ></BackCoverMB>
           )}
           <Wrapper>
-            {groupData && <BackCover hideOnMobile src={groupData.groupPhoto} />}
+            {groupData && (
+              <>
+                {isEditable ? (
+                  <>
+                    <BackCover
+                      style={{
+                        border: '1px solid white',
+                        backgroundImage: imageURLs ? `url(${imageURLs})` : null,
+                      }}
+                    >
+                      <OwnerText
+                        style={{
+                          fontSize: '14px',
+                          display: isHovering ? 'block' : 'none',
+                          position: 'absolute',
+                          bottom: '60px',
+                          left: '10px',
+                        }}
+                      >
+                        此為團主專屬功能，可修改團的基本資訊
+                      </OwnerText>
+                      {isEditable ? (
+                        <>
+                          <EditBtn
+                            width="120px"
+                            left="10px"
+                            bottom="10px"
+                            border="1px solid #B99362"
+                            padding="8px 12px"
+                            onClick={() => setIsEditable(false)}
+                          >
+                            取消修改
+                          </EditBtn>
+                          <EditBtn
+                            width="120px"
+                            left="150px"
+                            bottom="10px"
+                            color="#B99362"
+                            padding="8px 12px"
+                            border="1px solid #B99362"
+                            onClick={editFunction}
+                          >
+                            確認修改
+                          </EditBtn>
+                        </>
+                      ) : (
+                        <EditBtn
+                          width="120px"
+                          left="10px"
+                          bottom="10px"
+                          border="1px solid #F6EAD6"
+                          padding="8px 12px"
+                          onClick={() => {
+                            setIsEditable(true)
+                            setIsHovering(false)
+                          }}
+                          onMouseEnter={() => setIsHovering(true)}
+                          onMouseLeave={() => setIsHovering(false)}
+                        >
+                          修改基本資訊
+                        </EditBtn>
+                      )}
+                      <FileLabel>
+                        選擇照片
+                        <FileInput
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={getPhotoInfo}
+                          style={{ display: 'none' }}
+                        />
+                      </FileLabel>
+                    </BackCover>
+                  </>
+                ) : (
+                  <BackCover
+                    hideOnMobile
+                    style={{ backgroundImage: `url(${groupData.groupPhoto})` }}
+                  >
+                    {ownerAuth !== undefined && (
+                      <>
+                        <OwnerText
+                          style={{
+                            fontSize: '14px',
+                            display: isHovering ? 'block' : 'none',
+                            position: 'absolute',
+                            bottom: '60px',
+                            left: '10px',
+                          }}
+                        >
+                          此為團主專屬功能，可修改團的基本資訊
+                        </OwnerText>
+                        {isEditable ? (
+                          <>
+                            <EditBtn
+                              width="120px"
+                              left="10px"
+                              bottom="10px"
+                              border="1px solid #B99362"
+                              padding="8px 12px"
+                              onClick={() => setIsEditable(false)}
+                            >
+                              取消修改
+                            </EditBtn>
+                            <EditBtn
+                              width="120px"
+                              left="150px"
+                              bottom="10px"
+                              color="#B99362"
+                              padding="8px 12px"
+                              border="1px solid #B99362"
+                              onClick={editFunction}
+                            >
+                              確認修改
+                            </EditBtn>
+                          </>
+                        ) : (
+                          <EditBtn
+                            width="120px"
+                            left="10px"
+                            bottom="10px"
+                            border="1px solid #F6EAD6"
+                            padding="8px 12px"
+                            onClick={() => {
+                              setIsEditable(true)
+                              setIsHovering(false)
+                            }}
+                            onMouseEnter={() => setIsHovering(true)}
+                            onMouseLeave={() => setIsHovering(false)}
+                          >
+                            修改基本資訊
+                          </EditBtn>
+                        )}
+                      </>
+                    )}
+                  </BackCover>
+                )}
+              </>
+            )}
             {groupData && (
               <>
                 <Divide flexDirection="column" position="fixed">
@@ -603,13 +878,28 @@ const ActivityContent = () => {
                   >
                     團名：
                   </Text>
-                  <Text
-                    fontSize="24px"
-                    tablet_fontSize="20px"
-                    mobile_fontSize="16px"
-                  >
-                    {groupData.groupName}
-                  </Text>
+                  {isEditable ? (
+                    <InfoInput
+                      backgroundColor="transparent"
+                      width="150px"
+                      fontSize="24px"
+                      tablet_fontSize="20px"
+                      mobile_fontSize="16px"
+                      boxShadow="none"
+                      color="#F6EAD6"
+                      borderBottom="1px solid #F6EAD6"
+                      ref={newNameRef}
+                      defaultValue={groupData.groupName}
+                    />
+                  ) : (
+                    <Text
+                      fontSize="24px"
+                      tablet_fontSize="20px"
+                      mobile_fontSize="16px"
+                    >
+                      {groupData.groupName}
+                    </Text>
+                  )}
                 </Divide>
 
                 <Divide justifyContent="center">
@@ -632,14 +922,44 @@ const ActivityContent = () => {
                     ></BackColor>
                     地點：
                   </Text>
-                  <Text
-                    fontSize="24px"
-                    margin="0 8px 0 0"
-                    tablet_fontSize="20px"
-                    mobile_fontSize="16px"
-                  >
-                    {groupData.groupCity}|{groupData.groupMountain}
-                  </Text>
+                  {isEditable ? (
+                    <Divide>
+                      <InfoInput
+                        backgroundColor="transparent"
+                        width="80px"
+                        fontSize="24px"
+                        tablet_fontSize="20px"
+                        mobile_fontSize="16px"
+                        boxShadow="none"
+                        color="#F6EAD6"
+                        borderBottom="1px solid #F6EAD6"
+                        ref={newCityRef}
+                        defaultValue={groupData.groupCity}
+                      />
+                      <InfoInput
+                        backgroundColor="transparent"
+                        width="150px"
+                        fontSize="24px"
+                        tablet_fontSize="20px"
+                        mobile_fontSize="16px"
+                        boxShadow="none"
+                        color="#F6EAD6"
+                        borderBottom="1px solid #F6EAD6"
+                        ref={newMountainRef}
+                        defaultValue={groupData.groupMountain}
+                      />
+                    </Divide>
+                  ) : (
+                    <Text
+                      fontSize="24px"
+                      margin="0 8px 0 0"
+                      tablet_fontSize="20px"
+                      mobile_fontSize="16px"
+                    >
+                      {groupData.groupCity}|{groupData.groupMountain}
+                    </Text>
+                  )}
+
                   <Text
                     fontSize="24px"
                     color="#AC6947"
@@ -647,38 +967,63 @@ const ActivityContent = () => {
                     margin="0 0 0 20px"
                     tablet_fontSize="20px"
                     mobile_fontSize="16px"
+                    tablet_margin="0 0 0 20px"
+                    mobile_margin="0 0 0 20px"
                   >
                     日期：
                   </Text>
-                  <Text position="relative" fontSize="24px">
-                    {groupData.startDate} ~ {groupData.endDate}
-                    <BackColor
-                      backgroundColor="#F6EAD6"
-                      width="180px"
-                      height="2px"
-                      position="absolute"
-                      top="50%"
-                      left="none"
-                      right="-220px"
-                      style={{
-                        '@media (max-width:1279px)': {
-                          display: 'none',
-                        },
-                      }}
-                    ></BackColor>
-                  </Text>
+                  {isEditable ? (
+                    <>
+                      <DateInput
+                        type="date"
+                        onChange={(e) => setNewStart(e.target.value)}
+                        defaultValue={groupData.startDate}
+                      />
+                      <DateInput
+                        type="date"
+                        onChange={(e) => setNewEnd(e.target.value)}
+                        defaultValue={groupData.endDate}
+                      />
+                    </>
+                  ) : (
+                    <Text
+                      position="relative"
+                      fontSize="20px"
+                      tablet_fontSize="16px"
+                      mobile_fontSize="16px"
+                    >
+                      {groupData.startDate} ~ {groupData.endDate}
+                      <BackColor
+                        backgroundColor="#F6EAD6"
+                        width="180px"
+                        height="2px"
+                        position="absolute"
+                        top="50%"
+                        left="none"
+                        right="-220px"
+                        style={{
+                          '@media (max-width:1279px)': {
+                            display: 'none',
+                          },
+                        }}
+                      ></BackColor>
+                    </Text>
+                  )}
                 </Divide>
               </>
             )}
-
-            <Divide alignItems="flex-start" marginTop="50px">
-              <DivideBorder width="40%" border="none" position="relative">
+            <Divide
+              alignItems="flex-start"
+              marginTop="50px"
+              // tablet_flexDirection="column"
+            >
+              <DivideBorder width="45%" border="none" position="relative">
                 {groupData && (
                   <>
                     <Text
                       position="absolute"
                       textAlign="left"
-                      left="-10%"
+                      left="5%"
                       top="-10%"
                       style={{
                         '@media (max-width:1279px)': {
@@ -687,26 +1032,48 @@ const ActivityContent = () => {
                       }}
                     >
                       團長的話
-                      <Intro>{groupData.groupIntro}</Intro>
+                      {isEditable ? (
+                        <NewIntroWrapper
+                          ref={newIntro}
+                          defaultValue={groupData.groupIntro}
+                        />
+                      ) : (
+                        <Intro>{groupData.groupIntro}</Intro>
+                      )}
                     </Text>
                   </>
                 )}
                 {ownerProfile && (
                   <>
-                    <Divide flexDirection="column" marginBottom="12px">
-                      <Text fontSize="24px" position="relative">
+                    <Divide
+                      flexDirection="column"
+                      tablet_flexDirection="column"
+                      marginBottom="12px"
+                    >
+                      <Text
+                        fontSize="24px"
+                        tablet_fontSize="16px"
+                        position="relative"
+                      >
                         團長
                       </Text>
-
-                      <Text fontSize="20px" margin="0x 0x 8px 0px">
+                      <Text
+                        fontSize="20px"
+                        tablet_fontSize="16px"
+                        margin="0x 0x 8px 0px"
+                      >
                         {ownerProfile.name}
                       </Text>
                       <MemberPic
                         src={ownerProfile.photoURL}
                         onClick={seeOwnerProfile}
                       />
-                      <Text fontSize="14px" position="relative">
-                        點擊頭像可查看裝備清單
+                      <Text
+                        fontSize="14px"
+                        tablet_fontSize="12px"
+                        position="relative"
+                      >
+                        【點擊頭像可查看裝備清單】
                         <BackColor
                           backgroundColor="#F6EAD6"
                           width="100%"
@@ -718,6 +1085,9 @@ const ActivityContent = () => {
                   </>
                 )}
                 <OwnerBackground rule={rule}>
+                  <Text tablet_fontSize="14px" margin="0x 0x 12px 0px">
+                    團長清單
+                  </Text>
                   <ActivePost
                     onClick={() => {
                       setRule((current) => !current)
@@ -728,8 +1098,12 @@ const ActivityContent = () => {
                       ownerProfile.equipment.map((item, index) => {
                         return (
                           <>
-                            <Divide key={index}>
-                              <Text>{item}</Text>
+                            <Divide
+                              key={index}
+                              tablet_flexDirection="column"
+                              mobile_flexDirection="column"
+                            >
+                              <Text tablet_fontSize="14px">{item}</Text>
                               <IconWrapper>
                                 <IconImage
                                   style={{
@@ -754,7 +1128,12 @@ const ActivityContent = () => {
                     {member.length > 0 ? (
                       Object.values(member).map((item, index) => {
                         return (
-                          <Divide flexDirection="column" key={index} id={index}>
+                          <Divide
+                            flexDirection="column"
+                            tablet_flexDirection="column"
+                            key={index}
+                            id={index}
+                          >
                             <Text>{item.joinName}</Text>
                             {/* {online && <div>上線中</div>} */}
                             <MemberPic
@@ -770,25 +1149,28 @@ const ActivityContent = () => {
                       </>
                     )}
                   </WidthContainer>
-
                   <ActiveBackground isActive={isActive}>
+                    {profile && (
+                      <Text tablet_fontSize="14px" margin="0x 0x 12px 0px">
+                        {profile.name}的清單
+                      </Text>
+                    )}
                     <ActivePost
                       onClick={(e) => {
                         setIsActive((current) => !current)
                       }}
                       isActive={isActive}
                     >
-                      {profile && (
-                        <Text margin="0x 0x 12px 0px">
-                          {profile.name}的清單
-                        </Text>
-                      )}
                       {isActive && profile && profile.equipment.length > 0 ? (
                         profile.equipment.map((item, index) => {
                           return (
                             <>
-                              <Divide key={index}>
-                                <Text>{item}</Text>
+                              <Divide
+                                key={index}
+                                tablet_flexDirection="column"
+                                mobile_flexDirection="column"
+                              >
+                                <Text tablet_fontSize="14px">{item}</Text>
                                 <IconWrapper>
                                   <IconImage
                                     style={{
@@ -807,17 +1189,35 @@ const ActivityContent = () => {
                       ) : (
                         <Text>目前尚無清單</Text>
                       )}
-                      {ownerAuth && (
+                      {ownerAuth !== undefined && (
                         <>
-                          <Divide flexDirection="column">
-                            <Btn
-                              width="80px"
-                              margin="16px 0 16px 0"
+                          <Divide
+                            marginTop="12px"
+                            flexDirection="column"
+                            tablet_flexDirection="column"
+                          >
+                            {/* <Btn
+                              fontSize="14px"
+                              width="120px"
+                              margin="12px 0 12px 0"
+                              tablet_fontSize="14px"
+                              tablet_width="80px"
+                              tablet_height="20px"
+                              tablet_margin="8px 0 8px 0"
                               onClick={() => removeMember()}
                             >
                               剔除團員
+                            </Btn> */}
+                            <Btn
+                              fontSize="14px"
+                              width="120px"
+                              margin="12px 0 16px 0"
+                              tablet_fontSize="14px"
+                              tablet_width="80px"
+                              tablet_height="20px"
+                            >
+                              開放權限
                             </Btn>
-                            <Btn width="80px">開放權限</Btn>
                           </Divide>
                         </>
                       )}

@@ -591,6 +591,7 @@ function Activity() {
 
   function backToSet() {
     window.alert('關閉後請重新設定資訊!')
+    setComplete(false)
     setIsActive(false)
     setIsInfo(false)
   }
@@ -626,7 +627,6 @@ function Activity() {
     }
   }
   async function sendTheInfo() {
-    setComplete((current) => !current)
     const userdocRef = doc(db, 'users', value.userUid)
     const docSnap = await getDoc(userdocRef)
     //放進那個人的leadgroup
@@ -646,10 +646,12 @@ function Activity() {
       const updateLeadGroup = updateDoc(userdocRef, {
         leadGroup: newLeadList,
       })
+      navigate(`/activity/${groupID}`)
     }
   }
 
   async function setTheContent() {
+    setComplete((current) => !current)
     const groupRef = setDoc(doc(db, 'groupContents', groupID), {
       bedLists: [],
       carLists: [],
@@ -659,7 +661,6 @@ function Activity() {
       itinerary: [],
     })
     console.log(groupRef)
-    navigate(`/activity/${groupID}`)
   }
 
   return (
@@ -789,12 +790,12 @@ function Activity() {
                       </Divide>
                     ) : (
                       <Divide justifyContent="flex-start">
-                        <Icon src={check} onClick={sendTheInfo} />
+                        <Icon src={check} onClick={setTheContent} />
                         <Btn
                           fontSize="14px"
                           width="120px"
                           border="none"
-                          onClick={sendTheInfo}
+                          onClick={setTheContent}
                         >
                           確定資訊
                         </Btn>
@@ -836,7 +837,7 @@ function Activity() {
                           width="250px"
                           margin="12px auto 0px"
                           padding="8px"
-                          onClick={setTheContent}
+                          onClick={sendTheInfo}
                           borderRadius="8px"
                         >
                           前往下一步輸入更多團內資訊

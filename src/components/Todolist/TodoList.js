@@ -12,9 +12,6 @@ import {
 } from 'firebase/firestore'
 import { db } from '../../utils/firebase'
 
-const DiscussionArea = styled.div`
-  width: 45%;
-`
 const ListInput = styled.input`
   width: 70%;
   border-bottom: dashed 3px #222322;
@@ -25,20 +22,12 @@ const ListInput = styled.input`
   color: #222322;
   font-size: 18px;
   &:focus {
-    border: solid 3px #222322;
+    border: solid 2px #222322;
+  }
+  @media screen and (max-width: 1279px) {
+    font-size: 14px;
   }
 `
-const ListWrapper = styled.div`
-  border: 1px solid white;
-  border-radius: 8px;
-  margin-top: 24px;
-  height: 400px;
-  padding: 16px;
-  overflow: hidden;
-`
-
-const CategoryPhoto = styled.img``
-const Category = styled.div``
 
 const AddBtn = styled.button`
   color: #222322;
@@ -52,20 +41,23 @@ const AddBtn = styled.button`
   padding-bottom: 3px;
   box-shadow: 0 2px 0 rgb(135, 88, 57);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
   span {
-    ${'' /* background: #875839; */}
     display: block;
     padding: 8px 12px;
     border-radius: 5px;
     border: 2px solid rgb(135, 88, 57);
   }
-
   &:active,
   &:focus {
     transform: translateY(4px);
     padding-bottom: 0px;
     outline: 0;
+  }
+  @media screen and (max-width: 1279px) {
+    font-size: 16px;
+    span {
+      padding: 8px;
+    }
   }
 `
 
@@ -79,13 +71,9 @@ const Complete = styled.p`
   width: 20%;
   color: #ac6947;
   font-weight: 900;
-`
-const DeleteAll = styled.div`
-  cursor: pointer;
-  opacity: 0.7;
-  width: 145px;
-  font-size: 14px;
-  margin-left: auto;
+  @media screen and (max-width: 1279px) {
+    font-size: 14px;
+  }
 `
 
 const ToDoContainer = styled.div`
@@ -111,6 +99,11 @@ const ToDoTitle = styled.div`
   border-radius: 20% 5% 20% 5%/5% 20% 25% 20%;
   background-color: #ac6947;
   font-size: 24px;
+  @media screen and (max-width: 1279px) {
+    font-size: 20px;
+    width: 200px;
+    padding: 4px 8px;
+  }
 `
 const TodoList = ({
   Text,
@@ -236,7 +229,8 @@ const TodoList = ({
             textAlign="left"
             color="#222322"
             fontSize="14px"
-            position="relative"
+            tablet_fontSize="12px"
+            mobile_fontSize="12px"
           >
             輸入需協助事項，完成後點選訊息更改狀態即可
           </Text>
@@ -246,7 +240,11 @@ const TodoList = ({
                 <>
                   <Divide alignItmes="center" key={index}>
                     <Divide justifyContent="flex-start">
-                      <Text fontSize="24px" color="#222322">
+                      <Text
+                        fontSize="20px"
+                        color="#222322"
+                        tablet_fontSize="16px"
+                      >
                         {list.post}:
                       </Text>
                       <CheckedInput
@@ -258,7 +256,11 @@ const TodoList = ({
                             : 'none',
                         }}
                       >
-                        <Text fontSize="20px" color="#222322" marginLeft="8px">
+                        <Text
+                          color="#222322"
+                          margin="0 0 0 8px"
+                          tablet_margin="0 0 0 8px"
+                        >
                           {list.text}
                         </Text>
                       </CheckedInput>
@@ -271,7 +273,12 @@ const TodoList = ({
                       border="1px solid #222322"
                       borderRadius="50%"
                       padding="0px"
-                      lineHeight="8px"
+                      style={{
+                        '@media (max-width:1279px)': {
+                          width: '0',
+                          height: '0',
+                        },
+                      }}
                       onClick={() => removeTodo(index)}
                     >
                       x
@@ -284,10 +291,15 @@ const TodoList = ({
             marginLeft="auto"
             color="#222322"
             width="200px"
+            height="40px"
             border="1px solid #222322"
             position="absolute"
             bottom="30px"
             left="60%"
+            tablet_width="140px"
+            tablet_fontSize="12px"
+            tablet_left="50%"
+            tablet_height="20px"
             onClick={deleteCompletedItems}
           >
             清除所有已完成項目
