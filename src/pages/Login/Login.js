@@ -24,29 +24,31 @@ import backgroundImage from './background.jpg'
 
 const Wrapper = styled.div`
   max-width: calc(1320px - 40px);
+  min-height: 100vh;
   padding-left: 20px;
   padding-right: 20px;
-  margin: 0 auto;
   font-family: Poppins;
+  margin: 0 auto;
+  position: relative;
 `
 const PhotoWrapper = styled.div`
   background-image: url(${backgroundImage});
   background-size: cover;
-  width: 80%;
-  height: 80vh;
+  width: 50%;
+  height: 100vh;
   position: absolute;
-  top: 55%;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, -55%);
+  transform: translate(-50%, -50%);
 
   display: flex;
 
   @media screen and (max-width: 1280px) {
-    width: calc(100% - 30px);
-    height: 80vh;
+    width: calc(80% - 30px);
   }
-  @media screen and (max-width: 576px) {
+  @media screen and (max-width: 767px) {
     width: 100%;
+    align-items: start;
   }
 `
 
@@ -63,10 +65,11 @@ const InfoWrapper = styled.div`
 `
 const ChangeModeDiv = styled.div`
   cursor: pointer;
-  color: #f6ead6;
+  color: #b99362;
   font-weight: 700;
   z-index: 100;
-  height: 60px;
+  height: 40px;
+  padding: 12px;
 
   text-align: center;
 
@@ -77,33 +80,41 @@ const ChangeModeDiv = styled.div`
     return props.toggle ? 'translateX(-57%) ' : 'translateX(-157%)'
   }};
   transition: 0.5s;
+  @media screen and (max-width: 767px) {
+    top: -50px;
+    right: 0;
+    left: 0;
+    transform: none;
+    background-color: transparent;
+    text-align: right;
+  }
 `
-const Divide = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 100px;
-`
-const MainTitle = styled.h2`
-  font-size: 36px;
-  color: #f6ead6;
-  margin-bottom: 150px;
 
-  @media screen and (max-width: 1280px) {
-    font-size: 28px;
-    margin-bottom: 80px;
+const MainTitle = styled.h2`
+  font-size: 32px;
+  color: #b99362;
+  margin-bottom: 100px;
+
+  @media screen and (max-width: 1279px) {
+    font-size: 24px;
+    margin-bottom: 40px;
+    margin-top: 0;
   }
   @media screen and (max-width: 767px) {
-    font-size: 20px;
-    margin-bottom: 40px;
+    font-size: 18px;
+    margin-bottom: 20px;
   }
 `
 const Title = styled.div`
-  font-size: 32px;
+  font-size: 24px;
   color: #f6ead6;
-  margin-top: -40px;
+  margin-top: -20px;
 
-  @media screen and (max-width: 1280px) {
-    font-size: 24px;
+  @media screen and (max-width: 1279px) {
+    font-size: 20px;
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
   }
 `
 const Label = styled.label`
@@ -112,10 +123,13 @@ const Label = styled.label`
   left: 0;
   transition: all 0.3s ease;
   color: #f6ead6;
-  font-size: 32px;
-  @media screen and (max-width: 1280px) {
-    font-size: 24px;
-    bottom: 10px;
+  font-size: 24px;
+  @media screen and (max-width: 1279px) {
+    font-size: 20px;
+    bottom: 25px;
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
   }
 `
 const Underline = styled.div`
@@ -128,9 +142,9 @@ const InputData = styled.div`
   width: 100%;
   height: 40px;
   position: relative;
-  margin-bottom: 100px;
+  margin-bottom: 60px;
   @media screen and (max-width: 1280px) {
-    margin-bottom: 80px;
+    margin-bottom: 40px;
   }
 `
 const InfoInput = styled.input`
@@ -138,20 +152,26 @@ const InfoInput = styled.input`
   height: 100%;
   border: none;
   border-bottom: 1px solid #f6ead6;
-  font-size: 28px;
+  font-size: 20px;
 
-  padding: 8px 12px;
-  color: #875839;
+  padding: 8px;
+  color: #b99362;
 
   &:focus ~ label {
-    transform: translateY(-30px);
-    font-size: 32px;
+    transform: translateY(-15px);
+    font-size: 24px;
     color: #ac6947;
     font-weight: bold;
   }
   @media screen and (max-width: 1280px) {
     &:focus ~ label {
-      font-size: 28px;
+      font-size: 20px;
+    }
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
+    &:focus ~ label {
+      font-size: 16px;
     }
   }
 `
@@ -165,34 +185,46 @@ const SignUp = styled.div`
 const LoginForm = styled.form`
   width: 50%;
   z-index: 10;
-  padding: 20px 50px;
+  padding: 20px 30px;
+  @media screen and (max-width: 1279px) {
+    padding: 15px;
+  }
 `
 const SignUpForm = styled.form`
   width: 100%;
-  padding: 20px 50px;
+  padding: 20px 30px;
+  @media screen and (max-width: 1279px) {
+    padding: 15px;
+  }
 `
 
 const Btn = styled.button`
   color: #f6ead6;
   border: 1px solid #f6ead6;
   width: 50%;
-  margin: 0 auto;
-  padding: 30px;
-  font-size: 24px;
+  margin: 20px auto 0;
+  padding: 8px 12px;
+  font-size: 20px;
   display: inherit;
 
   &:active {
     transform: translateY(0.2rem);
   }
 
-  @media screen and (max-width: 1280px) {
-    padding: 18px;
+  @media screen and (max-width: 1279px) {
+    padding: 12px;
+    font-size: 16px;
+  }
+  @media screen and (max-width: 767px) {
+    padding: 8px;
+    font-size: 14px;
+    width: 100%;
   }
 `
 const UploadPic = styled.div`
-  margin: 20px auto 100px auto;
-  width: 180px;
-  height: 180px;
+  margin: 20px auto 40px auto;
+  width: 80px;
+  height: 80px;
   background-color: #d9d9d9;
   border-radius: 8px;
   @media screen and (max-width: 1280px) {
@@ -200,14 +232,14 @@ const UploadPic = styled.div`
   }
 `
 const UploadPhoto = styled.img`
-  width: 180px;
+  width: 80px;
   aspect-ratio: 1/1;
   background-color: #d9d9d9;
   border-radius: 8px;
   object-fit: cover;
 `
 const AfterUpload = styled.div`
-  width: 120px;
+  width: 80px;
   aspect-ratio: 1/1;
   background-color: #d9d9d9;
   border-radius: 8px;
@@ -218,26 +250,22 @@ const FileLabel = styled.label`
   cursor: pointer;
 
   width: 180px;
-  height: 50px;
-  margin-top: 16px;
   color: white;
   text-align: center;
-  font-size: 24px;
+  font-size: 14px;
+  @media screen and (max-width: 1279px) {
+    width: 100px;
+  }
 `
 const Note = styled.p`
   margin-left: 0;
-  color: #5e7e68;
-  font-size: 20px;
+  color: #b99362;
+  font-size: 14px;
   margin-top: 0;
 `
 const Text = styled.div`
   color: #f6ead6;
-  font-size: 24px;
-  padding: 16px;
-  @media screen and (max-width: 1280px) {
-    font-size: 20px;
-    padding: 12px 0;
-  }
+  font-size: 14px;
 `
 
 function Login() {
@@ -248,7 +276,6 @@ function Login() {
   const [downloadUrl, setDownloadUrl] = useState([])
   // const [jwtUid, setjwtUid] = useState()
   const userName = useContext(UserContext)
-  const [photoNote, setPhotoNote] = useState(true)
   const [mode, setMode] = useState(true)
   const navigate = useNavigate()
 

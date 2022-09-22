@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 const Divide = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 60px;
+  margin-bottom: 20px;
 `
 
 const IconCircle = styled.div`
@@ -32,6 +32,10 @@ const IconCircle = styled.div`
     width: 80px;
     height: 80px;
   }
+  @media screen and (max-width: 767px) {
+    width: 40px;
+    height: 40px;
+  }
 `
 const LogoIcon = styled(Link)`
   display: block;
@@ -44,11 +48,16 @@ const LogoIcon = styled(Link)`
     width: 60px;
     height: 60px;
   }
+  @media screen and (max-width: 767px) {
+    width: 30px;
+    height: 30px;
+  }
 `
 const LoginClick = styled(Link)`
   color: #f6ead6;
   margin-left: 20px;
-  font-size: 24px;
+  font-size: 20px;
+  opacity: 0.5;
   &:after {
     content: '';
     border-bottom: 2px solid #ac6947;
@@ -60,50 +69,58 @@ const LoginClick = styled(Link)`
     transition: all 0.3s;
   }
   &:hover {
+    opacity: 1;
     &:after {
       width: 100%;
     }
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 14px;
   }
 `
 const Btn = styled.button`
   color: #f6ead6;
-  padding: 8px 12px;
   margin-left: 12px;
   font-size: 20px;
+  opacity: 0.5;
   &:after {
     content: '';
     border-bottom: 2px solid #ac6947;
     margin: auto;
     position: relative;
     top: 5px;
-    width: 0%;
+    width: 0;
     display: block;
     transition: all 0.3s;
   }
   &:hover {
+    opacity: 1;
     &:after {
       width: 100%;
     }
   }
+  @media screen and (max-width: 767px) {
+    font-size: 14px;
+  }
 `
-const LogoText = styled.div`
-  position: absolute;
-  bottom: -31px;
-  left: 74px;
-  font-size: 24px;
-  font-weight: 800;
-  transform: rotate(-18deg);
-`
-const LogoSecond = styled(LogoText)`
-  left: 100px;
-  transform: rotate(-37deg);
-  bottom: -16px;
-`
-const LogoThird = styled(LogoText)`
-  left: 117px;
-  bottom: 15px;
-  transform: rotate(-67deg);
-`
+// const LogoText = styled.div`
+//   position: absolute;
+//   bottom: -31px;
+//   left: 74px;
+//   font-size: 24px;
+//   font-weight: 800;
+//   transform: rotate(-18deg);
+// `
+// const LogoSecond = styled(LogoText)`
+//   left: 100px;
+//   transform: rotate(-37deg);
+//   bottom: -16px;
+// `
+// const LogoThird = styled(LogoText)`
+//   left: 117px;
+//   bottom: 15px;
+//   transform: rotate(-67deg);
+// `
 
 function Header() {
   const navigate = useNavigate()
@@ -133,9 +150,9 @@ function Header() {
       <Wrapper>
         <Divide>
           <IconCircle>
-            <LogoText>找</LogoText>
+            {/* <LogoText>找</LogoText>
             <LogoSecond>山</LogoSecond>
-            <LogoThird>遊</LogoThird>
+            <LogoThird>遊</LogoThird> */}
             <LogoIcon to="/" />
             <Link to="LogIn" />
           </IconCircle>

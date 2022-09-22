@@ -81,6 +81,7 @@ const Wrapper = styled.div`
 `
 const Divide = styled.div`
   display: flex;
+  position: ${(props) => props.position || 'none'};
   justify-content: ${(props) => props.justifyContent || 'space-between'};
   align-items: ${(props) => props.alignItems || 'center'};
   flex-direction: ${(props) => props.flexDirection || 'row'};
@@ -106,14 +107,24 @@ const DivideBorder = styled.div`
 const Text = styled.div`
   color: ${(props) => props.color || '#f6ead6'};
   font-size: ${(props) => props.fontSize || '16px'};
-  margin-top: ${(props) => props.marginTop || '0px'};
-  margin-bottom: ${(props) => props.marginBottom || '0px'};
-  margin-right: ${(props) => props.marginRight || '0px'};
-  margin-left: ${(props) => props.marginLeft || '0px'};
+  font-weight: ${(props) => props.fontWeight || '400'};
+  margin: ${(props) => props.margin || '0px 0px 0px 0px'};
   text-align: ${(props) => props.textAlign || 'center'};
   position: ${(props) => props.position || 'none'};
   top: ${(props) => props.top || 'none'};
   left: ${(props) => props.left || 'none'};
+  @media screen and (max-width: 1279px) {
+    font-size: ${(props) => props.tablet_fontSize || '16px'};
+    margin: ${(props) => props.tablet_margin || '0px 0px 0px 0px'};
+    top: ${(props) => props.tablet_top || 'none'};
+    left: ${(props) => props.tablet_left || 'none'};
+  }
+  @media screen and (max-width: 767px) {
+    font-size: ${(props) => props.mobile_fontSize || '16px'};
+    margin: ${(props) => props.mobile_margin || '0px 0px 0px 0px'};
+    top: ${(props) => props.mobile_top || 'none'};
+    left: ${(props) => props.mobile_left || 'none'};
+  }
 `
 
 const UnderCover = styled.div`
@@ -169,7 +180,7 @@ const Intro = styled.div`
 `
 
 const Scroll = styled.div`
-  position: fixed;
+  ${'' /* position: fixed; */}
   z-index: 3;
   right: 0;
   bottom: 20px;
@@ -339,14 +350,14 @@ const ActivityContent = () => {
       alert('您尚未登入會員')
       navigate('/login')
     } else {
-      getGroupInfo()
-      getContentInfo()
+      getPromise()
       getOwnerProfile()
       testAuth()
     }
 
     //groupList
     //改成promiseall
+    let newGetPromise = [getGroupInfo(), getContentInfo()]
     async function getGroupInfo() {
       const id = groupID
       setContentID(groupID)
@@ -377,6 +388,9 @@ const ActivityContent = () => {
         console.log('No such document!')
       }
     }
+    async function getPromise() {
+      await Promise.all(newGetPromise)
+    }
 
     const unsub = onSnapshot(doc(db, 'groupContents', groupID), (doc) => {
       const data = doc.data()
@@ -391,7 +405,7 @@ const ActivityContent = () => {
       })
     })
 
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+    // window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
   }, [groupID, contentID])
 
   async function testAuth() {
@@ -537,7 +551,7 @@ const ActivityContent = () => {
           <PopupWrapper>
             <PopContent>
               <PopImage></PopImage>
-              <Text fontSize="36px" marginBottom="30px">
+              <Text fontSize="36px" margin="0px 0px 30px 0px">
                 歡迎加入，請輸入驗證碼
               </Text>
               <InfoInput
@@ -566,20 +580,48 @@ const ActivityContent = () => {
             {groupData && <BackCover hideOnMobile src={groupData.groupPhoto} />}
             {groupData && (
               <>
-                <Text></Text>
-                <Scroll
-                  onClick={() => {
-                    window.scrollTo({ top: 0, right: 0, behavior: 'smooth' })
-                  }}
-                  id="myBtn"
+                <Divide flexDirection="column" position="fixed">
+                  <Text>Top</Text>
+                  <Scroll
+                    onClick={() => {
+                      window.scrollTo({ top: 0, right: 0, behavior: 'smooth' })
+                    }}
+                    id="myBtn"
+                  ></Scroll>
+                </Divide>
+                <Divide
+                  justifyContent="center"
+                  marginTop="12px"
+                  marginBottom="12px"
                 >
-                  Top
-                </Scroll>
-                <Text fontSize="32px" marginBottom="8px" marginTop="12px">
-                  團名：{groupData.groupName}
-                </Text>
-                <Divide justifyContent="center" marginTop="20px">
-                  <Text marginRight="20px" fontSize="24px" position="relative">
+                  <Text
+                    fontSize="24px"
+                    color="#AC6947"
+                    fontWeight="800"
+                    tablet_fontSize="20px"
+                    mobile_fontSize="16px"
+                  >
+                    團名：
+                  </Text>
+                  <Text
+                    fontSize="24px"
+                    tablet_fontSize="20px"
+                    mobile_fontSize="16px"
+                  >
+                    {groupData.groupName}
+                  </Text>
+                </Divide>
+
+                <Divide justifyContent="center">
+                  <Text
+                    margin="0px 4px 0px 0px"
+                    fontSize="24px"
+                    color="#AC6947"
+                    fontWeight="800"
+                    position="relative"
+                    tablet_fontSize="20px"
+                    mobile_fontSize="16px"
+                  >
                     <BackColor
                       backgroundColor="#F6EAD6"
                       width="180px"
@@ -589,10 +631,26 @@ const ActivityContent = () => {
                       left="-220px"
                     ></BackColor>
                     地點：
-                    {groupData.groupCity}|<span>{groupData.groupMountain}</span>
                   </Text>
-                  <Text fontSize="24px" position="relative">
+                  <Text
+                    fontSize="24px"
+                    margin="0 8px 0 0"
+                    tablet_fontSize="20px"
+                    mobile_fontSize="16px"
+                  >
+                    {groupData.groupCity}|{groupData.groupMountain}
+                  </Text>
+                  <Text
+                    fontSize="24px"
+                    color="#AC6947"
+                    fontWeight="800"
+                    margin="0 0 0 20px"
+                    tablet_fontSize="20px"
+                    mobile_fontSize="16px"
+                  >
                     日期：
+                  </Text>
+                  <Text position="relative" fontSize="24px">
                     {groupData.startDate} ~ {groupData.endDate}
                     <BackColor
                       backgroundColor="#F6EAD6"
@@ -640,7 +698,7 @@ const ActivityContent = () => {
                         團長
                       </Text>
 
-                      <Text fontSize="20px" marginBottom="8px">
+                      <Text fontSize="20px" margin="0x 0x 8px 0px">
                         {ownerProfile.name}
                       </Text>
                       <MemberPic
@@ -721,7 +779,9 @@ const ActivityContent = () => {
                       isActive={isActive}
                     >
                       {profile && (
-                        <Text marginBottom="12px">{profile.name}的清單</Text>
+                        <Text margin="0x 0x 12px 0px">
+                          {profile.name}的清單
+                        </Text>
                       )}
                       {isActive && profile && profile.equipment.length > 0 ? (
                         profile.equipment.map((item, index) => {

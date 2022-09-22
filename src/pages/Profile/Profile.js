@@ -23,9 +23,12 @@ const ProfileWrapper = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.15);
   width: 100px;
   height: 100px;
-  margin: 0 auto;
+  margin: 40px auto;
   position: relative;
-  margin-bottom: 60px;
+  ${'' /* margin-bottom: 60px; */}
+  @media screen and (max-width: 767px) {
+    margin: 30px auto;
+  }
 `
 
 const PersonPhoto = styled.img`
@@ -47,16 +50,72 @@ const PersonName = styled.div`
   position: relative;
   top: -35px;
   left: -10px;
+  @media screen and (max-width: 767px) {
+    top: -20px;
+    font-size: 16px;
+  }
 `
+
 const Divide = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
+  max-height: ${(props) => props.maxHeight || 'none'};
+  justify-content: ${(props) => props.justifyContent || 'space-between'};
+  align-items: ${(props) => props.alignItems || 'center'};
+  flex-direction: ${(props) => props.flexDirection || 'row'};
+  margin-bottom: ${(props) => props.marginBottom || '0px'};
+  margin-top: ${(props) => props.marginTop || '0px'};
+  flex-wrap: ${(props) => props.flexWrap || 'no-wrap'};
+
+  @media screen and (max-width: 767px) {
+    flex-direction: ${(props) => props.mobile_flexDirection || 'row'};
+  }
+`
+const CardDivide = styled(Divide)`
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    ${'' /* display: none; */}
+    background: transparent;
+    border-radius: 4px;
+    width: 3px;
+  }
+  &::-webkit-scrollbar-track-piece {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: #f6ead6;
+    border: 1px solid #f6ead6;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: transparent;
+  }
 `
 const ToolWrapper = styled(Divide)`
-  width: 600px;
+  width: calc(100% - 40px);
+  @media screen and (max-width: 767px) {
+    width: 100%;
+  }
   margin: 0 auto;
   flex-wrap: wrap;
+  max-height: 300px;
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    ${'' /* display: none; */}
+    background: transparent;
+    border-radius: 4px;
+    width: 3px;
+  }
+  &::-webkit-scrollbar-track-piece {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: #f6ead6;
+    border: 1px solid #f6ead6;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: transparent;
+  }
 `
 const Flex = styled.div`
   display: flex;
@@ -66,38 +125,44 @@ const CategoryDivide = styled.div`
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) inset;
   padding: 32px;
   max-height: 1200px;
-  overflow: overlay;
-`
-const CardWrapper = styled.div`
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
+  @media screen and (max-width: 1279px) {
+    padding: 24px;
+  }
+  @media screen and (max-width: 767px) {
+    padding: 18px;
+  }
 `
 
 const ActivityCard = styled.div`
   border-radius: 8px;
-  width: 32%;
-  margin-top: 30px;
-  margin-bottom: 20px;
+  width: 30%;
+  margin: 20px 1%;
   aspect-ratio: 1/1;
   padding: 16px 20px;
   background-color: rgba(246, 234, 214, 0.2);
-  @media screen and (max-width: 768px) {
+  &:last-child {
+    margin-right: auto;
+  }
+  @media screen and (max-width: 1279px) {
     width: 48%;
     margin-bottom: 14px;
   }
   @media screen and (max-width: 767px) {
-    width: 100%;
+    ${'' /* width: 40%; */}
     margin-bottom: 14px;
   }
 `
 const ActivityTitle = styled.div`
   font-size: 24px;
   text-align: center;
-  font-weight: 700;
+  font-weight: 500;
   margin-bottom: 12px;
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 1279px) {
     font-size: 20px;
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
+    margin-bottom: 8px;
   }
 `
 const ActivityLink = styled.div`
@@ -123,6 +188,9 @@ const GroupLink = styled(Link)`
   opacity: 0;
 
   transition: all 0.3s;
+  @media screen and (max-width: 1279px) {
+    font-size: 20px;
+  }
 `
 const ActivityImage = styled.div`
   background-position: center;
@@ -151,23 +219,32 @@ const Content = styled.div`
 const DateRange = styled.div`
   font-size: 14px;
   margin-bottom: 12px;
-  font-size: 14px;
   font-weight: 400px;
-  letter-spacing: 2px;
-  @media screen and(max-width:1280px) {
+  ${'' /* letter-spacing: 1px; */}
+  @media screen and (max-width: 1279px) {
     margin-bottom: 8px;
+  }
+  @media screen and (max-width: 576px) {
+    font-size: 12px;
   }
 `
 const ToolDivide = styled(Divide)`
-  width: 200px;
+  width: calc(100% / 4);
   margin-bottom: 12px;
+  @media screen and (max-width: 1279px) {
+    width: calc(100% / 3);
+    justify-content: center;
+  }
+  @media screen and (max-width: 767px) {
+    width: calc(100% / 2);
+  }
 `
 
 const Category = styled.div`
   width: calc(100% / 4);
   text-align: center;
   padding: 12px;
-  font-size: 28px;
+  font-size: 24px;
   letter-spacing: 2px;
   cursor: pointer;
   padding-bottom: 4px;
@@ -177,9 +254,14 @@ const Category = styled.div`
   opacity: ${(props) => (props.$isActive ? 1 : 0.2)};
   text-shadow: ${(props) =>
     props.$isActive ? '1px 1px 20px #F6EAD6' : 'none'};
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
+    letter-spacing: 1px;
+    white-space: no-wrap;
+    padding: 12px 0;
+  }
 `
 const Tools = styled.div`
-  width: calc(100% - 20px);
   margin: 0 auto;
   text-align: center;
   position: relative;
@@ -191,9 +273,13 @@ const ToolInput = styled.input`
   height: 50px;
   padding: 12px;
   color: #222322;
-  font-size: 24px;
+  font-size: 20px;
 
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
+    height: 40px;
+  }
 `
 const AddToolBtn = styled.button`
   color: #222322;
@@ -206,18 +292,24 @@ const AddToolBtn = styled.button`
   left: 55%;
 
   box-shadow: 7px 10px 15px -8px rgba(0, 0, 0, 0.71);
+  @media screen and (max-width: 767px) {
+    top: 30px;
+    height: 40px;
+  }
 `
 const Note = styled.p`
   color: #5e7e68;
   font-size: 14px;
   margin-top: 12px;
 `
-const Equipment = styled.div`
-  margin-top: 40px;
-`
 const IconTitle = styled.div`
   font-size: 20px;
   margin-right: 12px;
+  @media (max-width: 1279px) {
+    font-size: 14px;
+    margin-right: 8px;
+    width: 30px;
+  }
 `
 const IconImage = styled.div`
   width: 50px;
@@ -229,6 +321,10 @@ const IconImage = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  @media screen and (max-width: 767px) {
+    width: 40px;
+    height: 40px;
+  }
 `
 
 const IconWrapper = styled.div`
@@ -261,29 +357,45 @@ const Delete = styled.div`
 const DefaultMsg = styled.div`
   font-size: 20px;
   text-align: center;
-  padding-top: 30px;
+  margin-top: 10px;
   letter-spacing: 2px;
   font-weight: 400;
+  margin: 0 auto;
+  @media screen and (max-width: 1279px) {
+    font-size: 16px;
+  }
+  @media screen and (max-width: 576px) {
+    font-size: 14px;
+  }
 `
 const BeALeader = styled.button`
+  margin-top: 20px;
   background-color: transparent;
   width: 100%;
 
   color: #ac6947;
   font-weight: 700;
-  font-size: 28px;
+  font-size: 24px;
   text-align: center;
   letter-spacing: 2px;
+  @media screen and (max-width: 1279px) {
+    font-size: 20px;
+  }
+  @media screen and (max-width: 576px) {
+    font-size: 16px;
+  }
 `
 const DefaultImg = styled.img`
   width: 450px;
   height: 450px;
   margin: 0 auto;
   object-fit: cover;
+  @media screen and (max-width: 767px) {
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+  }
 `
-const Grouplink = styled(Link)`
-  color: white;
-`
+
 function Profile() {
   const [getUserData, setGetUserData] = useState()
   const [joinGroup, setJoinGroup] = useState([])
@@ -406,51 +518,60 @@ function Profile() {
             )}
           </Divide>
           {currentPage == 0 && (
-            <CardWrapper>
-              {leadGroup.length > 0 ? (
-                Object.values(leadGroup).map((item, index) => {
-                  console.log(item)
-                  return (
-                    <>
-                      <ActivityCard key={index}>
-                        <ActivityTitle>{item.groupName}</ActivityTitle>
-                        <Divide>
-                          <DateRange>{item.startDate} - </DateRange>
-                          <DateRange>{item.endDate}</DateRange>
-                        </Divide>
-                        <Content>
-                          <ActivityImage
-                            style={{
-                              backgroundImage: `url(${
-                                item.groupPhoto != undefined
-                                  ? item.groupPhoto
-                                  : mountain
-                              })`,
-                            }}
-                          >
-                            <ActivityLink>
-                              {' '}
-                              <GroupLink to={`/activity/${item.groupID}`}>
-                                前往這座山
-                              </GroupLink>
-                            </ActivityLink>
-                          </ActivityImage>
-                        </Content>
-                      </ActivityCard>
-                    </>
-                  )
-                })
-              ) : (
-                <Flex>
-                  <DefaultMsg>目前尚無發起群組</DefaultMsg>
-                  <DefaultImg src={hiking} />
-                </Flex>
-              )}
-              <BeALeader onClick={addActivity}>快來發起活動吧!</BeALeader>
-            </CardWrapper>
+            <>
+              <BeALeader onClick={addActivity}>點我發起活動吧!</BeALeader>
+              <CardDivide
+                // mobile_flexDirection="column"
+                justifyContent="space-between"
+                flexWrap="wrap"
+                maxHeight="600px"
+              >
+                {leadGroup.length > 0 ? (
+                  Object.values(leadGroup).map((item, index) => {
+                    return (
+                      <>
+                        <ActivityCard key={index}>
+                          <ActivityTitle>{item.groupName}</ActivityTitle>
+                          <Divide justifyContent="center">
+                            <DateRange>
+                              日期：
+                              <br />
+                              {item.startDate} ~ {item.endDate}
+                            </DateRange>
+                          </Divide>
+                          <Content>
+                            <ActivityImage
+                              style={{
+                                backgroundImage: `url(${
+                                  item.groupPhoto != undefined
+                                    ? item.groupPhoto
+                                    : mountain
+                                })`,
+                              }}
+                            >
+                              <ActivityLink>
+                                {' '}
+                                <GroupLink to={`/activity/${item.groupID}`}>
+                                  前往這座山
+                                </GroupLink>
+                              </ActivityLink>
+                            </ActivityImage>
+                          </Content>
+                        </ActivityCard>
+                      </>
+                    )
+                  })
+                ) : (
+                  <Flex>
+                    <DefaultMsg>目前尚無發起群組</DefaultMsg>
+                    <DefaultImg src={hiking} />
+                  </Flex>
+                )}
+              </CardDivide>
+            </>
           )}
           {currentPage == 1 && (
-            <CardWrapper>
+            <Divide mobile_flexDirection="column" justifyContent="center">
               {joinGroup.length > 0 ? (
                 Object.values(joinGroup).map((item, index) => {
                   return (
@@ -487,7 +608,7 @@ function Profile() {
                   <DefaultImg src={hiking} />
                 </Flex>
               )}
-            </CardWrapper>
+            </Divide>
           )}
           {currentPage == 2 && (
             <>

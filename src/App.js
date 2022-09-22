@@ -10,6 +10,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import PoppinsRegular from './fonts/Poppins-Regular.ttf'
 import PoppinsBold from './fonts/Poppins-Bold.ttf'
 import PoppinsThin from './fonts/Poppins-Light.ttf'
+import RubikMoonrocks from './fonts/RubikMoonrocks-Regular.ttf'
 
 import { Link, Routes, Route, Outlet, BrowserRouter } from 'react-router-dom'
 
@@ -32,6 +33,11 @@ const GlobalStyle = createGlobalStyle`
   @font-face {
     font-family: Poppins;
     src: url(${PoppinsRegular}) format('opentype');
+    font-weight: normal;
+  }
+    @font-face {
+    font-family: Rubik Moonrocks, cursive;
+    src: url(${RubikMoonrocks}) format('opentype');
     font-weight: normal;
   }
   body {
@@ -75,6 +81,7 @@ const GlobalStyle = createGlobalStyle`
     cursor:pointer;
     background:transparent;
     border:none;
+    border-radius:0;
   }
   button{
     background-color:transparent;
@@ -85,9 +92,12 @@ const GlobalStyle = createGlobalStyle`
   #root{
     min-height:100vh;
     padding: 70px 0px 120px;
-    @media screen and (max-width: 767px) {
+    @media screen and (max-width: 1279px) {
       padding: 40px 0px 60px;
-    };
+    }
+    @media screen and (max-width: 767px) {
+      padding: 20px 0px 40px;
+    }
   }
 
 `

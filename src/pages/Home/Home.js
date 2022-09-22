@@ -16,8 +16,11 @@ const LoginClick = styled(Link)`
   font-size: 24px;
   color: #f6ead6;
   z-index: 100;
-  @media screen and (max-width: 1280px) {
-    font-size: 20px;
+  @media screen and (max-width: 1279px) {
+    font-size: 16px;
+  }
+  @media screen and (max-width: 576px) {
+    font-size: 14px;
   }
 `
 const Wrapper = styled.div`
@@ -39,7 +42,7 @@ const Background = styled.div`
   overflow: hidden;
 `
 const BackgroundPic = styled.div`
-  background-image: url(${南湖});
+  background-image: url(${background});
   position: absolute;
   top: 50%;
   left: 45%;
@@ -67,10 +70,10 @@ const BackgroundLine = styled.div`
   padding: 20px;
   height: 25%;
   width: 5%;
-  right: 34px;
+  right: -50px;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgb(48, 61, 48);
+  ${'' /* background-color: rgb(48, 61, 48); */}
   @media screen and (max-width: 1280px) {
     top: 40%;
     transform: translateY(-40%);
@@ -217,7 +220,11 @@ function Home() {
     <>
       <Background>
         <BgBall>
-          {!isLogged && <LoginClick to="login">登入頁面</LoginClick>}
+          {!isLogged ? (
+            <LoginClick to="login">登入頁面</LoginClick>
+          ) : (
+            <LoginClick to="profile">回到個人頁面</LoginClick>
+          )}
         </BgBall>
         <BgBallA></BgBallA>
         <BackgroundPic>

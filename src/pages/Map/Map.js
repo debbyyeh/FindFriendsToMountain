@@ -17,11 +17,10 @@ const Wrapper = styled.div`
   position: relative;
 `
 const Divide = styled.div`
-  width: 350px;
   position: absolute;
-  left: -50px;
+  left: 0px;
   display: flex;
-  align-items: center;
+  ${'' /* align-items: center; */}
   flex-direction: column;
 `
 const CityWrap = styled.div`
@@ -32,31 +31,69 @@ const CityWrap = styled.div`
   width: 300px;
   height: 300px;
   z-index: 10;
+
+  @media (max-width: 1279px) {
+    left: ${(props) => props.mobile_left || '0px'};
+  }
+
+  @media screen and (max-width: 767px) {
+    display: none;
+  }
 `
 const MountainWrapper = styled.div`
-  max-width: 400px;
-  border-radius: 12px;
-  max-height: 400px;
+  max-height: 200px;
   padding: 12px;
-  ${'' /* overflow: scroll; */}
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    ${'' /* display: none; */}
+    background: transparent;
+    border-radius: 4px;
+    width: 3px;
+  }
+  &::-webkit-scrollbar-track-piece {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: #f6ead6;
+    border: 1px solid #f6ead6;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: transparent;
+  }
+  @media screen and (max-width: 1279px) {
+    font-size: 16px;
+  }
 `
 const CityName = styled.ul`
-  font-size: 32px;
+  font-size: 24px;
   color: #f6ead6;
   padding-left: 0;
+  margin: 0;
+  @media screen and (max-width: 1279px) {
+    font-size: 16px;
+  }
 `
 const CityMountainList = styled.li`
-  font-size: 24px;
+  width: 150px;
+  font-size: 20px;
   background-color: #f6ead6;
   color: #222322;
-  padding: 12px;
+  padding: 8px;
   font-weight: 700;
+  @media screen and (max-width: 1279px) {
+    font-size: 16px;
+  }
 `
 const HighMountainList = styled.li`
+  width: 150px;
   background-color: #577d45;
-  font-size: 24px;
+  font-size: 20px;
   color: #f6ead6;
-  padding: 12px;
+  padding: 8px;
+  @media screen and (max-width: 1279px) {
+    font-size: 16px;
+  }
 `
 
 const HighMountain = styled.div`
@@ -76,6 +113,18 @@ const Signature = styled.div`
   margin: 30px 0 30px;
   display: flex;
 `
+const MobileMap = styled.div`
+  ${(props) => props.hideOnDesktop && 'display: none;'}
+
+  @media screen and (max-width: 767px) {
+    display: block;
+    height: 200px;
+    position: absolute;
+    bottom: 0;
+    left: 40px;
+  }
+`
+const MobileCityWrap = styled.div``
 
 const ListItem = styled.option`
   cursor: pointer;
@@ -83,22 +132,24 @@ const ListItem = styled.option`
   color: #f6ead6;
   background-color: rgb(48, 61, 48);
   min-width: 120px;
-  ${'' /* padding: 12px; */}
   font-size: 20px;
   &:hover {
     border-bottom: 1px solid #ac6947;
   }
+  @media screen and (max-width: 1279px) {
+    font-size: 16px;
+  }
 `
 
 const DropDownHeader = styled.select`
-  width: 150px;
+  width: 120px;
   color: #f6ead6;
   border: none;
   margin-bottom: 12px;
   padding: 12px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 130%);
   font-weight: 500;
-  font-size: 20px;
+  font-size: 16px;
   background: transparent;
   &:focus {
     outline: none;
@@ -108,9 +159,9 @@ const InputData = styled.div`
   width: 50%;
   height: 40px;
   position: relative;
-  margin-top: 40px;
-  left: 30px;
-  @media screen and (max-width: 1280px) {
+  margin: 20px 0;
+  @media screen and (max-width: 1279px) {
+    margin: 12px 0;
   }
 `
 const InfoInput = styled.input`
@@ -119,34 +170,31 @@ const InfoInput = styled.input`
   text-align: center;
   border: none;
   border-bottom: 1px solid #f6ead6;
-  font-size: 28px;
+  font-size: 20px;
 
   margin-top: 12px;
-  padding-bottom: 12px;
   color: #f6ead6;
 
   &:focus ~ label {
-    transform: translateY(-15px);
+    transform: translateY(-10px);
     font-size: 20px;
     color: #ac6947;
     font-weight: bold;
   }
-  @media screen and (max-width: 1280px) {
+  @media screen and (max-width: 1279px) {
+    font-size: 16px;
     &:focus ~ label {
-      font-size: 14px;
+      font-size: 16px;
     }
   }
 `
 const Label = styled.label`
   position: absolute;
-  bottom: 35px;
+  bottom: 25px;
   left: 0;
   transition: all 0.3s ease;
   color: #f6ead6;
-  font-size: 20px;
-  @media screen and (max-width: 1280px) {
-    bottom: 10px;
-  }
+  font-size: 16px;
 `
 
 const Underline = styled.div`
@@ -158,23 +206,13 @@ const Underline = styled.div`
 const Btn = styled.button`
   color: #f6ead6;
   border: 1px solid #f6ead6;
+  margin-top: 16px;
   width: 50%;
-  margin: 16px auto;
-  padding: 10px;
-  font-size: 20px;
-  margin-right: 58px;
+  padding: 8px;
+  font-size: 16px;
 
   &:active {
     transform: translateY(0.2rem);
-  }
-
-  @media screen and (max-width: 1280px) {
-    padding: 18px;
-  }
-`
-const PathLink = styled.a`
-  &:active {
-    fill: #875839;
   }
 `
 
@@ -404,7 +442,7 @@ const Map = () => {
             console.log(newData)
             mountainList.splice(index, 1, newData)
             const newDocRef = updateDoc(doc(db, 'users', value.userUid), {
-              mountainLists: [mountainList],
+              mountainLists: mountainList,
             })
           }
         } else if (index != 0) {
@@ -433,6 +471,7 @@ const Map = () => {
           }
         }
       }
+      mountainNameRef.current.value = ''
     } else {
       window.alert('資料有缺')
     }
@@ -440,67 +479,67 @@ const Map = () => {
 
   return (
     <>
-      {isDesktop && (
-        <>
-          {position === 'north' && (
-            <CityWrap top="45%" left="63%">
-              <MountainNumberOfCity
-                targetCity={clickCity}
-                item={clickMountainList}
-              />
-            </CityWrap>
-          )}
-          {position === 'northwest' && (
-            <CityWrap top="45%" left="48%">
-              <MountainNumberOfCity
-                targetCity={clickCity}
-                item={clickMountainList}
-              />
-            </CityWrap>
-          )}
-          {position === 'east' && (
-            <CityWrap top="95%" left="70%">
-              <MountainNumberOfCity
-                targetCity={clickCity}
-                item={clickMountainList}
-              />
-            </CityWrap>
-          )}
-          {position === 'eastTaitung' && (
-            <CityWrap top="95%" left="70%">
-              <MountainNumberOfCity
-                targetCity={clickCity}
-                item={clickMountainList}
-              />
-            </CityWrap>
-          )}
-          {position === 'pintung' && (
-            <CityWrap top="85%" left="20%">
-              <MountainNumberOfCity
-                targetCity={clickCity}
-                item={clickMountainList}
-              />
-            </CityWrap>
-          )}
-          {position === 'south' && (
-            <CityWrap top="80%" left="25%">
-              <MountainNumberOfCity
-                targetCity={clickCity}
-                item={clickMountainList}
-              />
-            </CityWrap>
-          )}
-          {position === 'middle' && (
-            <CityWrap top="80%" left="30%">
-              <MountainNumberOfCity
-                targetCity={clickCity}
-                item={clickMountainList}
-              />
-            </CityWrap>
-          )}
-        </>
-      )}
       <Wrapper>
+        {isDesktop && (
+          <>
+            {position === 'north' && (
+              <CityWrap top="10%" left="70%" mobile_left="70%">
+                <MountainNumberOfCity
+                  targetCity={clickCity}
+                  item={clickMountainList}
+                />
+              </CityWrap>
+            )}
+            {position === 'northwest' && (
+              <CityWrap top="25%" left="20%" mobile_left="25%">
+                <MountainNumberOfCity
+                  targetCity={clickCity}
+                  item={clickMountainList}
+                />
+              </CityWrap>
+            )}
+            {position === 'east' && (
+              <CityWrap top="40%" left="70%" mobile_left="70%">
+                <MountainNumberOfCity
+                  targetCity={clickCity}
+                  item={clickMountainList}
+                />
+              </CityWrap>
+            )}
+            {position === 'eastTaitung' && (
+              <CityWrap top="60%" left="70%" mobile_left="70%">
+                <MountainNumberOfCity
+                  targetCity={clickCity}
+                  item={clickMountainList}
+                />
+              </CityWrap>
+            )}
+            {position === 'pintung' && (
+              <CityWrap top="85%" left="20%">
+                <MountainNumberOfCity
+                  targetCity={clickCity}
+                  item={clickMountainList}
+                />
+              </CityWrap>
+            )}
+            {position === 'south' && (
+              <CityWrap top="60%" left="20%" mobile_left="15%">
+                <MountainNumberOfCity
+                  targetCity={clickCity}
+                  item={clickMountainList}
+                />
+              </CityWrap>
+            )}
+            {position === 'middle' && (
+              <CityWrap top="30%" left="20%" mobile_left="20%">
+                <MountainNumberOfCity
+                  targetCity={clickCity}
+                  item={clickMountainList}
+                />
+              </CityWrap>
+            )}
+          </>
+        )}
         <Signature>
           <WalkingPlace>步道</WalkingPlace>
           <HighMountain>百岳</HighMountain>
@@ -531,6 +570,14 @@ const Map = () => {
           <Btn onClick={addToMap}>加入地圖</Btn>
         </Divide>
 
+        <MobileMap hideOnDesktop>
+          <MobileCityWrap>
+            <MountainNumberOfCity
+              targetCity={clickCity}
+              item={clickMountainList}
+            />
+          </MobileCityWrap>
+        </MobileMap>
         <svg
           id="cf503461-00bd-459a-aeb5-062ebc913211"
           data-name="圖層 1"
