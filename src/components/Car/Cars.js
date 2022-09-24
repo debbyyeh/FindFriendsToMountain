@@ -14,16 +14,21 @@ import { db } from '../../utils/firebase'
 
 const AreaTitle = styled.div`
   position: absolute;
-  top: -30px;
+  top: -20px;
   display: flex;
-  width: 200px;
+  width: 140px;
   align-items: center;
+  justify-content: center;
   background-color: rgb(48, 61, 48);
+  @media screen and (max-width: 767px) {
+    top: -15px;
+  }
 `
 const AddOne = styled.div`
   font-size: 18px;
   border-radius: 50%;
-  border: 1px solid white;
+  border: 1px solid #f6ead6;
+  margin-left: 8px;
   width: 30px;
   height: 30px;
   display: flex;
@@ -31,14 +36,22 @@ const AddOne = styled.div`
   align-items: center;
 
   cursor: pointer;
+  @media screen and (max-width: 1279px) {
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+  }
 `
 const CarContainer = styled.div`
   width: 45%;
   margin-right: 5px;
   margin-top: 30px;
   @media screen and (max-width: 1279px) {
-    width: 100%;
+    width: 33%;
     margin-right: 0;
+  }
+  @media screen and (max-width: 767px) {
+    width: 100%;
   }
 `
 
@@ -50,6 +63,47 @@ const CarseatContainer = styled.input`
   margin: 8px 4px;
   text-align: center;
   color: white;
+`
+const CarDivide = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-top: 30px;
+  margin-bottom: 70px;
+  @media screen and (max-width: 1279px) {
+    max-height: 500px;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      ${'' /* display: none; */}
+      background: transparent;
+      border-radius: 4px;
+      width: 2px;
+    }
+    &::-webkit-scrollbar-track-piece {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background-color: #f6ead6;
+      border: 1px solid #f6ead6;
+    }
+    &::-webkit-scrollbar-track {
+      box-shadow: transparent;
+    }
+  }
+  @media screen and (max-width: 767px) {
+    flex-wrap: nowrap;
+    flex-direction: row;
+    ${'' /* display: initial; */}
+    max-height: 400px;
+    overflow-x: scroll;
+    &::-webkit-scrollbar {
+      ${'' /* display: none; */}
+      background: transparent;
+      border-radius: 4px;
+      width: 1px;
+    }
+  }
 `
 
 const Cars = ({
@@ -64,7 +118,7 @@ const Cars = ({
   let url = window.location.href
   const newUrl = url.split('/activity/')
   const groupID = newUrl[1]
-  const [add, setAdd] = useState(false)
+  const [add, setAdd] = useState(true)
   const [num, setNum] = useState(0)
   const [seat, setSeat] = useState(0)
   const [member, setMember] = useState()
@@ -76,15 +130,10 @@ const Cars = ({
   const [latest, setLatest] = useState()
   const carGroupName = useRef()
   const seatNum = useRef()
-  const passengerRef = useRef([])
   const value = useContext(UserContext)
   const docRef = doc(db, 'groupContents', groupID)
   const [passengerNames, setPassengerNames] = useState([])
-  const CarDivide = styled(DivideBorder)`
-    @media screen and (max-width: 1279px) {
-      ${'' /* width: 100%; */}
-    }
-  `
+
   useEffect(() => {
     getMemberList()
     getCarArrangeLists()
@@ -122,16 +171,35 @@ const Cars = ({
     return (
       <>
         {add && (
-          <Divide justifyContent="center" marginTop="20px">
-            <InfoInput width="120px" ref={carGroupName} placeholder="誰的車" />
+          <Divide
+            justifyContent="center"
+            marginTop="20px"
+            mobile_justifyContent="flex-start"
+          >
             <InfoInput
               width="120px"
+              ref={carGroupName}
+              mobile_height="30px"
+              mobile_fontSize="14px"
+              placeholder="誰的車"
+            />
+            <InfoInput
+              width="120px"
+              mobile_width="100px"
+              mobile_height="30px"
+              mobile_fontSize="14px"
               type="number"
               min="1"
               ref={seatNum}
               placeholder="幾個座位"
             />
-            <Btn marginLeft="12px" width="60px" onClick={handleSubmit}>
+            <Btn
+              marginLeft="12px"
+              width="60px"
+              mobile_height="30px"
+              tablet_fontSize="14px"
+              onClick={handleSubmit}
+            >
               安排
             </Btn>
           </Divide>
@@ -181,6 +249,7 @@ const Cars = ({
     const updateCarsToData = await updateDoc(docRef, {
       carLists: newArr,
     })
+    window.alert('更新成功')
   }
   async function getCarArrangeLists(carIndex) {
     let arrangeLists = latest[carIndex].passengerArrange
@@ -192,37 +261,55 @@ const Cars = ({
   }
   return (
     <>
-      <CarDivide
-        width="50%"
-        height="800px"
+      <DivideBorder
+        width="45%"
+        minHeight="300px"
         position="relative"
         marginTop="50px"
+        padding="20px"
+        tablet_width="100%"
+        border={add ? '4px solid #ac6947' : 'none'}
       >
         <AreaTitle>
-          <Text fontSize="32px" marginRight="12px" marginLeft="12px">
+          <Text
+            fontSize="24px"
+            marginRight="12px"
+            marginLeft="12px"
+            tablet_fontSize="20px"
+            mobile_fontSize="16px"
+          >
             車子分配
           </Text>
-          <AddOne onClick={showInput}>{add ? '-' : '+'}</AddOne>
+          <AddOne onClick={() => setAdd((current) => !current)}>
+            {add ? '-' : '+'}
+          </AddOne>
         </AreaTitle>
-        <Text textAlign="left" position="relative">
+        <Text
+          textAlign="left"
+          position="relative"
+          tablet_fontSize="14px"
+          margin="12px 0 20px 0"
+        >
           請按＋輸入相關資訊
           <BackColor
-            width="185px"
-            height="10px"
-            top="20px"
-            left="2px"
+            width="160px"
+            height="5px"
+            top="100%"
+            left="0"
+            tablet_width="140px"
           ></BackColor>
         </Text>
-
         <CarListForm addCar={addCar} />
-        <Divide flexWrap="wrap" justifyContent="center" marginTop="30px">
+        <CarDivide>
           {latest &&
             latest.map((car, carIndex) => {
               return (
                 <>
                   <CarContainer key={carIndex}>
-                    <Divide justifyContent="center">
-                      <Text fontSize="20px">{car.whoseCar}的車子</Text>
+                    <Divide justifyContent="center" marginBottom="12px">
+                      <Text fontSize="20px" mobile_fontSize="14px">
+                        {car.whoseCar}的車子
+                      </Text>
                       <Btn
                         borderRadius="50%"
                         margin="0px 0px 0px 12px"
@@ -241,7 +328,7 @@ const Cars = ({
                         height="60px"
                         objectFit="contain"
                       />
-                      <Text marginTop="8px">
+                      <Text marginTop="8px" mobile_fontSize="14px">
                         目前還有{' '}
                         {Number(
                           car.maxNum - latest[carIndex].passengerArrange.length,
@@ -249,7 +336,7 @@ const Cars = ({
                         / {Number(car.maxNum)}位置
                       </Text>
                     </Divide>
-                    <Divide justifyContent="center">
+                    <Divide justifyContent="center" flexWrap="wrap">
                       {Array(car.maxNum)
                         .fill(undefined)
                         .map((_, index) => {
@@ -272,19 +359,25 @@ const Cars = ({
                 </>
               )
             })}
-        </Divide>
-        <Btn
-          width="150px"
-          margin="20px auto 0px auto"
-          position="absolute"
-          left="40%"
-          bottom="30px"
-          top="none"
-          onClick={updatePassengerList}
-        >
-          儲存安排
-        </Btn>
-      </CarDivide>
+        </CarDivide>
+        {add && (
+          <Btn
+            width="150px"
+            margin="0px auto 0px auto"
+            tablet_fontSize="14px"
+            mobile_width="100px"
+            position="absolute"
+            left="50%"
+            top="calc(100% - 20px)"
+            style={{
+              transform: 'translate(-50%,-100%)',
+            }}
+            onClick={updatePassengerList}
+          >
+            儲存送出
+          </Btn>
+        )}
+      </DivideBorder>
     </>
   )
 }

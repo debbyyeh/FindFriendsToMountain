@@ -135,7 +135,7 @@ const CategoryDivide = styled.div`
 
 const ActivityCard = styled.div`
   border-radius: 8px;
-  width: 30%;
+  width: 31%;
   margin: 20px 1%;
   aspect-ratio: 1/1;
   padding: 16px 20px;
@@ -244,7 +244,7 @@ const Category = styled.div`
   width: calc(100% / 4);
   text-align: center;
   padding: 12px;
-  font-size: 24px;
+  font-size: 20px;
   letter-spacing: 2px;
   cursor: pointer;
   padding-bottom: 4px;
@@ -407,11 +407,14 @@ function Profile() {
   const value = useContext(UserContext)
   const equipmentSearch = useRef()
   const navigate = useNavigate()
-  const docRef = doc(db, 'users', value.userUid)
   useEffect(() => {
+    console.log(value.userAuth)
+    // if (value.userAuth === null) {
+    //   window.alert('會員尚未登入')
+    // } else {
+    const docRef = doc(db, 'users', value.userUid)
     async function getDBInfo() {
       try {
-        const docRef = doc(db, 'users', value.userUid)
         const docSnap = await getDoc(docRef)
         if (docSnap.exists()) {
           const userData = docSnap.data()
@@ -432,24 +435,9 @@ function Profile() {
       setLeadGroup(leadData)
     })
     getDBInfo()
+    // }
+  }, [value.userAuth])
 
-    //得到群組的圖片
-    async function getMountainData() {
-      try {
-        const docRef = doc(db, 'users', value.userUid)
-        const docSnap = await getDoc(docRef)
-        if (docSnap.exists()) {
-          const userData = docSnap.data()
-          setGetUserData(userData)
-          setJoinGroup(userData.joinGroup)
-          setLeadGroup(userData.leadGroup)
-          setTools(userData.equipment)
-        }
-      } catch {
-        console.log('No such document!')
-      }
-    }
-  }, [value.userUid])
   async function addTool() {
     if (equipmentSearch.current.value == '') {
       alert('請輸入中文登山裝備')
@@ -485,7 +473,6 @@ function Profile() {
     }
   }
   function addActivity() {
-    console.log('click')
     navigate('/activity')
   }
 
@@ -522,43 +509,41 @@ function Profile() {
               <BeALeader onClick={addActivity}>點我發起活動吧!</BeALeader>
               <CardDivide
                 // mobile_flexDirection="column"
-                justifyContent="space-between"
+                justifyContent="center"
                 flexWrap="wrap"
                 maxHeight="600px"
               >
                 {leadGroup.length > 0 ? (
                   Object.values(leadGroup).map((item, index) => {
                     return (
-                      <>
-                        <ActivityCard key={index}>
-                          <ActivityTitle>{item.groupName}</ActivityTitle>
-                          <Divide justifyContent="center">
-                            <DateRange>
-                              日期：
-                              <br />
-                              {item.startDate} ~ {item.endDate}
-                            </DateRange>
-                          </Divide>
-                          <Content>
-                            <ActivityImage
-                              style={{
-                                backgroundImage: `url(${
-                                  item.groupPhoto != undefined
-                                    ? item.groupPhoto
-                                    : mountain
-                                })`,
-                              }}
-                            >
-                              <ActivityLink>
-                                {' '}
-                                <GroupLink to={`/activity/${item.groupID}`}>
-                                  前往這座山
-                                </GroupLink>
-                              </ActivityLink>
-                            </ActivityImage>
-                          </Content>
-                        </ActivityCard>
-                      </>
+                      <ActivityCard key={index}>
+                        <ActivityTitle>{item.groupName}</ActivityTitle>
+                        <Divide justifyContent="center">
+                          <DateRange>
+                            日期：
+                            <br />
+                            {item.startDate} ~ {item.endDate}
+                          </DateRange>
+                        </Divide>
+                        <Content>
+                          <ActivityImage
+                            style={{
+                              backgroundImage: `url(${
+                                item.groupPhoto != undefined
+                                  ? item.groupPhoto
+                                  : mountain
+                              })`,
+                            }}
+                          >
+                            <ActivityLink>
+                              {' '}
+                              <GroupLink to={`/activity/${item.groupID}`}>
+                                前往這座山
+                              </GroupLink>
+                            </ActivityLink>
+                          </ActivityImage>
+                        </Content>
+                      </ActivityCard>
                     )
                   })
                 ) : (
@@ -571,7 +556,11 @@ function Profile() {
             </>
           )}
           {currentPage == 1 && (
-            <Divide mobile_flexDirection="column" justifyContent="center">
+            <Divide
+              mobile_flexDirection="column"
+              justifyContent="center"
+              marginTop="30px"
+            >
               {joinGroup.length > 0 ? (
                 Object.values(joinGroup).map((item, index) => {
                   return (

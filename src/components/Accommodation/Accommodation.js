@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { UserContext } from '../../utils/userContext'
 import accommodationIcon from './accommodation.png'
-import { useMediaQuery } from 'react-responsive'
 
 import {
   collection,
@@ -24,17 +23,22 @@ const Wrapper = styled.div`
 
 const AreaTitle = styled.div`
   position: absolute;
-  top: -30px;
+  top: -20px;
   display: flex;
-  width: 200px;
+  width: 140px;
   align-items: center;
+  justify-content: center;
   background-color: rgb(48, 61, 48);
+  @media screen and (max-width: 767px) {
+    top: -15px;
+  }
 `
 
 const AddOne = styled.div`
   font-size: 18px;
   border-radius: 50%;
   border: 1px solid #f6ead6;
+  margin-left: 8px;
   width: 30px;
   height: 30px;
   display: flex;
@@ -42,15 +46,67 @@ const AddOne = styled.div`
   align-items: center;
 
   cursor: pointer;
+  @media screen and (max-width: 1279px) {
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+  }
 `
+const BedDivide = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-top: 30px;
+  margin-bottom: 70px;
+  @media screen and (max-width: 1279px) {
+    max-height: 500px;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      ${'' /* display: none; */}
+      background: transparent;
+      border-radius: 4px;
+      width: 2px;
+    }
+    &::-webkit-scrollbar-track-piece {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background-color: #f6ead6;
+      border: 1px solid #f6ead6;
+    }
+    &::-webkit-scrollbar-track {
+      box-shadow: transparent;
+    }
+  }
+  @media screen and (max-width: 767px) {
+    flex-wrap: nowrap;
+    flex-direction: row;
+    ${'' /* display: initial; */}
+    max-height: 400px;
+    overflow-x: scroll;
+    &::-webkit-scrollbar {
+      ${'' /* display: none; */}
+      background: transparent;
+      border-radius: 4px;
+      width: 1px;
+    }
+  }
+`
+
 const BedContainer = styled.div`
   width: 45%;
-  margin-right: 5px;
-  margin-top: 30px;
+  min-height: 200px;
+  margin-bottom: 30px;
 
   @media screen and (max-width: 1279px) {
+    width: 30%;
+    ${'' /* &:last-child {
+      margin-right: auto;
+    } */}
+  }
+  @media screen and (max-width: 767px) {
     width: 100%;
-    margin-right: 0;
   }
 `
 
@@ -62,6 +118,12 @@ const BedPillowContainer = styled.input`
   text-align: center;
   color: white;
   border: 1px dashed white;
+  @media screen and (max-width: 1279px) {
+    width: 40%;
+    ${'' /* &:last-child {
+      margin-right: auto;
+    } */}
+  }
 `
 
 const Accommodation = ({
@@ -76,21 +138,19 @@ const Accommodation = ({
   let url = window.location.href
   const newUrl = url.split('/activity/')
   const groupID = newUrl[1]
-  const [add, setAdd] = useState(false)
+  const [add, setAdd] = useState(true)
   const [num, setNum] = useState(0)
   const [member, setMember] = useState()
   const [chooseMember, setChooseMember] = useState()
 
   const [maxBed, setMaxBed] = useState(0)
   const [bedInfo, setBedInfo] = useState()
-  const [getBed, setGetBed] = useState()
-  const [roommate, setRoommate] = useState(false)
   const [latest, setLatest] = useState()
   const bedGroupName = useRef()
   const seatNum = useRef()
   const value = useContext(UserContext)
   const docRef = doc(db, 'groupContents', groupID)
-  const [roommateNames, setRoommateNames] = useState([])
+
   useEffect(() => {
     getMemberList()
     getBedArrangeLists()
@@ -100,10 +160,7 @@ const Accommodation = ({
       setLatest(latestData)
     })
   }, [])
-  const BedDivide = styled(DivideBorder)`
-    ${'' /* @media screen and (max-width: 1279px) {
-      ${'' /* width: 100%; */}
-  `
+
   async function getMemberList() {
     try {
       const docSnap = await getDoc(docRef)
@@ -130,9 +187,15 @@ const Accommodation = ({
       <>
         {add && (
           <>
-            <Divide justifyContent="center" marginTop="20px">
+            <Divide
+              justifyContent="center"
+              marginTop="20px"
+              mobile_justifyContent="flex-start"
+            >
               <InfoInput
                 width="120px"
+                mobile_height="30px"
+                mobile_fontSize="14px"
                 ref={bedGroupName}
                 placeholder="誰的床"
               />
@@ -140,10 +203,19 @@ const Accommodation = ({
                 type="number"
                 min="1"
                 width="120px"
+                mobile_width="100px"
+                mobile_height="30px"
+                mobile_fontSize="14px"
                 ref={seatNum}
                 placeholder="幾個床位"
               />
-              <Btn marginLeft="12px" width="60px" onClick={bedSubmit}>
+              <Btn
+                marginLeft="12px"
+                width="60px"
+                mobile_height="30px"
+                tablet_fontSize="14px"
+                onClick={bedSubmit}
+              >
                 安排
               </Btn>
             </Divide>
@@ -196,56 +268,58 @@ const Accommodation = ({
     let arrangeLists = latest[bedIndex].bedArrange
     setChooseMember(arrangeLists)
   }
-  function showInput() {
-    setAdd((current) => !current)
-  }
-
-  const isTablet = useMediaQuery({
-    query: '(max-width: 1279px)',
-  })
-  const isMobile = useMediaQuery({
-    query: '(max-width: 767px)',
-  })
-  const isCellPhone = useMediaQuery({
-    query: '(max-width: 567px)',
-  })
 
   return (
     <>
-      <BedDivide
-        width="50%"
-        height="800px"
+      <DivideBorder
+        width="45%"
+        minHeight="300px"
         position="relative"
         marginTop="50px"
+        padding="20px"
+        tablet_width="100%"
+        border={add ? '4px solid #ac6947' : 'none'}
       >
         <AreaTitle>
-          <Text fontSize="32px" marginRight="12px" marginLeft="12px">
+          <Text
+            fontSize="24px"
+            marginRight="12px"
+            marginLeft="12px"
+            tablet_fontSize="20px"
+            mobile_fontSize="16px"
+          >
             住宿分配
           </Text>
-
-          <AddOne onClick={showInput}>{add ? '-' : '+'}</AddOne>
+          <AddOne onClick={() => setAdd((current) => !current)}>
+            {add ? '-' : '+'}
+          </AddOne>
         </AreaTitle>
-
-        <Text textAlign="left" position="relative">
+        <Text
+          textAlign="left"
+          position="relative"
+          tablet_fontSize="14px"
+          margin="12px 0 20px 0"
+        >
           請按＋輸入相關資訊
           <BackColor
-            width="185px"
-            height="10px"
-            top="20px"
-            left="2px"
+            width="160px"
+            height="5px"
+            top="100%"
+            left="0"
+            tablet_width="140px"
           ></BackColor>
         </Text>
-
         <BedListForm addBed={addBed} />
-        {/* <Divide flexDirection="column"> */}
-        <Divide flexWrap="wrap" justifyContent="center" marginTop="30px">
+        <BedDivide>
           {latest &&
             latest.map((bed, bedIndex) => {
               return (
                 <>
                   <BedContainer key={bedIndex}>
                     <Divide justifyContent="center" marginBottom="12px">
-                      <Text fontSize="20px">{bed.whoseBed}房間</Text>
+                      <Text fontSize="20px" mobile_fontSize="14px">
+                        {bed.whoseBed}房間
+                      </Text>
                       <Btn
                         borderRadius="50%"
                         margin="0px 0px 0px 12px"
@@ -257,14 +331,13 @@ const Accommodation = ({
                         x
                       </Btn>
                     </Divide>
-
                     <Divide flexDirection="column">
                       <SrcImage
                         width="70px"
                         height="60px"
                         src={accommodationIcon}
                       />
-                      <Text marginTop="8px">
+                      <Text marginTop="8px" mobile_fontSize="14px">
                         目前還有{' '}
                         {Number(
                           bed.maxNum - latest[bedIndex].bedArrange.length,
@@ -291,20 +364,25 @@ const Accommodation = ({
                 </>
               )
             })}
-        </Divide>
-        {/* </Divide> */}
-        <Btn
-          width="150px"
-          margin="20px auto 0px auto"
-          position="absolute"
-          left="40%"
-          bottom="30px"
-          top="none"
-          onClick={updateRoommateList}
-        >
-          儲存送出
-        </Btn>
-      </BedDivide>
+        </BedDivide>
+        {add && (
+          <Btn
+            width="150px"
+            margin="0px auto 0px auto"
+            tablet_fontSize="14px"
+            mobile_width="100px"
+            position="absolute"
+            left="50%"
+            top="calc(100% - 20px)"
+            style={{
+              transform: 'translate(-50%,-100%)',
+            }}
+            onClick={updateRoommateList}
+          >
+            儲存送出
+          </Btn>
+        )}
+      </DivideBorder>
     </>
   )
 }

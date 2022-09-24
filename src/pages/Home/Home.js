@@ -16,6 +16,7 @@ const LoginClick = styled(Link)`
   font-size: 24px;
   color: #f6ead6;
   z-index: 100;
+  white-space: nowrap;
   @media screen and (max-width: 1279px) {
     font-size: 16px;
   }
@@ -45,24 +46,24 @@ const BackgroundPic = styled.div`
   background-image: url(${background});
   position: absolute;
   top: 50%;
-  left: 45%;
-  transform: translate(-45%, -50%);
+  left: 40%;
+  transform: translate(-40%, -50%);
   background-size: cover;
   background-position: center;
-  width: 650px;
-  height: 850px;
+  width: 550px;
+  height: calc(100% - 40px);
   box-shadow: 0 4px 8px rgb(48, 61, 48, 0.8);
   z-index: 10;
-  padding: 40px 32px;
-  @media screen and (max-width: 1280px) {
-    width: 650px;
-    height: 550px;
-    left: 40%;
-  }
-  @media screen and (max-width: 900px) {
+  @media screen and (max-width: 1279px) {
     width: 450px;
-    height: 650px;
+    ${'' /* height: 450px; */}
     left: 30%;
+    transform: translateX(-30%, -50%);
+  }
+  @media screen and (max-width: 767px) {
+    width: 350px;
+    left: 40%;
+    opacity: 0.5;
   }
 `
 const BackgroundLine = styled.div`
@@ -72,18 +73,22 @@ const BackgroundLine = styled.div`
   width: 5%;
   right: -50px;
   top: 50%;
-  transform: translateY(-50%);
-  ${'' /* background-color: rgb(48, 61, 48); */}
-  @media screen and (max-width: 1280px) {
-    top: 40%;
-    transform: translateY(-40%);
+  transform: translate(50%, -50px);
+  @media screen and (max-width: 1279px) {
+    right: -25px;
+    top: 60%;
+    transform: translate(25px, -60px);
+  }
+  @media screen and (max-width: 767px) {
+    z-index: 100;
+    left: 20%;
   }
 `
 
 const BgBall = styled.div`
   border-radius: 50%;
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   position: absolute;
   display: flex;
   align-items: center;
@@ -91,10 +96,11 @@ const BgBall = styled.div`
   top: 80%;
   right: 20%;
   background-color: rgb(48, 61, 48);
-  @media screen and (max-width: 1280px) {
-    width: 120px;
-    height: 120px;
+  @media screen and (max-width: 1279px) {
+    width: 70px;
+    height: 70px;
     right: 12%;
+    z-index: 99;
   }
 `
 const BgBallA = styled(BgBall)`
@@ -102,11 +108,14 @@ const BgBallA = styled(BgBall)`
   left: -330px;
   width: 600px;
   height: 600px;
-  @media screen and (max-width: 900px) {
+  @media screen and (max-width: 1279px) {
     top: -75px;
     left: 330px;
     width: 400px;
     height: 400px;
+  }
+  @media screen and (max-width: 767px) {
+    display: none;
   }
 `
 
@@ -115,9 +124,14 @@ const HomeTitle = styled.div`
   color: white;
   letter-spacing: 2px;
   line-height: 60px;
-  @media screen and (max-width: 1280px) {
-    font-size: 40px;
-    line-height: 40px;
+  width: 250px;
+  @media screen and (max-width: 1279px) {
+    font-size: 32px;
+    line-height: 32px;
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 24px;
+    ${'' /* line-height: 24px; */}
   }
 `
 const Typing = styled.div``
@@ -126,10 +140,14 @@ const TypeWrapper = styled.div`
     line-height: 60px;
     height: 60px;
     overflow: hidden;
-    ${'' /* @media screen and (max-width: 1280px) {
-      line-height: 60px;
-      height: 60px;
-    } */}
+    @media screen and (max-width: 1279px) {
+      line-height: 32px;
+      height: 32px;
+    }
+    @media screen and (max-width: 767px) {
+      line-height: 24px;
+      height: 24px;
+    }
   }
 `
 const typing = keyframes`
@@ -149,11 +167,17 @@ const slide = keyframes`
     top:-60px;
   }
 `
-// const slideSmall = keyframes`
-//   100%{
-//     top:-60px;
-//   }
-// `
+const slideMedium = keyframes`
+  100%{
+    top:-32px;
+  }
+`
+const slideSmall = keyframes`
+  100%{
+    top:-24px;
+  }
+`
+
 const TypingText = styled.div`
   font-weight: 900;
   margin-left: 20px;
@@ -163,11 +187,14 @@ const TypingText = styled.div`
   background-clip: text;
   position: relative;
   background-color: #222322;
-  animation: ${slide} 12s steps(3) infinite;
-  ${'' /* @media screen and (max-width: 1279px) {
+  animation: ${slide} 12s steps(2) infinite;
+  @media screen and (max-width: 1279px) {
     margin-left: 10px;
-    animation: ${slideSmall} 12s steps(3) infinite;
-  } */}
+    animation: ${slideMedium} 12s steps(2) infinite;
+  }
+  @media screen and (max-width: 767px) {
+    animation: ${slideSmall} 12s steps(2) infinite;
+  }
 
   &:after {
     content: '';
@@ -175,10 +202,12 @@ const TypingText = styled.div`
     top: 0;
     height: 100%;
     width: 100%;
-    border-left: 10px solid white;
+    border-left: 6px solid white;
     background-color: #222322;
-
     animation: ${typing} 3s steps(10) infinite;
+    ${'' /* @media screen and (max-width: 767px) {
+      background-image: url(${background});
+    } */}
   }
 `
 const TypingContent = styled.span``
@@ -187,34 +216,17 @@ const Divide = styled.div`
   align-items: center;
 `
 
-const PageIcon = styled.div`
-  background-image: url(${flag});
-  width: 80px;
-  height: 80px;
-  margin-right: 12px;
-`
-
-const PhotoContent = styled.img`
-  position: ${(props) => props.position || 'none'};
-  width: ${(props) => props.width || 'none'};
-  height: ${(props) => props.height || 'none'};
-  left: ${(props) => props.left || 'none'};
-  top: ${(props) => props.top || 'none'};
-  bottom: ${(props) => props.bottom || 'none'};
-  background-size: cover;
-  z-index: 999;
-  object-fit: cover;
-  ${'' /* box-shadow: 5px 10px 8px #888888; */}
-`
-
 function Home() {
   const value = useContext(UserContext)
   const [isLogged, setIsLogged] = useState(false)
   useEffect(() => {
-    if (value.userUid !== undefined) {
+    console.log(value.userAuth)
+    if (value.userAuth === null) {
+      setIsLogged(false)
+    } else {
       setIsLogged(true)
     }
-  }, [value.userUid])
+  }, [value.userAuth])
 
   return (
     <>

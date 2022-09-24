@@ -105,18 +105,17 @@ const GlobalStyle = createGlobalStyle`
 const App = () => {
   const [userUid, setUserUid] = useState()
   const [userName, setUserName] = useState()
+  const [userAuth, setUserAuth] = useState()
   const navigate = useNavigate()
   const auth = getAuth()
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        if (user.displayName !== null) {
-          setUserName(user.displayName)
-          console.log(user)
-        }
+        setUserAuth(user)
         setUserUid(user.uid)
       } else {
+        setUserAuth(null)
         navigate('/')
       }
     })
@@ -142,7 +141,9 @@ const App = () => {
   const value = {
     userUid,
     userName,
+    userAuth,
   }
+  console.log(userAuth)
 
   return (
     <>

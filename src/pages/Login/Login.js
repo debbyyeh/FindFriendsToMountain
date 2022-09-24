@@ -7,16 +7,7 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import {
-  getDocs,
-  collection,
-  query,
-  where,
-  addDoc,
-  setDoc,
-  doc,
-  getDoc,
-} from 'firebase/firestore'
+import { setDoc, doc } from 'firebase/firestore'
 import { useNavigate, Link } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 import { useForm } from 'react-hook-form'
@@ -75,9 +66,9 @@ const ChangeModeDiv = styled.div`
 
   background-color: #222322;
   position: absolute;
-  left: 58%;
+  left: 55%;
   transform: ${(props) => {
-    return props.toggle ? 'translateX(-57%) ' : 'translateX(-157%)'
+    return props.toggle ? 'translateX(-55%) ' : 'translateX(-155%)'
   }};
   transition: 0.5s;
   @media screen and (max-width: 767px) {
@@ -126,7 +117,7 @@ const Label = styled.label`
   font-size: 24px;
   @media screen and (max-width: 1279px) {
     font-size: 20px;
-    bottom: 25px;
+    bottom: 30px;
   }
   @media screen and (max-width: 767px) {
     font-size: 16px;
@@ -274,20 +265,16 @@ function Login() {
   const [images, setImages] = useState()
   const [imageURLs, setImageURLs] = useState()
   const [downloadUrl, setDownloadUrl] = useState([])
-  // const [jwtUid, setjwtUid] = useState()
-  const userName = useContext(UserContext)
+  const [jwtUid, setjwtUid] = useState()
+  const value = useContext(UserContext)
   const [mode, setMode] = useState(true)
   const navigate = useNavigate()
 
-  const makeLogin = JSON.parse(window.localStorage.getItem('token'))
-  useEffect(() => {
-    if (makeLogin !== null) {
-      navigate('/profile')
-    }
-  }, [])
-  function signUpUse() {
-    setSignUp(true)
-  }
+  // useEffect(() => {
+  //   if (value.userAuth !== null) {
+  //     navigate('/profile')
+  //   }
+  // }, [value.userAuth])
   function getPhotoInfo(e) {
     setImages([...e.target.files])
     console.log(e.target.files[0])
@@ -304,15 +291,12 @@ function Login() {
     JSON.stringify(data)
     signInWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
-        console.log(userCredential)
-        let userInfo = {
-          accessToken: userCredential.user.accessToken,
-          uid: userCredential.user.uid,
+        const user = userCredential.user
+        if (user) {
+          setjwtUid(user.uid)
+          alert('登入成功')
+          navigate('/profile')
         }
-        console.log(userCredential.user.accessToken, userCredential.user.uid)
-        window.localStorage.setItem('token', JSON.stringify(userInfo))
-        alert('登入成功')
-        navigate('/profile')
       })
       .catch((error) => {
         console.log(error.code)
@@ -321,10 +305,6 @@ function Login() {
           const errorMessage = error.message
         }
       })
-  }
-  let categoryContent = {
-    trail: [],
-    highMountain: [],
   }
 
   const onSubmit = async (data) => {
@@ -335,6 +315,7 @@ function Login() {
       createUserWithEmailAndPassword(auth, data.email, data.password)
         .then((userCredential) => {
           onAuthStateChanged(auth, (currentUser) => {
+            // const user = userCredential.user;
             const getjwtToken = currentUser.accessToken
             const jwtUid = currentUser.uid
             if (jwtUid !== undefined) {
@@ -354,22 +335,9 @@ function Login() {
                   })
                   console.log(newDocRef)
                   if (downloadUrl !== undefined) {
-                    let userInfo = {
-                      accessToken: getjwtToken,
-                      uid: jwtUid,
-                      name: userName,
-                    }
-                    window.localStorage.setItem(
-                      'token',
-                      JSON.stringify(userInfo),
-                    )
-                    const makeLogin = JSON.parse(
-                      window.localStorage.getItem('token'),
-                    )
+                    console.log('loading')
                     alert('註冊成功')
-                    if (makeLogin !== null) {
-                      navigate('/profile')
-                    }
+                    navigate('/profile')
                   }
                 })
               })
@@ -393,7 +361,7 @@ function Login() {
       <Wrapper>
         <PhotoWrapper>
           <InfoWrapper toggle={mode}></InfoWrapper>
-          <ChangeModeDiv
+          {/* <ChangeModeDiv
             toggle={mode}
             onClick={() => {
               setMode(!mode)
@@ -402,7 +370,7 @@ function Login() {
             }}
           >
             {signUp ? <Text>我要登入</Text> : <Text>沒有帳號，註冊去!</Text>}
-          </ChangeModeDiv>
+          </ChangeModeDiv> */}
           {login && (
             <>
               <LoginForm onSubmit={handleSubmit(signInCheck)}>
@@ -444,6 +412,20 @@ function Login() {
                   <Label htmlFor="pwd">密碼</Label>
                   <Note>{errors.password?.message}</Note>
                 </InputData>
+                <ChangeModeDiv
+                  toggle={mode}
+                  onClick={() => {
+                    setMode(!mode)
+                    setSignUp((current) => !current)
+                    setLogin((current) => !current)
+                  }}
+                >
+                  {signUp ? (
+                    <Text>我要登入</Text>
+                  ) : (
+                    <Text>沒有帳號，註冊去!</Text>
+                  )}
+                </ChangeModeDiv>
                 <Btn type="submit" value="登入">
                   登入
                 </Btn>

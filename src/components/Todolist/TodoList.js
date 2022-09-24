@@ -59,18 +59,23 @@ const AddBtn = styled.button`
       padding: 8px;
     }
   }
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
+    span {
+      padding: 4px;
+    }
+  }
 `
 
 const CheckedInput = styled.div`
   width: 100%;
-  margin-top: 12px;
-  margin-bottom: 12px;
   font-size: 18px;
 `
 const Complete = styled.p`
   width: 20%;
   color: #ac6947;
   font-weight: 900;
+  margin: 0;
   @media screen and (max-width: 1279px) {
     font-size: 14px;
   }
@@ -101,7 +106,12 @@ const ToDoTitle = styled.div`
   font-size: 24px;
   @media screen and (max-width: 1279px) {
     font-size: 20px;
-    width: 200px;
+    width: 100px;
+    padding: 4px 8px;
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
+    width: 50%;
     padding: 4px 8px;
   }
 `
@@ -206,8 +216,8 @@ const TodoList = ({
     updateToDoList(newTodo)
   }
 
-  async function updateToDoList(todoList) {
-    const newArr = [...todoList]
+  async function updateToDoList(latest) {
+    const newArr = [...latest]
     const updatetodoList = await updateDoc(docRef, {
       todoList: newArr,
     })
@@ -215,17 +225,25 @@ const TodoList = ({
 
   function deleteCompletedItems(event) {
     event.preventDefault()
-    setTodoList(latest.filter((item) => item.checked == false))
-    const leftTodo = latest.filter((item) => item.checked == false)
-    updateToDoList(leftTodo)
+    // setTodoList(latest.filter((item) => item.checked == false))
+    // const leftTodo = latest.filter((item) => item.checked == false)
+    setTodoList([])
+    // updateToDoList(leftTodo)
+    updateToDoList([])
   }
   return (
     <>
-      <DivideBorder width="50%" height="auto" border="none">
+      <DivideBorder
+        width="50%"
+        height="auto"
+        border="none"
+        mobile_width="100%"
+        mobile_marginTop="20px"
+      >
         <ToDoContainer>
-          <ToDoTitle>待討論事項/留言板</ToDoTitle>
+          <ToDoTitle>留言板</ToDoTitle>
           <ToDoListForm addTodo={addTodo} />
-          <Text
+          {/* <Text
             textAlign="left"
             color="#222322"
             fontSize="14px"
@@ -233,17 +251,23 @@ const TodoList = ({
             mobile_fontSize="12px"
           >
             輸入需協助事項，完成後點選訊息更改狀態即可
-          </Text>
+          </Text> */}
           {latest &&
             latest.map((list, index) => {
               return (
                 <>
-                  <Divide alignItmes="center" key={index}>
+                  <Divide
+                    marginTop="12px"
+                    marginBottom="12px"
+                    alignItmes="center"
+                    key={index}
+                  >
                     <Divide justifyContent="flex-start">
                       <Text
                         fontSize="20px"
-                        color="#222322"
                         tablet_fontSize="16px"
+                        mobile_fontSize="14px"
+                        color="#B99362"
                       >
                         {list.post}:
                       </Text>
@@ -259,7 +283,10 @@ const TodoList = ({
                         <Text
                           color="#222322"
                           margin="0 0 0 8px"
-                          tablet_margin="0 0 0 8px"
+                          mobile_fontSize="14px"
+                          style={{
+                            cursor: 'pointer',
+                          }}
                         >
                           {list.text}
                         </Text>
@@ -273,12 +300,8 @@ const TodoList = ({
                       border="1px solid #222322"
                       borderRadius="50%"
                       padding="0px"
-                      style={{
-                        '@media (max-width:1279px)': {
-                          width: '0',
-                          height: '0',
-                        },
-                      }}
+                      tablet_width="0"
+                      tablet_height="0"
                       onClick={() => removeTodo(index)}
                     >
                       x
@@ -295,14 +318,16 @@ const TodoList = ({
             border="1px solid #222322"
             position="absolute"
             bottom="30px"
-            left="60%"
+            left="90%"
             tablet_width="140px"
             tablet_fontSize="12px"
-            tablet_left="50%"
-            tablet_height="20px"
+            tablet_height="30px"
+            style={{
+              transform: 'translateX(-90%)',
+            }}
             onClick={deleteCompletedItems}
           >
-            清除所有已完成項目
+            清除所有留言
           </Btn>
         </ToDoContainer>
       </DivideBorder>

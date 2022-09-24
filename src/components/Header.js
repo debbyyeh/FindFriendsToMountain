@@ -66,7 +66,7 @@ const LoginClick = styled(Link)`
       width: 100%;
     }
   }
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: 1279px) {
     font-size: 14px;
   }
 `
@@ -91,7 +91,7 @@ const Btn = styled.button`
       width: 100%;
     }
   }
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: 1279px) {
     font-size: 14px;
   }
 `

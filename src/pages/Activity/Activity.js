@@ -193,12 +193,12 @@ const InfoInput = styled.input`
     font-weight: bold;
   }
   @media screen and (max-width: 1279px) {
+    font-size: 16px;
     &:focus ~ label {
       font-size: 20px;
     }
   }
   @media screen and (max-width: 767px) {
-    font-size: 16px;
     &:focus ~ label {
       font-size: 16px;
     }
@@ -560,7 +560,7 @@ function Activity() {
         console.log('檔案上傳成功')
         getDownloadURL(imageRef).then((url) => {
           setDownloadUrl(url)
-          const newDocRef = setDoc(doc(db, 'groupLists', id), {
+          let newGroup = {
             groupName: nameRef.current.value,
             groupID: id,
             groupOwner: value.userUid,
@@ -578,8 +578,9 @@ function Activity() {
                -
               ${date[1].getDate()}`,
             groupIntro: textRef.current.value,
-          })
-          setGroup(newDocRef)
+          }
+          const newDocRef = setDoc(doc(db, 'groupLists', id), newGroup)
+          setGroup(newGroup)
           setLoading(false)
           setIsInfo(true)
           //團的資訊
@@ -587,7 +588,6 @@ function Activity() {
       })
     }
   }
-  console.log(group)
 
   function backToSet() {
     window.alert('關閉後請重新設定資訊!')
@@ -636,12 +636,18 @@ function Activity() {
       let newLeadList = []
       const leadGroupInfo = {
         groupID: groupID,
-        groupName: group.groupName,
+        groupName: nameRef.current.value,
         groupPhoto: downloadUrl,
-        startDate: group.startDate,
-        endDate: group.endDate,
+        startDate: `${date[0].getFullYear()} -
+              ${date[0].getMonth() + 1}
+               -
+              ${date[0].getDate()}`,
+        endDate: `${date[1].getFullYear()} -
+              ${date[1].getMonth() + 1}
+               -
+              ${date[1].getDate()}`,
       }
-
+      console.log(leadGroupInfo)
       newLeadList.push(leadGroupInfo, ...oldLeadList)
       const updateLeadGroup = updateDoc(userdocRef, {
         leadGroup: newLeadList,
@@ -675,6 +681,7 @@ function Activity() {
             </InputData>
             <InputData>
               <InfoInput
+                tablet_fontSize="16px"
                 type="text"
                 placeholder="請輸入密碼"
                 ref={groupPassword}
@@ -746,7 +753,7 @@ function Activity() {
         </Divide>
         <Divide flexDirection="column" mobile_flexDirection="column">
           <Btn
-            width="30%"
+            width="10%"
             margin="20px auto 0 auto"
             borderRadius="8px"
             onClick={settingCard}
@@ -826,7 +833,12 @@ function Activity() {
                       <>
                         <Divide justifyContent="flex-start" marginTop="12px">
                           <Icon src={share} onClick={handleShareButton} />
-                          <Btn fontSize="14px" width="250px" border="none">
+                          <Btn
+                            fontSize="14px"
+                            width="250px"
+                            border="none"
+                            onClick={handleShareButton}
+                          >
                             分享連結，邀請朋友來加入登山團
                           </Btn>
                         </Divide>
