@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './App.css'
-import { createGlobalStyle } from 'styled-components'
+import styled, { keyframes, createGlobalStyle } from 'styled-components'
 import Header from './components/Header'
 import { UserContext } from './utils/userContext'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
@@ -10,7 +10,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import PoppinsRegular from './fonts/Poppins-Regular.ttf'
 import PoppinsBold from './fonts/Poppins-Bold.ttf'
 import PoppinsThin from './fonts/Poppins-Light.ttf'
-import RubikMoonrocks from './fonts/RubikMoonrocks-Regular.ttf'
+import error from './utils/Error.png'
 
 import { Link, Routes, Route, Outlet, BrowserRouter } from 'react-router-dom'
 
@@ -33,11 +33,6 @@ const GlobalStyle = createGlobalStyle`
   @font-face {
     font-family: Poppins;
     src: url(${PoppinsRegular}) format('opentype');
-    font-weight: normal;
-  }
-    @font-face {
-    font-family: Rubik Moonrocks, cursive;
-    src: url(${RubikMoonrocks}) format('opentype');
     font-weight: normal;
   }
   body {
@@ -91,21 +86,87 @@ const GlobalStyle = createGlobalStyle`
   }
   #root{
     min-height:100vh;
-    padding: 70px 0px 120px;
+    ${
+      '' /* padding: 70px 0px 120px;
     @media screen and (max-width: 1279px) {
       padding: 40px 0px 60px;
     }
     @media screen and (max-width: 767px) {
       padding: 20px 0px 40px;
+    } */
     }
   }
 
+`
+
+const AlertContentInfo = styled.div`
+  font-family: Poppins;
+  color: #f6ead6;
+  font-size: 16px;
+  letter-spacing: 2px;
+  font-weight: 500;
+`
+
+const AlertContent = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+`
+const AlertBox = styled.div`
+  position: fixed;
+  left:-350px;
+  top: 70%;
+  z-index: 999; !important
+  cursor: pointer;
+  border: 1px solid rgba(241, 142, 6, 0.81);
+  background-color: rgba(220, 128, 1, 0.16);
+  width: 300px;
+  height: 80px;
+  ${'' /* transition: 0.3s ease-in-out; */}
+  padding: 0 12px;
+  box-shadow: 10px 10px 12px rgba(0, 0, 0, 0.2);
+  animation-name: ${(props) => (props.$alert ? 'slideIn' : 'null')}; 
+  animation-duration: 4s;
+  @keyframes slideIn {
+    0% {
+      left: 0px;
+    }
+    15% {
+      left: 350px;
+    }
+    85% {
+      left: 150px;
+    }
+    100% {
+      left: 0px;
+    }
+  }
+  &:hover {
+    ${AlertContent} {
+      color: white; !important
+    }
+  }
+  &:hover {
+    background-color: rgba(220, 128, 1, 0.33);
+  }
+  
+`
+
+const AlertIcon = styled.div`
+  position: relative;
+  display: flex;
+  min-width: 100px;
+  align-items: center;
+  justify-content: center;
 `
 
 const App = () => {
   const [userUid, setUserUid] = useState()
   const [userName, setUserName] = useState()
   const [userAuth, setUserAuth] = useState()
+  const [alert, setAlert] = useState(false)
+  const [alertContent, setAlertContent] = useState('')
   const navigate = useNavigate()
   const auth = getAuth()
 
@@ -122,7 +183,6 @@ const App = () => {
     getUserName()
   }, [userUid])
 
-  //拿到firebase資料
   async function getUserName() {
     if (userUid) {
       try {
@@ -137,18 +197,35 @@ const App = () => {
       }
     }
   }
+  function alertPopup() {
+    setAlert(true)
+    setTimeout(() => {
+      setAlert(false)
+    }, 4000)
+  }
 
   const value = {
     userUid,
     userName,
     userAuth,
+    alert,
+    setAlert,
+    alertPopup,
+    setAlertContent,
   }
-  console.log(userAuth)
 
   return (
     <>
       <UserContext.Provider value={value}>
         <GlobalStyle />
+        <AlertBox $alert={alert}>
+          <AlertContent>
+            <AlertIcon>
+              <img src={error} width="32" height="32" />
+            </AlertIcon>
+            <AlertContentInfo>{alertContent}</AlertContentInfo>
+          </AlertContent>
+        </AlertBox>
         <Header />
         <Outlet />
       </UserContext.Provider>

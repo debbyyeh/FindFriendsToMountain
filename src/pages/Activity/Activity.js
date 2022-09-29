@@ -3,20 +3,35 @@ import styled, { keyframes } from 'styled-components'
 import { db, storage } from '../../utils/firebase'
 import { collection, setDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import html2canvas from 'html2canvas'
 import { UserContext } from '../../utils/userContext'
 import { Link, useNavigate } from 'react-router-dom'
 import { HashLink } from 'react-router-hash-link'
 import Calendar from 'react-calendar'
+import trekking from './Trekking.png'
 import cover from './cover.jpg'
 import back from './back.png'
 import check from './check.png'
 import share from './Share.png'
+import logo from './Mountain.png'
 import 'react-calendar/dist/Calendar.css'
-// import { ProgressBar, Step } from 'react-step-progress-bar'
+import background from './南湖.jpg'
+import top from './top.png'
 
+const Background = styled.div`
+  ${'' /* background-image: url(${background}); */}
+  backdrop-filter: blur(5px);
+  width: 400px;
+  height: 300px;
+  background-size: cover;
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 40%;
+  transform: translate(-40%, -50%);
+`
 const Wrapper = styled.div`
-  max-width: calc(1320px - 40px);
+  ${'' /* max-width: calc(1320px - 40px); */}
+  max-width:calc(800px - 40px);
   padding-left: 20px;
   padding-right: 20px;
   margin: 0 auto;
@@ -30,6 +45,8 @@ const Divide = styled.div`
   margin-bottom: ${(props) => props.marginBottom || '0px'};
   margin-top: ${(props) => props.marginTop || '0px'};
   flex-wrap: ${(props) => props.flexWrap || 'no-wrap'};
+  border: ${(props) => props.border || 'none'};
+  padding: ${(props) => props.padding || 'none'};
   @media screen and (max-width: 767px) {
     flex-direction: ${(props) => props.mobile_flexDirection || 'row'};
   }
@@ -37,90 +54,21 @@ const Divide = styled.div`
 const FlexDivide = styled.div`
   display: flex;
   flex-direction: column;
-  width: 45%;
-  margin-left: 5%;
+  ${'' /* width: 45%; */}
+  width: 100%;
+  ${'' /* margin-left: 5%; */}
   @media screen and (max-width: 1279px) {
-    margin-left: 3%;
+    ${'' /* margin-left: 3%; */}
   }
   @media screen and (max-width: 767px) {
-    width: 100%;
-    margin-left: 0%;
+    ${'' /* width: 100%; */}
+    ${'' /* margin-left: 0%; */}
   }
 `
 
 const StepDivide = styled.div`
   display: flex;
   flex-direction: column;
-`
-const Step = styled.button`
-  color: #f6ead6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid white;
-  border-radius: 50px;
-  width: 16px;
-  height: 16px;
-  position: fixed;
-  font-size: 14px;
-  &:actve {
-    ${((props) => props.complete && 'cursor:pointer', 'pointer-events: all')}
-  }
-  &:not(:last-child) {
-    &:before,
-    &:after {
-      display: block;
-      position: absolute;
-      top: 100%;
-      height: auto;
-      left: 50%;
-      width: 2px;
-      content: '';
-      ${'' /* transform: translateY(-50%); */}
-      ${'' /* z-index: -1; */}
-    }
-  }
-  &:before {
-    width: 100%;
-    background-color: gray;
-  }
-  &:after {
-    ${'' /* width: 0; */}
-    background-color: pink;
-    width: ${(props) => (props.complete ? '100% !important' : '0')};
-    opacity: ${(props) => (props.complete ? '1' : '0')};
-    transition: ${(props) =>
-      props.complete
-        ? 'width 0.6s ease-in-out, opacity 0.6s ease-in-out'
-        : 'none'};
-  }
-`
-const StepIcon = styled.span`
-  position: relative;
-  width: 3rem;
-  height: 3rem;
-  background-color: transparent;
-  border: 0.25rem solid gray;
-  border-radius: 50%;
-  color: white;
-  font-size: 2rem;
-  &:before {
-    display: block;
-    color: white;
-  }
-`
-const StepLabel = styled.div`
-  position: absolute;
-  bottom: -2rem;
-  left: 50%;
-  margin-top: 1rem;
-  font-size: 0.8rem;
-  transform: translateX(-50%);
-  width: 200px;
-  color: ${(props) => (props.complete ? 'gray' : 'none')};
-  transition: ${(props) =>
-    props.complete ? 'color 0.3s ease-in-out' : 'none'};
-  transition-delay: ${(props) => (props.complete ? '0.5s' : 'none')};
 `
 
 const Label = styled.label`
@@ -141,6 +89,7 @@ const Label = styled.label`
 const Text = styled.div`
   color: #f6ead6;
   font-size: 24px;
+  margin-top: -20px;
   margin-bottom: 12px;
   @media screen and (max-width: 1279px) {
     font-size: 20px;
@@ -171,6 +120,7 @@ const InputData = styled.div`
   height: 40px;
   position: relative;
   margin-bottom: 80px;
+
   @media screen and (max-width: 1279px) {
     margin-bottom: 60px;
   }
@@ -212,7 +162,11 @@ const FileLabel = styled.label`
   text-align: center;
   font-size: 20px;
   margin: 12px auto;
-  @media screen and (max-width: 767px) {
+  transition: all 0.4s;
+  &:hover {
+    border-bottom: 1px solid #f6ead6;
+  }
+  @media screen and (max-width: 1279px) {
     font-size: 14px;
   }
 `
@@ -267,8 +221,11 @@ const TextInput = styled.textarea`
 `
 
 const Basic = styled.div`
-  width: 45%;
-  margin-top: 50px;
+  ${'' /* width: 45%; */}
+  width:100%;
+  margin-rigth: auto;
+  margin-left: auto;
+  margin-top: 30px;
   @media screen and (max-width: 767px) {
     width: 100%;
     margin-top: 20px;
@@ -277,7 +234,8 @@ const Basic = styled.div`
 `
 const FormDate = styled.div`
   width: 100%;
-  height: 50%;
+  ${'' /* height: 50%; */}
+  margin-bottom:30px;
   margin-bottom: 50px;
   @media screen and (max-width: 767px) {
     margin-bottom: 20px;
@@ -285,7 +243,6 @@ const FormDate = styled.div`
 `
 const Photo = styled.div`
   width: 100%;
-  height: 45%;
 `
 
 const CalendarContainer = styled.div`
@@ -300,6 +257,7 @@ const CalendarContainer = styled.div`
     display: flex;
     .react-calendar__navigation__label {
       font-weight: bold;
+      font-size: 18px;
     }
     .react-calendar__navigation__arrow {
       flex-grow: 0.333;
@@ -333,7 +291,7 @@ const CalendarContainer = styled.div`
 
     .react-calendar__tile {
       max-width: initial !important;
-      height: 30px;
+      height: 40px;
       font-size: 18px;
       @media screen and (max-width: 767px) {
         font-size: 14px;
@@ -380,6 +338,7 @@ const CalendarContainer = styled.div`
 `
 
 const Btn = styled.button`
+  display: block;
   color: ${(props) => props.color || '#F6EAD6'};
   width: ${(props) => props.width || '0px'};
   height: ${(props) => props.height || '40px'};
@@ -398,6 +357,14 @@ const Btn = styled.button`
   align-items: center;
   &:active {
     transform: translateY(0.2rem);
+  }
+  @media screen and (max-width: 1279px) {
+    width: ${(props) => props.tablet_width || props.width};
+    height: ${(props) => props.tablet_height || props.height};
+    padding: ${(props) => props.tablet_padding || props.padding};
+    margin: ${(props) => props.tablet_margin || props.margin};
+    font-size: ${(props) => props.tablet_fontSize || props.fontSize};
+    left: ${(props) => props.tablet_left || props.left};
   }
 `
 const Card = styled.div`
@@ -418,11 +385,35 @@ const Contents = styled.div`
   background-color: rgba(19, 31, 25, 0.5);
   padding: 14px;
 `
-
 const ContentInfo = styled.div`
   margin-top: 8px;
 `
-
+const PreviewArea = styled.div`
+  position: absolute;
+  padding: 20px;
+  right: 20%;
+  transform: translateX(-20%);
+  background-color: rgba(34, 35, 34, 0.8);
+  width: 400px;
+  height: auto;
+  border-radius: 24px;
+  ${'' /* @media */}
+  @media screen and (max-width:576px) {
+    width: 300px;
+  }
+`
+const Lists = styled.ul`
+  padding-left: 0;
+  @media screen and (max-width: 1279px) {
+    font-size: 14px;
+  }
+`
+const List = styled.li`
+  margin-bottom: 12px;
+  &:first-child {
+    color: #b99362;
+  }
+`
 const ActiveBackground = styled.div`
   position: fixed;
   background-color: rgba(34, 35, 34, 0.8);
@@ -441,13 +432,42 @@ const ActivePost = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
 `
+const LoadingBackground = styled.div`
+  position: fixed;
+  z-index: 999;
+  background-color: rgba(34, 35, 34, 0.8);
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  ${'' /* left: 25%; */}
+  ${'' /* transform: translate(-25%, -50%); */}
+  display:${(props) => (props.loading ? 'block' : 'none')};
+`
 const move = keyframes`
   0%,
-  100% {
+   {
     left: 0;
+    transform:rotate(0deg)
+  }
+  25%{
+    left:400px;
+    transform:rotate(20deg)
   }
   50% {
+    transform:rotate(0deg)
+    left: 80%;
+  }
+  55%{
+    transform:rotate(0deg)
+    left: 90%;
+  }
+  70%{
+    transform:rotate(0deg)
     left: 75%;
+  }
+  100%{
+    left: 0%;
+    transform:rotate(-360deg)
   }
 `
 const LoadingStyle = styled.span`
@@ -455,23 +475,26 @@ const LoadingStyle = styled.span`
   font-size: 60px;
   text-transform: uppercase;
   letter-spacing: 5px;
-  position: relative;
-  ${'' /* color: transparent;
-  background-image: linear-gradient(#b99362, #e4e4d9);
-  -webkit-background-clip: text; */}
-  color:orange;
+  position: absolute;
+  top:50%;
+  left:25%;
+  color:#B99362;
   background-clip: text;
   &:before {
     content: '';
-    width: 25%;
-    height: 100%;
+    z-index:99;
+    width: 80px;
+    height: 80px;
     ${'' /* background-color: rgba(34, 35, 34, 0.8); */}
-    background-color:white;
+    background-image:url(${logo});
+    background-size:cover;
+    ${'' /* background-color: white; */}
+    border-radius: 50%;
     position: absolute;
-    top: 0;
+    top: -30%;
     left: 0;
     mix-blend-mode: difference;
-    animation: ${move} 3s linear infinite;
+    animation: ${move} 3s ease-in-out infinite;
   }
 `
 const Icon = styled.img`
@@ -488,6 +511,50 @@ const Icon = styled.img`
     border-radius: 50%;
   }
 `
+const NoteBtn = styled.div`
+  cursor: pointer;
+  background-image: url(${trekking});
+  background-size: contain;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  max-width: calc(1320px - 40px);
+  position: fixed;
+  font-family: Poppins;
+  transition: all 0.3s;
+  z-index: 99;
+  right: 0;
+  &:hover {
+    border: 1px solid #b99362;
+  }
+  @media screen and (max-width: 1279px) {
+    width: 40px;
+    height: 40px;
+  }
+`
+const Note = styled.div`
+  color: #b99362;
+  width: 100px;
+  margin-left: auto;
+  font-size: 14px;
+`
+const ScrollDivide = styled.div`
+  position: fixed;
+  right: 0;
+  top: calc(90% - 40px);
+  z-index: 3;
+`
+const Scroll = styled.div`
+  background-image: url(${top});
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 50px;
+  height: 50px;
+
+  cursor: pointer;
+`
 
 function Activity() {
   const nameRef = useRef()
@@ -495,14 +562,14 @@ function Activity() {
   const cityRef = useRef()
   const mountainRef = useRef()
   const textRef = useRef()
-  const printRef = useRef()
   const [images, setImages] = useState()
   const [imageURLs, setImageURLs] = useState()
   const [downloadUrl, setDownloadUrl] = useState([])
   const [group, setGroup] = useState()
   const [groupID, setGroupID] = useState()
   const [isInfo, setIsInfo] = useState(false)
-  const [isPreview, setIsPreview] = useState(false)
+  const [step, setStep] = useState(false)
+  const [isPreview, setIsPreview] = useState(true)
   const [date, setDate] = useState(new Date())
   const [complete, setComplete] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -534,16 +601,13 @@ function Activity() {
   const settingCard = async () => {
     if (
       nameRef.current.value == '' ||
-      groupPassword.current.value == '' ||
-      cityRef.current.value == '' ||
-      mountainRef.current.value == '' ||
-      textRef.current.value == '' ||
-      images == undefined
+      groupPassword.current.value == ''
+      // images == undefined
     ) {
-      alert('表格不可為空')
+      value.alertPopup()
+      value.setAlertContent('密碼及團名為必填資訊')
       setIsInfo(false)
     } else {
-      setIsPreview(true)
       setIsActive(true)
       // setComplete((current) => !current)
       setLoading(true)
@@ -551,46 +615,87 @@ function Activity() {
       const docRef = doc(collection(db, 'groupLists'))
       const docSnap = await getDoc(userdocRef)
       const id = docRef.id
-      setGroupID(id)
-      const imageRef = ref(
-        storage,
-        `images/${nameRef.current.value}_${id}_登山團封面照`,
-      )
-      uploadBytes(imageRef, images[0]).then(() => {
-        console.log('檔案上傳成功')
-        getDownloadURL(imageRef).then((url) => {
-          setDownloadUrl(url)
-          let newGroup = {
-            groupName: nameRef.current.value,
-            groupID: id,
-            groupOwner: value.userUid,
-            groupPhoto: url,
-            groupCity: cityRef.current.value,
-            groupMountain: mountainRef.current.value,
-            groupPassword: groupPassword.current.value,
-            startDate: `${date[0].getFullYear()} -
+      if (images == undefined) {
+        let newGroup = {
+          groupName: nameRef.current.value ? nameRef.current.value : null,
+          groupID: id,
+          groupOwner: value.userUid,
+          groupPhoto: null,
+          groupCity: cityRef.current.value ? cityRef.current.value : null,
+          groupMountain: mountainRef.current.value
+            ? mountainRef.current.value
+            : null,
+          groupPassword: groupPassword.current.value,
+          startDate:
+            date.length > 0
+              ? `${date[0].getFullYear()} -
               ${date[0].getMonth() + 1}
                -
-              ${date[0].getDate()}`,
-
-            endDate: `${date[1].getFullYear()} -
+              ${date[0].getDate()}`
+              : null,
+          endDate:
+            date.length > 0
+              ? `${date[1].getFullYear()} -
               ${date[1].getMonth() + 1}
                -
-              ${date[1].getDate()}`,
-            groupIntro: textRef.current.value,
-          }
-          const newDocRef = setDoc(doc(db, 'groupLists', id), newGroup)
-          setGroup(newGroup)
-          setLoading(false)
-          setIsInfo(true)
-          //團的資訊
+              ${date[1].getDate()}`
+              : null,
+          groupIntro: textRef.current.value ? textRef.current.value : null,
+        }
+        const newDocRef = setDoc(doc(db, 'groupLists', id), newGroup)
+        setGroup(newGroup)
+        setLoading(false)
+        setIsInfo(true)
+        setGroupID(id)
+      } else {
+        setGroupID(id)
+        const imageRef = ref(
+          storage,
+          `images/${nameRef.current.value}_${id}_登山團封面照`,
+        )
+        uploadBytes(imageRef, images[0]).then(() => {
+          console.log('檔案上傳成功')
+          getDownloadURL(imageRef).then((url) => {
+            setDownloadUrl(url)
+            let newGroup = {
+              groupName: nameRef.current.value ? nameRef.current.value : null,
+              groupID: id,
+              groupOwner: value.userUid,
+              groupPhoto: url,
+              groupCity: cityRef.current.value ? cityRef.current.value : null,
+              groupMountain: mountainRef.current.value
+                ? mountainRef.current.value
+                : null,
+              groupPassword: groupPassword.current.value,
+              startDate:
+                date.length > 0
+                  ? `${date[0].getFullYear()} -
+              ${date[0].getMonth() + 1}
+               -
+              ${date[0].getDate()}`
+                  : null,
+              endDate:
+                date.length > 0
+                  ? `${date[1].getFullYear()} -
+              ${date[1].getMonth() + 1}
+               -
+              ${date[1].getDate()}`
+                  : null,
+              groupIntro: textRef.current.value ? textRef.current.value : null,
+            }
+            const newDocRef = setDoc(doc(db, 'groupLists', id), newGroup)
+            setGroup(newGroup)
+            setLoading(false)
+            setIsInfo(true)
+          })
         })
-      })
+      }
     }
   }
 
   function backToSet() {
-    window.alert('關閉後請重新設定資訊!')
+    value.alertPopup()
+    value.setAlertContent('關閉後請重新設定資訊')
     setComplete(false)
     setIsActive(false)
     setIsInfo(false)
@@ -609,20 +714,22 @@ function Activity() {
   }
 
   async function handleShareButton() {
-    const shareData = {
-      url: `https://find-friends-to-mountain.web.app/activity/${groupID}`,
-      title: '『找山遊』邀請連結',
-      text: '來參加我的登山團',
-    }
-    try {
-      await navigator.share(shareData)
-      // window.alert('已複製連結')
-    } catch (err) {
-      const { name, message } = err
-      if (name === 'AbortError') {
-        window.alert('您已取消分享此訊息')
-      } else {
-        console.log('發生錯誤', err)
+    if (navigator.share) {
+      const shareData = {
+        url: `https://find-friends-to-mountain.web.app/activity/${groupID}`,
+        title: '『找山遊』邀請連結',
+        text: '來參加我的登山團',
+      }
+      try {
+        await navigator.share(shareData)
+      } catch (err) {
+        const { name, message } = err
+        if (name === 'AbortError') {
+          value.alertPopup()
+          value.setAlertContent('您已取消分享此訊息')
+        } else {
+          console.log('發生錯誤', err)
+        }
       }
     }
   }
@@ -637,15 +744,21 @@ function Activity() {
       const leadGroupInfo = {
         groupID: groupID,
         groupName: nameRef.current.value,
-        groupPhoto: downloadUrl,
-        startDate: `${date[0].getFullYear()} -
+        groupPhoto: downloadUrl ? downloadUrl : null,
+        startDate:
+          date.length > 0
+            ? `${date[0].getFullYear()} -
               ${date[0].getMonth() + 1}
                -
-              ${date[0].getDate()}`,
-        endDate: `${date[1].getFullYear()} -
+              ${date[0].getDate()}`
+            : null,
+        endDate:
+          date.length > 0
+            ? `${date[1].getFullYear()} -
               ${date[1].getMonth() + 1}
                -
-              ${date[1].getDate()}`,
+              ${date[1].getDate()}`
+            : null,
       }
       console.log(leadGroupInfo)
       newLeadList.push(leadGroupInfo, ...oldLeadList)
@@ -664,20 +777,89 @@ function Activity() {
       groupOwner: value.userUid,
       memberList: [],
       todoList: [],
-      itinerary: [],
+      itineraryList: {
+        ['事項清單']: {
+          name: '事項清單',
+          items: [],
+        },
+        ['未完成']: {
+          name: '未完成',
+          items: [],
+        },
+        ['已解決']: {
+          name: '已解決',
+          items: [],
+        },
+      },
     })
     console.log(groupRef)
   }
 
   return (
     <>
-      <Wrapper>
-        <Divide mobile_flexDirection="column">
+      <LoadingBackground loading={loading}>
+        <LoadingStyle></LoadingStyle>
+      </LoadingBackground>
+      <NoteBtn
+        onMouseEnter={() => setIsPreview(true)}
+        onMouseLeave={() => setIsPreview(false)}
+      >
+        {isPreview && (
+          <>
+            <PreviewArea>
+              <Lists>
+                <List>√ 群組密碼為必填資料</List>
+                <List>√ 資料可於下個階段做修改，可先填寫基本資訊</List>
+                <List>√ 填寫完畢後按下「完成設定」就可分享群組連結給朋友</List>
+              </Lists>
+            </PreviewArea>
+          </>
+        )}
+      </NoteBtn>
+      <Wrapper
+        style={{
+          opacity: isPreview ? '0.2' : '1',
+        }}
+      >
+        <ScrollDivide>
+          <Text>Top</Text>
+          <Scroll
+            onClick={() => {
+              window.scrollTo({
+                top: 0,
+                right: 0,
+                behavior: 'smooth',
+              })
+            }}
+            id="myBtn"
+          ></Scroll>
+        </ScrollDivide>
+        <Background></Background>
+        <Divide
+          flexDirection="column"
+          justifyContent="space-evenly"
+          marginTop="50px"
+          alignItems="start"
+          border="1px solid #F6EAD6"
+          padding="20px 12px 20px 12px"
+          style={{
+            borderRadius: '12px',
+            backgroundColor: 'rgba(0, 0, 0, .25)',
+            // backdropFilter: 'invert(80%)',
+          }}
+        >
           <Basic id="basic">
             <InputData>
               <InfoInput type="text" ref={nameRef} />
               <Underline></Underline>
-              <Label>登山團名稱</Label>
+              <Label
+                style={{
+                  color: '#B99362',
+                }}
+              >
+                登山團名稱
+              </Label>
+              <Note>*名稱為必填</Note>
             </InputData>
             <InputData>
               <InfoInput
@@ -687,7 +869,15 @@ function Activity() {
                 ref={groupPassword}
               />
               <Underline></Underline>
-              <Label>群組密碼</Label>
+
+              <Label
+                style={{
+                  color: '#B99362',
+                }}
+              >
+                群組密碼
+              </Label>
+              <Note>*密碼為必填</Note>
             </InputData>
             <InputData>
               <InfoInput type="text" placeholder="縣市" ref={cityRef} />
@@ -701,73 +891,81 @@ function Activity() {
             </InputData>
             <Text>團主版規</Text>
             <TextInput type="text" placeholder="版規規定" ref={textRef} />
+            <Btn
+              width="100px"
+              margin="12px auto 20px auto"
+              onClick={() => setStep(true)}
+            >
+              下一步
+            </Btn>
           </Basic>
-          <FlexDivide>
-            <FormDate id="formdate">
-              <Text>開團日期</Text>
-              <CalendarContainer>
-                <Calendar
-                  calendarType="US"
-                  onChange={setDate}
-                  value={date}
-                  selectRange={true}
-                />
-              </CalendarContainer>
+          {step && (
+            <>
+              <FlexDivide>
+                <FormDate id="formdate">
+                  <Text>開團日期</Text>
+                  <CalendarContainer>
+                    <Calendar
+                      calendarType="US"
+                      onChange={setDate}
+                      value={date}
+                      selectRange={true}
+                    />
+                  </CalendarContainer>
 
-              {date.length > 0 ? (
-                <>
-                  <SubText>
-                    活動開始：{date[0].getFullYear()}-{date[0].getMonth() + 1}-
-                    {date[0].getDate()}
-                  </SubText>
-                  <SubText>
-                    活動結束：{date[1].getFullYear()}-{date[1].getMonth() + 1}-
-                    {date[1].getDate()}
-                  </SubText>
-                </>
-              ) : (
-                <SubText>Select Date:{date.toDateString()}</SubText>
-              )}
-            </FormDate>
-            <Photo id="photo">
-              <Text>封面照片</Text>
-              <UploadPic>
-                {imageURLs ? (
-                  <UploadPhoto src={imageURLs} alt="uploadImage" />
-                ) : (
-                  <AfterUpload></AfterUpload>
-                )}
-              </UploadPic>
-              <FileLabel>
-                選擇照片
-                <FileInput
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={getPhotoInfo}
-                  style={{ display: 'none' }}
-                />
-              </FileLabel>
-            </Photo>
-          </FlexDivide>
-        </Divide>
-        <Divide flexDirection="column" mobile_flexDirection="column">
-          <Btn
-            width="10%"
-            margin="20px auto 0 auto"
-            borderRadius="8px"
-            onClick={settingCard}
-          >
-            完成設定
-          </Btn>
+                  {date.length > 0 ? (
+                    <>
+                      <SubText>
+                        活動開始：{date[0].getFullYear()}-
+                        {date[0].getMonth() + 1}-{date[0].getDate()}
+                      </SubText>
+                      <SubText>
+                        活動結束：{date[1].getFullYear()}-
+                        {date[1].getMonth() + 1}-{date[1].getDate()}
+                      </SubText>
+                    </>
+                  ) : (
+                    <SubText>Select Date:{date.toDateString()}</SubText>
+                  )}
+                </FormDate>
+                <Photo id="photo">
+                  <Text>封面照片</Text>
+                  <UploadPic>
+                    {imageURLs ? (
+                      <UploadPhoto src={imageURLs} alt="uploadImage" />
+                    ) : (
+                      <AfterUpload></AfterUpload>
+                    )}
+                  </UploadPic>
+                  <FileLabel>
+                    選擇照片
+                    <FileInput
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={getPhotoInfo}
+                      style={{ display: 'none' }}
+                    />
+                  </FileLabel>
+                </Photo>
+              </FlexDivide>
+              <Btn
+                width="20%"
+                tablet_width="20%"
+                margin="20px auto 0 auto"
+                borderRadius="8px"
+                onClick={settingCard}
+              >
+                完成設定
+              </Btn>
+            </>
+          )}
         </Divide>
 
         {isActive && (
           <>
             <ActiveBackground isActive={isActive}>
               <ActivePost isActive={isActive}>
-                {loading && <LoadingStyle>Mountain</LoadingStyle>}
-
                 {isInfo && (
                   <>
                     {!complete && (
@@ -810,7 +1008,9 @@ function Activity() {
                     )}
                     {group && (
                       <Card
-                        style={{ backgroundImage: `url(${group.groupPhoto})` }}
+                        style={{
+                          backgroundImage: `url(${group.groupPhoto})`,
+                        }}
                       >
                         <Contents>
                           <ContentInfo>團名：{group.groupName}</ContentInfo>

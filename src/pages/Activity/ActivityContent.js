@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import firebaseConfig, { db, storage } from '../../utils/firebase'
 import {
   doc,
@@ -11,68 +11,58 @@ import {
   getDocs,
   arrayRemove,
 } from 'firebase/firestore'
+import ReactTooltip from 'react-tooltip'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { Link, useNavigate } from 'react-router-dom'
 import memberDefault from './memberDefault.png'
 import logo from './Mountain.png'
-import top from './top.png'
 import lock from './Lock.png'
+import edit from './Edit.png'
+import done from './done.png'
+import close from './Close.png'
+import message from './Messaging.png'
 import equipments from '../../equipments/equipments'
 import TodoList from '../../components/Todolist/TodoList'
 import Itinerary from '../../components/Itinerary/Itinerary'
 import Cars from '../../components/Car/Cars'
+import alert from './alert.png'
 import Accommodation from '../../components/Accommodation/Accommodation'
 import { UserContext } from '../../utils/userContext'
 
 const BackCover = styled.div`
   width: 100%;
-  height: 560px;
+  height: 100%;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  position: relative;
-  top: 0;
-  left: 0;
-  border-radius: 0 0 0 100px;
-  ${'' /* margin-bottom: 30px; */}
-  opacity: 0.7;
+  opacity: 0.5;
   @media screen and (max-width: 1279px) {
     height: 480px;
     ${'' /* ${(props) => props.hideOnMobile && 'display: none;'} */}
   }
+  @media screen and (max-width: 767px) {
+    height: 360px;
+    ${'' /* ${(props) => props.hideOnMobile && 'display: none;'} */}
+  }
 `
-// const BackCoverMB = styled(BackCover)`
-//   ${(props) => props.hideOnDesktop && 'display: none;'}
-
-//   @media screen and (max-width: 1279px) {
-//     display: block;
-//     height: 480px;
-//     ${'' /* padding-left: -20px;
-//     padding-right: -20px; */}
-//     ${'' /* margin-bottom: 30px; */}
-//   }
-// `
-
 const MainInfo = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 24px;
   padding: 14px;
   position: absolute;
   left: 50%;
-  top: 80%;
-  transform: translate(-50%, -80%);
-  width: calc(100% - 200px);
-  min-height: 100px;
+  ${'' /* bottom: 0; */}
+  top:90%;
+  transform: translate(-50%, -90%);
+  width: auto;
+  height: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  @media screen and (max-width: 767px) {
-    top: 90%;
-    transform: translate(-50%, -90%);
+  @media screen and (max-width: 1279px) {
   }
   @media screen and (max-width: 576px) {
-    width: 90%;
   }
 `
 const BackColor = styled.div`
@@ -95,42 +85,33 @@ const BackColor = styled.div`
     right: ${(props) => props.tablet_right || props.right};
   }
 `
-const WidthContainer = styled.div`
-  height: auto;
-  max-width: 150px;
-  overflow-x: scroll;
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  &::-webkit-scrollbar {
-    ${'' /* display: none; */}
-    background: transparent;
-    border-radius: 4px;
-    width: 1px;
-  }
-  &::-webkit-scrollbar-track-piece {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid #f6ead6;
-  }
-  &::-webkit-scrollbar-track {
-    box-shadow: transparent;
-  }
-
-  @media screen and (max-width: 767px) {
-    ${'' /* flex-wrap: no-wrap; */}
-    over-flow: scroll;
-  }
-`
 const Wrapper = styled.div`
   max-width: calc(1320px - 40px);
-  padding-left: 20px;
-  padding-right: 20px;
+  ${'' /* padding-left: 20px;
+  padding-right: 20px; */}
   margin: 0 auto;
   font-family: Poppins;
+  padding: 70px 20px 120px;
+  @media screen and (max-width: 1279px) {
+    padding: 40px 20px 60px;
+  }
+  @media screen and (max-width: 767px) {
+    padding: 20px 20px 40px;
+  }
+`
+const NewWrapper = styled.div`
+  ${'' /* position: absolute;
+  top: 0;
+  left: 0; */}
+  position:relative;
+  width: 100%;
+  height: 560px;
+  @media screen and (max-width: 1279px) {
+    height: 480px;
+  }
+  @media screen and (max-width: 767px) {
+    height: 360px;
+  }
 `
 const Divide = styled.div`
   display: flex;
@@ -141,6 +122,7 @@ const Divide = styled.div`
   margin-bottom: ${(props) => props.marginBottom || '0px'};
   margin-top: ${(props) => props.marginTop || '0px'};
   margin-left: ${(props) => props.marginLeft || '0px'};
+  padding: ${(props) => props.padding || '0 0 0 0'};
   margin-right: ${(props) => props.marginRight || '0px'};
   flex-wrap: ${(props) => props.flexWrap || 'no-wrap'};
   width: ${(props) => props.width || 'none'};
@@ -174,7 +156,7 @@ const DivideBorder = styled.div`
   position: ${(props) => props.position || 'none'};
   width: ${(props) => props.width || '0px'};
   height: ${(props) => props.height || 'auto'};
-  border: ${(props) => props.border || '4px solid #ac6947'};
+  ${'' /* border: ${(props) => props.border || '4px solid #ac6947'}; */}
   margin-top: ${(props) => props.marginTop || '0px'};
   margin-left: ${(props) => props.marginLeft || '0px'};
   border-radius: 24px;
@@ -213,19 +195,6 @@ const Text = styled.div`
     text-align: ${(props) => props.mobile_textAlign || props.tablet_textAlign};
   }
 `
-const OwnerText = styled.span``
-const UnderCover = styled.div`
-  width: 100%;
-  min-height: 150px;
-  background-color: rgba(0, 0, 0, 0.3);
-  border-radius: 24px;
-  padding: 16px;
-
-  ${'' /* position: relative; */}
-  @media screen and (max-width: 1279px) {
-    ${'' /* width: 100%; */}
-  }
-`
 const MemberDefault = styled.div`
   background-image: url(${memberDefault});
   background-size: cover;
@@ -234,28 +203,12 @@ const MemberDefault = styled.div`
   height: 60px;
 `
 const MemberPic = styled.img`
+  cursor: pointer;
   border-radius: 50%;
   width: 60px;
   height: 60px;
   object-fit: cover;
   margin: 8px;
-`
-const ScrollDivide = styled.div`
-  position: fixed;
-  right: 0;
-  top: calc(90% - 40px);
-  z-index: 3;
-`
-
-const Scroll = styled.div`
-  background-image: url(${top});
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 50px;
-  height: 50px;
-
-  cursor: pointer;
 `
 const IconImage = styled.div`
   width: 40px;
@@ -272,7 +225,6 @@ const IconImage = styled.div`
     height: 30px;
   }
 `
-
 const IconWrapper = styled.div`
   position: relative;
   width: 60px;
@@ -284,64 +236,16 @@ const IconWrapper = styled.div`
     height: 40px;
   }
 `
-
-const ActiveBackground = styled.div`
-  ${'' /* position: absolute; */}
-  ${'' /* top: 50%; */}
-  ${'' /* left: 80%; */}
-  width: 200px;
-  height: auto;
-  ${'' /* padding: 20px; */}
-  border-radius: 24px;
-  ${'' /* background-color: rgba(34, 35, 3, 0.2); */}
-  ${'' /* transform: translate(-80%, -50%); */}
-  display: ${(props) => (props.isActive ? 'block' : 'none')};
-  @media screen and (max-width: 1279px) {
-    ${'' /* width: 100%; */}
-    width:120px;
-    min-height: 200px;
-    ${'' /* top: 90%;
-    left: 120%;
-    transform: translate(-120%, -90%); */}
-  }
-`
-const OwnerBackground = styled(ActiveBackground)`
-  position: absolute;
-  left: 120%;
-  top: 0%;
-  ${'' /* transform: translate(-120%, 0%); */}
-  display: ${(props) => (props.rule ? 'block' : 'none')};
-  @media screen and (max-width: 1279px) {
-    width: 120px;
-    top: -80%;
-    right: 0;
-    transform:translateY(80%);
-  }
-`
-const ActivePost = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  z-index: 100;
-  max-height: 150px;
-  overflow: scroll;
-  ${'' /* width: calc(100% / 3); */}
-  flex-wrap: wrap;
-  &::-webkit-scrollbar {
-    display: none;
-    ${'' /* background: transparent;
-    border-radius: 4px;
-    width: 3px; */}
-  }
-  &::-webkit-scrollbar-track-piece {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid #f6ead6;
-  }
-  &::-webkit-scrollbar-track {
-    box-shadow: transparent;
+const Icon = styled.div`
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  border: none;
+  border-radius: 50%;
+  transition: all 0.3s;
+  &:hover {
+    border: 1px solid #b99362;
   }
 `
 const Btn = styled.button`
@@ -355,6 +259,7 @@ const Btn = styled.button`
   position: ${(props) => props.position || 'none'};
   top: ${(props) => props.top || 'none'};
   left: ${(props) => props.left || 'none'};
+  right: ${(props) => props.right || 'none'};
   bottom: ${(props) => props.bottom || 'none'};
   line-height: ${(props) => props.lineHeight || 'none'};
   font-size: ${(props) => props.fontSize || '16px'};
@@ -371,16 +276,44 @@ const Btn = styled.button`
     margin: ${(props) => props.tablet_margin || props.margin};
     font-size: ${(props) => props.tablet_fontSize || props.fontSize};
     left: ${(props) => props.tablet_left || props.left};
+    border: ${(props) => props.tablet_border || props.border};
+  }
+  @media screen and (max-width: 767px) {
+    width: ${(props) => props.mobile_width || props.tablet_width};
+    height: ${(props) => props.mobile_height || props.tablet_height};
+    padding: ${(props) => props.mobile_padding || props.tablet_padding};
+    margin: ${(props) => props.mobile_margin || props.tablet_margin};
+    font-size: ${(props) => props.mobile_fontSize || props.tablet_fontSize};
   }
 `
 const EditBtn = styled.button`
+  border-radius: 0;
   font-size: ${(props) => props.fontSize || '14px'};
   width: ${(props) => props.width || '120px'};
   color: ${(props) => props.color || '#F6EAD6'};
   border: ${(props) => props.border || 'none'};
+  border-radius: ${(props) => props.borderRadius || 'none'};
   padding: ${(props) => props.padding || 'none'};
   margin-top: ${(props) => props.marginTop || 'none'};
   margin-bottom: ${(props) => props.marginBottom || 'none'};
+  margin-left: ${(props) => props.marginLeft || 'none'};
+  opacity: 0.5;
+  &:after {
+    content: '';
+    border-bottom: 2px solid #b99362;
+    margin: auto;
+    position: relative;
+    top: 5px;
+    width: 0%;
+    display: block;
+    transition: all 0.3s;
+  }
+  &:hover {
+    opacity: 1;
+    &:after {
+      width: 100%;
+    }
+  }
   @media screen and (max-width: 767px) {
     width: ${(props) => props.mobile_width || props.width};
     font-size: ${(props) => props.mobile_fontSize || props.fontSize};
@@ -388,6 +321,7 @@ const EditBtn = styled.button`
     margin-top: ${(props) => props.mobile_marginTop || props.marginTop};
     margin-bottom: ${(props) =>
       props.mobile_marginBottom || props.marginBottom};
+    margin-left: ${(props) => props.mobile_marginLeft || 'none'};
   }
 `
 const InfoInput = styled.input`
@@ -430,9 +364,9 @@ const DateInput = styled.input`
 const FileInput = styled.input``
 const FileLabel = styled.label`
   position: absolute;
-  top: 50%;
+  top: 10%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -10%);
   display: inline-block;
   cursor: pointer;
   color: #f6ead6;
@@ -444,7 +378,7 @@ const FileLabel = styled.label`
   }
 `
 const PopupWrapper = styled.div`
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.9);
 
   position: fixed;
   width: 100vw;
@@ -455,14 +389,11 @@ const PopupWrapper = styled.div`
   z-index: 3;
 `
 const PopContent = styled.div`
-  z-index: 10;
+  z-index: 100;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 500px;
-  height: 500px;
-
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -483,56 +414,207 @@ const SrcImage = styled.img`
   object-fit: ${(props) => props.objectFit || 'cover'};
 `
 const Intro = styled.div`
-  ${'' /* position: relative; */}
-  padding: 16px;
-  border: 1px solid #ac6947;
   text-align: left;
   color: #f6ead6;
-  background: transparent;
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  border-radius: 20px;
   width: 100%;
-  min-height: 150px;
-
-  @media screen and (max-width: 1279px) {
-    font-size: 14px;
+  max-height: 200px;
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+    ${'' /* background: #f6ead6;
+    border-radius: 4px;
+    width: 1px; */}
   }
+  &::-webkit-scrollbar-track-piece {
+    background: #f6ead6;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid #f6ead6;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: transparent;
+  }
+  @media screen and (max-width: 767px);
 `
-const NewIntroWrapper = styled.input`
-  ${'' /* position: relative; */}
-  font-size: 16px;
-  padding: 12px;
-  margin: 4px 0 20px;
-  border: 1px solid #ac6947;
+const NewIntroWrapper = styled.textarea`
+  width: 100%;
+  height: 200px;
+  resize: none;
   text-align: left;
   color: #f6ead6;
   background: transparent;
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  border-radius: 20px;
-  width: 200px;
-  height: auto;
-  &:after {
-    content: ' ';
+`
+const NoteBox = styled.div`
+  position: relative;
+  margin: 0 5px 10px 5px;
+  padding: 20px;
+  max-width: 100%;
+  min-height: 240px;
+  border: 1px solid #f6ead6;
+  border-radius: 5px;
+  display: inline-block;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  &:before {
     position: absolute;
     width: 0;
-    height: 0;
-    left: auto;
-    right: 38px;
-    bottom: -23px;
-    border: 11px solid;
-    border-color: #ac6947 transparent transparent;
+    content: '';
+    border: 10px solid transparent;
+    top: 8px;
+    border-left-color: #f6ead6;
+    right: -20px;
   }
 `
+const LoadingBackground = styled.div`
+  position: fixed;
+  z-index: 999;
+  background-color: rgba(34, 35, 34, 0.8);
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  ${'' /* left: 25%; */}
+  ${'' /* transform: translate(-25%, -50%); */}
+  display:${(props) => (props.loading ? 'block' : 'none')};
+`
+const move = keyframes`
+  0%,
+   {
+    left: 0;
+    transform:rotate(0deg)
+  }
+  25%{
+    left:400px;
+    transform:rotate(20deg)
+  }
+  50% {
+    transform:rotate(0deg)
+    left: 80%;
+  }
+  55%{
+    transform:rotate(0deg)
+    left: 90%;
+  }
+  70%{
+    transform:rotate(0deg)
+    left: 75%;
+  }
+  100%{
+    left: 0%;
+    transform:rotate(-360deg)
+  }
+`
+const LoadingStyle = styled.span`
+  font-family: 'Rubik Moonrocks', cursive;
+  font-size: 60px;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  position: absolute;
+  top:50%;
+  left:25%;
+  color:#B99362;
+  background-clip: text;
+  &:before {
+    content: '';
+    z-index:99;
+    width: 80px;
+    height: 80px;
+    ${'' /* background-color: rgba(34, 35, 34, 0.8); */}
+    background-image:url(${logo});
+    background-size:cover;
+    ${'' /* background-color: white; */}
+    border-radius: 50%;
+    position: absolute;
+    top: -30%;
+    left: 0;
+    mix-blend-mode: difference;
+    animation: ${move} 3s ease-in-out infinite;
+  }
+`
+const ScrollBar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  max-height: 200px;
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    ${'' /* display: none; */}
+    background: transparent;
+    border-radius: 4px;
+    width: 1px;
+  }
+  &::-webkit-scrollbar-track-piece {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid #f6ead6;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: transparent;
+  }
+`
+const Category = styled.div`
+  width: calc(100% / 3);
+  text-align: center;
+  padding: 12px;
+  font-size: 20px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  padding-bottom: 4px;
+  border-bottom: 2px solid #875839;
+  transition: all 0.3s;
 
+  opacity: ${(props) => (props.$isActive ? 1 : 0.2)};
+  text-shadow: ${(props) =>
+    props.$isActive ? '1px 1px 20px #F6EAD6' : 'none'};
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
+    letter-spacing: 1px;
+    white-space: no-wrap;
+    padding: 12px 0;
+  }
+`
+const ScrollDivide = styled.a`
+  display: block;
+  position: fixed;
+  right: 20px;
+  top: calc(90% - 40px);
+  z-index: 3;
+  border: 1px solid #f6ead6;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    background-color: #875839;
+  }
+  &:active {
+    background-color: #875839;
+  }
+`
+const Scroll = styled.div`
+  background-image: url(${message});
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 50px;
+  height: 50px;
+  margin: 0 auto;
+  cursor: pointer;
+  position: relative;
+`
 const ActivityContent = () => {
   let url = window.location.href
   const newUrl = url.split('/activity/')
   const groupID = newUrl[1]
-  const [isActive, setIsActive] = useState(false)
   const [contentID, setContentID] = useState()
-
   const [groupData, setGroupData] = useState()
   const [contentData, setContentData] = useState()
   const authRef = useRef()
@@ -546,10 +628,11 @@ const ActivityContent = () => {
   const [ownerAuth, setOwnerAuth] = useState() //ownerID
   const [memberAuth, setMemberAuth] = useState() //不是owner的id
   const [online, setOnline] = useState(false)
-  const [rule, setRule] = useState(false)
   const [ownerProfile, setOwnerProfile] = useState()
   const [isHovering, setIsHovering] = useState(false)
   const [isEditable, setIsEditable] = useState(false)
+  const [isNote, setIsNote] = useState(false)
+  const [comment, setComment] = useState()
   const newNameRef = useRef()
   const newCityRef = useRef()
   const newMountainRef = useRef()
@@ -559,19 +642,19 @@ const ActivityContent = () => {
   const [images, setImages] = useState()
   const [imageURLs, setImageURLs] = useState()
   const [downloadUrl, setDownloadUrl] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [tabIndex, setTabIndex] = useState(0)
+  const [currentPage, setCurrentPage] = useState(0)
   const navigate = useNavigate()
   const value = useContext(UserContext)
 
   useEffect(() => {
-    console.log(value.userAuth)
     if (value.userAuth === null) {
-      console.log(456)
-      window.alert('您尚未登入會員')
+      value.alertPopup()
+      value.setAlertContent('您尚未登入會員')
       navigate('/login')
     } else {
-      console.log(789)
       testAuth()
-      getOwnerProfile()
     }
 
     async function getGroupInfo() {
@@ -604,7 +687,7 @@ const ActivityContent = () => {
         console.log('No such document!')
       }
     }
-    let newGetPromise = [getGroupInfo(), getContentInfo()]
+    let newGetPromise = [getGroupInfo(), getContentInfo(), getOwnerProfile()]
     async function getPromise() {
       await Promise.all(newGetPromise)
     }
@@ -613,62 +696,66 @@ const ActivityContent = () => {
     const unsub = onSnapshot(doc(db, 'groupContents', groupID), (doc) => {
       const data = doc.data()
       if (data == undefined) {
-        return
+        return //404 not
       }
       const memberData = data.memberList
       const ownerData = data.groupOwner
-      setMember(memberData)
-      setOwnerName(ownerData)
-      memberData.filter((memberID, index) => {
-        if (memberID.isLogged == true) {
-          setOnline(true)
-        }
-      })
-    })
+      const todotData = data.todoList
+      if (todotData !== undefined) {
+        console.log('有人留言')
+      }
 
-    // window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+      setMember(memberData)
+      setComment(todotData)
+      //   if (memberID.isLogged == true) {
+      //     setOnline(true)
+    })
   }, [value.userAuth, groupID, contentID])
 
   async function testAuth() {
-    console.log(123)
+    // setLoading(true)
     const groupContent = doc(db, 'groupContents', groupID)
     const groupDoc = await getDoc(groupContent)
     if (groupDoc.exists()) {
       const groupOwnerInfo = groupDoc.data()
       const currgroupOwner = groupOwnerInfo.groupOwner
       const currMember = groupOwnerInfo.memberList
-      console.log(currgroupOwner, value.userUid)
       if (value.userUid == currgroupOwner) {
         setAuth(false)
         setContent(true)
         setOwnerAuth(value.userUid)
         getOwnerProfile(currgroupOwner)
       } else if (value.userUid !== currgroupOwner) {
-        console.log('非團主')
+        setOwnerAuth(null)
+        if (currMember.length == 0) {
+          console.log(123)
+          setAuth(true)
+          setContent(false)
+          setMemberAuth(value.userUid)
+          getOwnerProfile(currgroupOwner)
+        } else if (currMember.length !== 0) {
+          function isSecondTime(person) {
+            return person.joinID == value.userUid
+          }
+          if (currMember.find(isSecondTime) !== undefined) {
+            setAuth(false)
+            getOwnerProfile(currgroupOwner)
+            value.alertPopup()
+            value.setAlertContent('歡迎回來')
+            setContent(true)
+            setMemberAuth(value.userUid)
+          } else {
+            setAuth(true)
+            setContent(true)
+            getOwnerProfile(currgroupOwner)
+          }
+        }
       }
-
-      // else if (value.userUid !== currgroupOwner) {
-      //   if (currMember.length == 0) {
-      //     setAuth(true)
-      //     setContent(false)
-      //   } else {
-      //     currMember.filter((memberID, index) => {
-      //       console.log(memberID)
-      //       if (memberID.joinID.includes(value.userUid)) {
-      //         setAuth(false)
-      //         setContent(true)
-      //         setMemberAuth(value.userUid)
-      //         setOnline(true)
-      //         getOwnerProfile(currgroupOwner)
-      //       }
-      //     })
-      //   }
-      // }
     }
+    // setTimeout(() => setLoading(false), 3000)
   }
 
   async function getOwnerProfile(currgroupOwner) {
-    console.log(currgroupOwner)
     try {
       const docRef = doc(db, 'users', currgroupOwner)
       const docSnap = await getDoc(docRef)
@@ -680,26 +767,32 @@ const ActivityContent = () => {
       console.log('No such document!')
     }
   }
-  //FIXME
+
   async function testBtn() {
     if (authRef.current.value !== groupData.groupPassword) {
-      alert('驗證碼錯誤')
+      value.alertPopup()
+      value.setAlertContent('驗證碼錯誤')
     } else {
-      alert('驗證成功')
+      value.alertPopup()
+      value.setAlertContent('驗證成功')
       setAuth(false)
       setContent(true)
       setMemberAuth(value.userUid)
-      const joinData = doc(db, 'users', value.userUid)
-      const joinSnap = await getDoc(joinData)
-      console.log(joinSnap)
-      if (joinSnap.exists()) {
-        console.log('取得個人資料')
+      updateTheGroup()
+    }
+  }
+
+  async function getJoinerData() {
+    const joinData = doc(db, 'users', value.userUid)
+    const joinSnap = await getDoc(joinData)
+    if (joinSnap.exists()) {
+      try {
         const getjoinData = joinSnap.data()
         const oldjoinList = await getjoinData.joinGroup
         setJoin(getjoinData)
         let newjoinList = []
         const joinInfo = {
-          groupID: groupData.groupID,
+          groupID: groupID,
           groupName: groupData.groupName,
           groupPhoto: groupData.groupPhoto,
           startDate: groupData.startDate,
@@ -709,28 +802,41 @@ const ActivityContent = () => {
         const updatejoinGroup = await updateDoc(joinData, {
           joinGroup: newjoinList,
         })
-        const groupContent = doc(db, 'groupContents', groupData.groupID)
-        let newMember = []
-        const newMemberInfo = {
-          joinName: getjoinData.name,
-          joinPic: getjoinData.photoURL,
-          joinID: getjoinData.id,
-          isLogged: true,
-          isEditableAuth: false,
-        }
-
-        newMember.push(newMemberInfo, ...member)
-        const updateMember = await updateDoc(groupContent, {
-          memberList: newMember,
-        })
-        console.log(newMemberInfo, '更新團體資料')
-        setMember(newMember)
+      } catch {
+        console.log('No such document!')
       }
     }
   }
+  async function updateMemberList() {
+    const joinData = doc(db, 'users', value.userUid)
+    const joinSnap = await getDoc(joinData)
 
+    const groupContent = doc(db, 'groupContents', groupID)
+    const memberSnap = await getDoc(groupContent)
+    if (memberSnap.exists() && joinSnap.exists()) {
+      const joinPic = joinSnap.data()
+      const joinPicURL = joinPic.photoURL
+      let newMember = []
+      const newMemberInfo = {
+        joinName: value.userName,
+        joinPic: joinPicURL,
+        joinID: value.userUid,
+        isLogged: true,
+        isEditableAuth: false,
+      }
+      newMember.push(newMemberInfo, ...member)
+      const updateMember = await updateDoc(groupContent, {
+        memberList: newMember,
+      })
+      setMember(newMember)
+    }
+  }
+
+  async function updateTheGroup() {
+    let newPromise = [getJoinerData(), updateMemberList()]
+    await Promise.all(newPromise)
+  }
   async function seeTheProfile(index) {
-    setIsActive((current) => !current)
     const profileID = member[index].joinID
     setClickID(profileID)
     try {
@@ -745,17 +851,17 @@ const ActivityContent = () => {
     }
   }
   async function seeOwnerProfile() {
-    setRule((current) => !current)
+    setProfile()
   }
   function getPhotoInfo(e) {
     setImages([...e.target.files])
     const newImageUrls = URL.createObjectURL(e.target.files[0])
     setImageURLs(newImageUrls)
   }
-
   async function editFunction() {
+    // setLoading(true)
     let newPromise = [sendUpdateInfo(), editGroupInfo(), findMemberData()]
-    await Promise.all(newPromise)
+    // Promise.all(newPromise).then(() => setTimeout(setLoading(false), 5000))
   }
   async function sendUpdateInfo() {
     const imageRef = ref(
@@ -763,7 +869,6 @@ const ActivityContent = () => {
       `images/${newNameRef.current.value}_${groupID}_登山團封面照`,
     )
     uploadBytes(imageRef, images[0]).then(() => {
-      console.log('檔案上傳成功')
       getDownloadURL(imageRef).then((url) => {
         setDownloadUrl(url)
         let newFile = {
@@ -774,7 +879,7 @@ const ActivityContent = () => {
           startDate: newStart == undefined ? groupData.startDate : newStart,
           endDate: newEnd == undefined ? groupData.endDate : newEnd,
           groupMountain: newMountainRef.current.value,
-          groupIntro: newIntro.current.value,
+          groupIntro: groupData.groupIntro,
           groupOwner: value.userUid,
           groupPassword: groupData.groupPassword,
         }
@@ -818,12 +923,9 @@ const ActivityContent = () => {
       const thisIDRef = doc(db, 'users', thisID)
       const getRef = await getDoc(thisIDRef)
       if (getRef.exists()) {
-        console.log('取到資料')
         const getRefData = getRef.data()
-        console.log(getRefData)
         const getJoinData = getRefData.joinGroup
         let eachIndex = getJoinData.findIndex((c) => c.groupID === groupID)
-        console.log(eachIndex)
         const joinGroupInfo = {
           groupID: groupID,
           groupName: newNameRef.current.value,
@@ -837,13 +939,29 @@ const ActivityContent = () => {
           joinGroup: getJoinData,
         })
       }
-
-      console.log('改好參加者資料了')
     } catch {
       console.log('No such document!')
     }
   }
 
+  async function checkNote() {
+    try {
+      const docRef = doc(db, 'groupLists', groupID)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        const updateLeadGroup = setDoc(
+          docRef,
+          {
+            groupIntro: newIntro.current.value,
+          },
+          { merge: true },
+        )
+      }
+      setIsNote(false)
+    } catch {
+      console.log('No such document!')
+    }
+  }
   return (
     <>
       {auth && (
@@ -852,8 +970,8 @@ const ActivityContent = () => {
             <PopContent>
               <PopImage></PopImage>
               <Text
-                fontSize="36px"
-                tablet_fontSize="24px"
+                fontSize="32px"
+                tablet_fontSize="20px"
                 margin="0px 0px 30px 0px"
               >
                 歡迎加入，請輸入驗證碼
@@ -874,9 +992,12 @@ const ActivityContent = () => {
           </PopupWrapper>
         </>
       )}
+      <LoadingBackground loading={loading}>
+        <LoadingStyle></LoadingStyle>
+      </LoadingBackground>
       {content && (
         <>
-          <Wrapper>
+          <NewWrapper>
             {groupData && (
               <>
                 {isEditable ? (
@@ -899,27 +1020,6 @@ const ActivityContent = () => {
                         />
                       </FileLabel>
                     </BackCover>
-                  </>
-                ) : (
-                  <BackCover
-                    style={{ backgroundImage: `url(${groupData.groupPhoto})` }}
-                  ></BackCover>
-                )}
-                {groupData && (
-                  <>
-                    <ScrollDivide>
-                      <Text>Top</Text>
-                      <Scroll
-                        onClick={() => {
-                          window.scrollTo({
-                            top: 0,
-                            right: 0,
-                            behavior: 'smooth',
-                          })
-                        }}
-                        id="myBtn"
-                      ></Scroll>
-                    </ScrollDivide>
                     <MainInfo>
                       <Divide
                         justifyContent="center"
@@ -928,8 +1028,8 @@ const ActivityContent = () => {
                       >
                         <Text
                           fontSize="24px"
-                          color="#AC6947"
-                          fontWeight="800"
+                          // color="#AC6947"
+                          fontWeight="400"
                           tablet_fontSize="20px"
                           mobile_fontSize="16px"
                         >
@@ -939,153 +1039,348 @@ const ActivityContent = () => {
                           <InfoInput
                             backgroundColor="transparent"
                             width="150px"
-                            fontSize="24px"
+                            fontSize="20px"
                             tablet_fontSize="20px"
                             mobile_fontSize="16px"
                             boxShadow="none"
                             color="#F6EAD6"
                             borderBottom="1px solid #F6EAD6"
                             ref={newNameRef}
-                            defaultValue={groupData.groupName}
+                            style={{
+                              opacity: 0.5,
+                            }}
+                            defaultValue={
+                              groupData.groupName ? groupData.groupName : '團名'
+                            }
                           />
                         ) : (
                           <Text
-                            fontSize="24px"
+                            fontSize="20px"
                             tablet_fontSize="20px"
                             mobile_fontSize="16px"
                           >
-                            {groupData.groupName}
+                            {groupData.groupName ? groupData.groupName : '團名'}
                           </Text>
                         )}
                       </Divide>
-                      <Divide
-                        justifyContent="center"
-                        mobile_flexDirection="column"
-                        mobile_justifyContent="flex-start"
-                        mobile_alignItems="start"
-                      >
-                        <Divide mobile_marginBottom="12px">
-                          <Text
-                            margin="0px 4px 0px 0px"
-                            fontSize="24px"
-                            color="#AC6947"
-                            fontWeight="800"
-                            tablet_fontSize="20px"
-                            mobile_fontSize="16px"
-                            mobile_margin="0 12px 0 0"
-                          >
-                            地點：
-                          </Text>
-                          {isEditable ? (
-                            <Divide>
-                              <InfoInput
-                                backgroundColor="transparent"
-                                width="80px"
-                                fontSize="20px"
-                                tablet_fontSize="20px"
-                                mobile_fontSize="16px"
-                                boxShadow="none"
-                                color="#F6EAD6"
-                                borderBottom="1px solid #F6EAD6"
-                                ref={newCityRef}
-                                defaultValue={groupData.groupCity}
-                              />
-                              <InfoInput
-                                backgroundColor="transparent"
-                                width="150px"
-                                mobile_width="120px"
-                                fontSize="20px"
-                                tablet_fontSize="20px"
-                                mobile_fontSize="16px"
-                                boxShadow="none"
-                                color="#F6EAD6"
-                                borderBottom="1px solid #F6EAD6"
-                                ref={newMountainRef}
-                                defaultValue={groupData.groupMountain}
-                              />
-                            </Divide>
-                          ) : (
-                            <Text
+                      <Divide marginBottom="12px">
+                        <Text
+                          margin="0px 0px 0px 0px"
+                          fontSize="24px"
+                          // color="#AC6947"
+                          fontWeight="400"
+                          tablet_fontSize="20px"
+                          mobile_fontSize="16px"
+                          mobile_margin="0 0 0 0"
+                        >
+                          地點：
+                        </Text>
+                        {isEditable ? (
+                          <Divide>
+                            <InfoInput
+                              backgroundColor="transparent"
+                              width="80px"
                               fontSize="20px"
-                              margin="0 8px 0 0"
                               tablet_fontSize="20px"
                               mobile_fontSize="16px"
-                            >
-                              {groupData.groupCity}|{groupData.groupMountain}
-                            </Text>
-                          )}
-                        </Divide>
-                        <Divide mobile_marginBottom="12px">
+                              boxShadow="none"
+                              color="#F6EAD6"
+                              borderBottom="1px solid #F6EAD6"
+                              style={{
+                                opacity: 0.5,
+                              }}
+                              ref={newCityRef}
+                              defaultValue={
+                                groupData.groupCity
+                                  ? groupData.groupCity
+                                  : '城市'
+                              }
+                            />
+                            <InfoInput
+                              backgroundColor="transparent"
+                              width="150px"
+                              mobile_width="120px"
+                              fontSize="20px"
+                              tablet_fontSize="20px"
+                              mobile_fontSize="16px"
+                              boxShadow="none"
+                              color="#F6EAD6"
+                              borderBottom="1px solid #F6EAD6"
+                              style={{
+                                opacity: 0.5,
+                              }}
+                              ref={newMountainRef}
+                              defaultValue={
+                                groupData.groupMountain
+                                  ? groupData.groupMountain
+                                  : '山名'
+                              }
+                            />
+                          </Divide>
+                        ) : (
                           <Text
-                            fontSize="24px"
-                            color="#AC6947"
-                            fontWeight="800"
-                            margin="0 0 0 20px"
+                            fontSize="20px"
+                            margin="0 8px 0 0"
                             tablet_fontSize="20px"
                             mobile_fontSize="16px"
-                            tablet_margin="0 12px 0 20px"
-                            mobile_margin="0 12px 0 0"
                           >
-                            日期：
+                            {groupData.groupCity ? groupData.groupCity : '城市'}
+                            |
+                            {groupData.groupMountain
+                              ? groupData.groupMountain
+                              : '山名'}
                           </Text>
-                          {isEditable ? (
-                            <>
-                              <DateInput
-                                type="date"
-                                onChange={(e) => setNewStart(e.target.value)}
-                                defaultValue={groupData.startDate}
-                              />
-                              <DateInput
-                                type="date"
-                                onChange={(e) => setNewEnd(e.target.value)}
-                                defaultValue={groupData.endDate}
-                              />
-                            </>
-                          ) : (
-                            <Text
-                              fontSize="20px"
-                              tablet_fontSize="16px"
-                              mobile_fontSize="14px"
-                            >
-                              {groupData.startDate} ~ {groupData.endDate}
-                            </Text>
-                          )}
-                        </Divide>
+                        )}
                       </Divide>
-                      {isEditable ? (
-                        <Divide marginTop="20px">
-                          <EditBtn
-                            width="120px"
-                            mobile_width="80px"
-                            border="1px solid #B99362"
-                            padding="8px 12px"
-                            mobile_padding="8px"
-                            mobile_fontSize="12px"
-                            onClick={() => setIsEditable(false)}
+                      <Divide mobile_marginBottom="12px">
+                        <Text
+                          fontSize="24px"
+                          // color="#AC6947"
+                          fontWeight="400"
+                          margin="0 0 0 0px"
+                          tablet_fontSize="20px"
+                          mobile_fontSize="16px"
+                          tablet_margin="0 0px 0 0px"
+                          mobile_margin="0 0 0 0"
+                        >
+                          日期：
+                        </Text>
+                        {isEditable ? (
+                          <>
+                            <DateInput
+                              type="date"
+                              onChange={(e) => setNewStart(e.target.value)}
+                              defaultValue={groupData.startDate}
+                              style={{
+                                opacity: 0.5,
+                              }}
+                            />
+                            <DateInput
+                              type="date"
+                              onChange={(e) => setNewEnd(e.target.value)}
+                              defaultValue={groupData.endDate}
+                              style={{
+                                opacity: 0.5,
+                              }}
+                            />
+                          </>
+                        ) : (
+                          <Text
+                            fontSize="20px"
+                            tablet_fontSize="16px"
+                            mobile_fontSize="14px"
                           >
-                            取消修改
-                          </EditBtn>
-                          <EditBtn
-                            width="120px"
-                            mobile_width="80px"
-                            color="#B99362"
-                            padding="8px 12px"
-                            mobile_padding="8px"
-                            mobile_fontSize="12px"
-                            border="1px solid #B99362"
-                            onClick={editFunction}
+                            {groupData.startDate} ~ {groupData.endDate}
+                          </Text>
+                        )}
+                      </Divide>
+                      {ownerAuth !== null && (
+                        <>
+                          {isEditable && (
+                            <Divide marginTop="20px" flexDirection="column">
+                              <Divide justiftContent="space-between">
+                                <EditBtn
+                                  width="120px"
+                                  mobile_width="80px"
+                                  color="#B99362"
+                                  padding="8px 12px"
+                                  mobile_padding="8px"
+                                  mobile_fontSize="12px"
+                                  style={{
+                                    opacity: '1',
+                                  }}
+                                  onClick={() => setIsEditable(false)}
+                                >
+                                  取消修改
+                                </EditBtn>
+                                <EditBtn
+                                  width="120px"
+                                  mobile_width="80px"
+                                  color="#B99362"
+                                  padding="8px 12px"
+                                  mobile_padding="8px"
+                                  mobile_fontSize="12px"
+                                  style={{
+                                    opacity: '1',
+                                  }}
+                                  onClick={editFunction}
+                                >
+                                  確認修改
+                                </EditBtn>
+                              </Divide>
+                            </Divide>
+                          )}
+                        </>
+                      )}
+                    </MainInfo>
+                  </>
+                ) : (
+                  <>
+                    <BackCover
+                      style={{
+                        backgroundImage: `url(${groupData.groupPhoto})`,
+                      }}
+                    ></BackCover>
+                    <MainInfo>
+                      <Divide
+                        justifyContent="center"
+                        marginBottom="12px"
+                        mobile_justifyContent="flex-start"
+                      >
+                        <Text
+                          fontSize="24px"
+                          // color="#AC6947"
+                          fontWeight="400"
+                          tablet_fontSize="20px"
+                          mobile_fontSize="16px"
+                        >
+                          團名：
+                        </Text>
+                        {isEditable ? (
+                          <InfoInput
+                            backgroundColor="transparent"
+                            width="150px"
+                            fontSize="20px"
+                            tablet_fontSize="20px"
+                            mobile_fontSize="16px"
+                            boxShadow="none"
+                            // color="#F6EAD6"
+                            borderBottom="1px solid #F6EAD6"
+                            ref={newNameRef}
+                            style={{
+                              opacity: 0.5,
+                            }}
+                            defaultValue={
+                              groupData.groupName ? groupData.groupName : '團名'
+                            }
+                          />
+                        ) : (
+                          <Text
+                            fontSize="20px"
+                            tablet_fontSize="20px"
+                            mobile_fontSize="16px"
                           >
-                            確認修改
-                          </EditBtn>
-                        </Divide>
-                      ) : (
+                            {groupData.groupName ? groupData.groupName : '團名'}
+                          </Text>
+                        )}
+                      </Divide>
+                      <Divide marginBottom="12px">
+                        <Text
+                          margin="0px 0px 0px 0px"
+                          fontSize="24px"
+                          fontWeight="400"
+                          tablet_fontSize="20px"
+                          mobile_fontSize="16px"
+                          mobile_margin="0 0 0 0"
+                        >
+                          地點：
+                        </Text>
+                        {isEditable ? (
+                          <Divide>
+                            <InfoInput
+                              backgroundColor="transparent"
+                              width="80px"
+                              fontSize="20px"
+                              tablet_fontSize="20px"
+                              mobile_fontSize="16px"
+                              boxShadow="none"
+                              color="#F6EAD6"
+                              borderBottom="1px solid #F6EAD6"
+                              style={{
+                                opacity: 0.5,
+                              }}
+                              ref={newCityRef}
+                              defaultValue={
+                                groupData.groupCity
+                                  ? groupData.groupCity
+                                  : '城市'
+                              }
+                            />
+                            <InfoInput
+                              backgroundColor="transparent"
+                              width="150px"
+                              mobile_width="120px"
+                              fontSize="20px"
+                              tablet_fontSize="20px"
+                              mobile_fontSize="16px"
+                              boxShadow="none"
+                              color="#F6EAD6"
+                              borderBottom="1px solid #F6EAD6"
+                              style={{
+                                opacity: 0.5,
+                              }}
+                              ref={newMountainRef}
+                              defaultValue={
+                                groupData.groupMountain
+                                  ? groupData.groupMountain
+                                  : '山名'
+                              }
+                            />
+                          </Divide>
+                        ) : (
+                          <Text
+                            fontSize="20px"
+                            margin="0 8px 0 0"
+                            tablet_fontSize="20px"
+                            mobile_fontSize="16px"
+                          >
+                            {groupData.groupCity ? groupData.groupCity : '城市'}
+                            |
+                            {groupData.groupMountain
+                              ? groupData.groupMountain
+                              : '山名'}
+                          </Text>
+                        )}
+                      </Divide>
+                      <Divide mobile_marginBottom="12px">
+                        <Text
+                          fontSize="24px"
+                          fontWeight="400"
+                          margin="0 0 0 0px"
+                          tablet_fontSize="20px"
+                          mobile_fontSize="16px"
+                          tablet_margin="0 0px 0 0px"
+                          mobile_margin="0 0 0 0"
+                        >
+                          日期：
+                        </Text>
+                        {isEditable ? (
+                          <>
+                            <DateInput
+                              type="date"
+                              onChange={(e) => setNewStart(e.target.value)}
+                              defaultValue={groupData.startDate}
+                              style={{
+                                opacity: 0.5,
+                              }}
+                            />
+                            <DateInput
+                              type="date"
+                              onChange={(e) => setNewEnd(e.target.value)}
+                              defaultValue={groupData.endDate}
+                              style={{
+                                opacity: 0.5,
+                              }}
+                            />
+                          </>
+                        ) : (
+                          <Text
+                            fontSize="20px"
+                            tablet_fontSize="16px"
+                            mobile_fontSize="14px"
+                          >
+                            {groupData.startDate} ~ {groupData.endDate}
+                          </Text>
+                        )}
+                      </Divide>
+                      {ownerAuth !== null && !isEditable && (
                         <EditBtn
                           width="140px"
-                          mobile_fontSize="12px"
-                          border="1px solid #F6EAD6"
+                          borderBottom="1px solid #F6EAD6"
                           padding="8px 12px"
                           marginTop="20px"
-                          // marginBottom="20px"
+                          mobile_fontSize="12px"
+                          mobile_width="100px"
                           mobile_padding="8px"
                           mobile_marginTop="10px"
                           onClick={() => {
@@ -1095,7 +1390,7 @@ const ActivityContent = () => {
                           onMouseEnter={() => setIsHovering(true)}
                           onMouseLeave={() => setIsHovering(false)}
                         >
-                          修改基本資訊
+                          【修改基本資訊】
                         </EditBtn>
                       )}
                     </MainInfo>
@@ -1103,180 +1398,193 @@ const ActivityContent = () => {
                 )}
               </>
             )}
-            <Divide
-              alignItems="start"
-              marginTop="50px"
-              mobile_flexDirection="column"
-              mobile_marginTop="20px"
-            >
-              {ownerProfile && (
-                <>
-                  <Divide
-                    width="45%"
-                    justiftContent="center"
-                    alignItems="center"
-                    flexDirection="column"
-                    // tablet_flexDirection="column"
-                    marginBottom="12px"
-                    mobile_alignItems="end"
-                    minHeight="200px"
-                  >
-                    {groupData && (
+          </NewWrapper>
+          <Wrapper>
+            <ScrollDivide>
+              {comment && (
+                <Icon
+                  style={{
+                    position: 'absolute',
+                    backgroundImage: `url(${alert})`,
+                    width: '30px',
+                    height: '30px',
+                    top: '-35px',
+                  }}
+                ></Icon>
+              )}
+
+              <Scroll onClick={() => setOnline((current) => !current)}></Scroll>
+              {online && (
+                <Divide
+                  style={{
+                    position: 'absolute',
+                    right: '20px',
+                    bottom: '80px',
+                  }}
+                >
+                  <TodoList
+                    Text={Text}
+                    DivideBorder={DivideBorder}
+                    Divide={Divide}
+                    InfoInput={InfoInput}
+                    Btn={Btn}
+                    BackColor={BackColor}
+                    SrcImage={SrcImage}
+                  />
+                </Divide>
+              )}
+            </ScrollDivide>
+            <Divide alignItems="start" justiftContent="space-around">
+              <Divide marginBottom="12px" width="20%" flexDirection="column">
+                <NoteBox>
+                  <Divide width="100%" marginBottom="24px">
+                    <Text
+                      textAlign="left"
+                      mobile_fontSize="14px"
+                      color="#B99362"
+                    >
+                      團長提醒
+                    </Text>
+                    {ownerAuth !== null && (
                       <>
-                        <Divide position="relative" minHeight="180px">
-                          <Divide flexDirection="column">
-                            <Text fontSize="24px" tablet_fontSize="16px">
-                              團長
-                            </Text>
-                            <Text
-                              fontSize="20px"
-                              tablet_fontSize="16px"
-                              margin="0x 0x 8px 0px"
-                            >
-                              {ownerProfile.name}
-                            </Text>
-                            <MemberPic
-                              src={ownerProfile.photoURL}
-                              onClick={seeOwnerProfile}
-                            />{' '}
-                          </Divide>
-                          <OwnerBackground rule={rule}>
-                            <Text
-                              tablet_fontSize="14px"
-                              margin="0 0 12px 0px"
-                              color=" #B99362"
-                            >
-                              團長清單
-                            </Text>
-                            <ActivePost
-                              onClick={() => {
-                                setRule((current) => !current)
+                        {isNote ? (
+                          <Divide>
+                            <Icon
+                              style={{
+                                backgroundImage: `url(${close})`,
                               }}
-                              rule={rule}
-                            >
-                              {rule && ownerProfile.equipment.length > 0 ? (
-                                ownerProfile.equipment.map((item, index) => {
-                                  return (
-                                    <>
-                                      <Divide
-                                        key={index}
-                                        tablet_flexDirection="column"
-                                        mobile_flexDirection="column"
-                                      >
-                                        <Text tablet_fontSize="14px">
-                                          {item}
-                                        </Text>
-                                        <IconWrapper>
-                                          <IconImage
-                                            style={{
-                                              backgroundImage: `url(${
-                                                equipments[item]
-                                                  ? equipments[item]
-                                                  : logo
-                                              })`,
-                                            }}
-                                          ></IconImage>
-                                        </IconWrapper>
-                                      </Divide>
-                                    </>
-                                  )
-                                })
-                              ) : (
-                                <Text>團主目前尚無清單</Text>
-                              )}
-                            </ActivePost>
-                          </OwnerBackground>
-                        </Divide>
+                              onClick={() => setIsNote(false)}
+                            ></Icon>
+                            <Icon
+                              style={{
+                                marginLeft: '16px',
+                                backgroundImage: `url(${done})`,
+                              }}
+                              onClick={checkNote}
+                            ></Icon>
+                          </Divide>
+                        ) : (
+                          <Icon
+                            style={{
+                              backgroundImage: `url(${edit})`,
+                              backgroundRepeat: 'no-repeat',
+                            }}
+                            onClick={() => setIsNote(true)}
+                          ></Icon>
+                        )}
                       </>
                     )}
+                  </Divide>
+                  <Divide>
                     {groupData && (
-                      <Divide margin="12px 0 20px 0">
-                        <Divide width="48%">
-                          <Text textAlign="left" tablet_fontSize="14px">
-                            團長的話
-                            {isEditable ? (
-                              <NewIntroWrapper
-                                ref={newIntro}
-                                defaultValue={groupData.groupIntro}
-                              />
-                            ) : (
-                              <Intro>{groupData.groupIntro}</Intro>
-                            )}
-                          </Text>
-                        </Divide>
-                        <Divide
-                          flexDirection="column"
-                          alignItems="start"
-                          width="48%"
-                        >
-                          <Text fontSize="20px" tablet_fontSize="14px">
-                            團員名單
-                          </Text>
-                          <UnderCover>
-                            <WidthContainer>
-                              {member.length > 0 ? (
-                                Object.values(member).map((item, index) => {
-                                  return (
-                                    <Divide
-                                      flexDirection="column"
-                                      tablet_flexDirection="column"
-                                      mobile_flexDirection="column"
-                                      key={index}
-                                      id={index}
-                                    >
-                                      <Text tablet_fontSize="14px">
-                                        {item.joinName}
-                                      </Text>
-                                      {/* {online && <div>上線中</div>} */}
-                                      <MemberPic
-                                        src={item.joinPic}
-                                        onClick={() => seeTheProfile(index)}
-                                      />
-                                    </Divide>
-                                  )
-                                })
-                              ) : (
-                                <>
-                                  <MemberDefault></MemberDefault>
-                                </>
-                              )}
-                            </WidthContainer>
-                          </UnderCover>
-                        </Divide>
-                      </Divide>
+                      <>
+                        {isNote ? (
+                          <>
+                            <NewIntroWrapper
+                              ref={newIntro}
+                              defaultValue={groupData.groupIntro}
+                            ></NewIntroWrapper>
+                          </>
+                        ) : (
+                          <>
+                            <Intro>{groupData.groupIntro}</Intro>
+                          </>
+                        )}
+                      </>
                     )}
-                    <Text
-                      fontSize="14px"
-                      tablet_fontSize="12px"
-                      tablet_margin="12px auto 0 auto"
+                  </Divide>
+                </NoteBox>
+              </Divide>
+              <Divide width="75%" flexDirection="column" alignItems="start">
+                <Divide
+                  width="100%"
+                  justifyContent="flex-start"
+                  alignItems="end"
+                >
+                  {ownerProfile && (
+                    <Divide
+                      flexDirection="column"
+                      width="20%"
+                      alignItems="start"
                     >
-                      【點擊頭像可查看裝備清單】
-                    </Text>
-                    <ActiveBackground isActive={isActive}>
-                      {profile && (
-                        <Text
-                          tablet_fontSize="14px"
-                          margin="0 0 12px 0"
-                          color=" #B99362"
+                      <Text margin="0x 0x 8px 0px">{ownerProfile.name}</Text>
+                      <MemberPic
+                        src={ownerProfile.photoURL}
+                        onClick={seeOwnerProfile}
+                      />
+                    </Divide>
+                  )}
+                  {member && member.length > 0 ? (
+                    Object.values(member).map((item, index) => {
+                      return (
+                        <Divide
+                          width="10%"
+                          flexDirection="column"
+                          tablet_flexDirection="column"
+                          mobile_flexDirection="column"
+                          key={index}
+                          id={index}
                         >
-                          {profile.name}的清單
-                        </Text>
-                      )}
-                      <ActivePost
-                        onClick={(e) => {
-                          setIsActive((current) => !current)
-                        }}
-                        isActive={isActive}
+                          <ReactTooltip
+                            id={item.joinName}
+                            place="top"
+                            effect="solid"
+                          >
+                            {item.joinName}
+                          </ReactTooltip>
+                          <MemberPic
+                            data-tip
+                            data-for={item.joinName}
+                            src={item.joinPic ? item.joinPic : logo}
+                            onClick={() => {
+                              seeTheProfile(index)
+                            }}
+                          />
+                        </Divide>
+                      )
+                    })
+                  ) : (
+                    <>
+                      <MemberDefault></MemberDefault>
+                    </>
+                  )}
+                </Divide>
+                <Divide
+                  marginTop="24px"
+                  width="auto"
+                  flexDirection="column"
+                  alignItems="start"
+                  style={{
+                    minWidth: '300px',
+                    minHeight: '100px',
+                    padding: '12px 20px',
+                    borderRadius: '24px',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                  }}
+                >
+                  {!profile && (
+                    <>
+                      <Text
+                        fontSize="20px"
+                        tablet_fontSize="14px"
+                        margin="0 0 12px 0"
+                        color=" #B99362"
                       >
-                        {isActive && profile && profile.equipment.length > 0 ? (
-                          profile.equipment.map((item, index) => {
+                        團長清單
+                      </Text>
+                      <Divide>
+                        {ownerProfile?.equipment.length > 0 ? (
+                          ownerProfile.equipment.map((item, index) => {
                             return (
                               <>
                                 <Divide
                                   key={index}
-                                  tablet_flexDirection="column"
-                                  mobile_flexDirection="column"
-                                  flexWrap="wrap"
+                                  flexDirection="column"
+                                  style={{
+                                    Width: 'calc(100% / 3)',
+                                    margin: 'auto 6px',
+                                  }}
                                 >
                                   <Text tablet_fontSize="14px">{item}</Text>
                                   <IconWrapper>
@@ -1295,46 +1603,74 @@ const ActivityContent = () => {
                             )
                           })
                         ) : (
-                          <Text>目前尚無清單</Text>
+                          <Text>團主目前尚無清單</Text>
                         )}
-                        {ownerAuth !== undefined && (
-                          <>
-                            <Divide
-                              marginTop="12px"
-                              flexDirection="column"
-                              tablet_flexDirection="column"
-                            >
-                              {/* <Btn
-                              fontSize="14px"
-                              width="120px"
-                              margin="12px 0 12px 0"
-                              tablet_fontSize="14px"
-                              tablet_width="80px"
-                              tablet_height="20px"
-                              tablet_margin="8px 0 8px 0"
-                              onClick={() => removeMember()}
-                            >
-                              剔除團員
-                            </Btn> */}
-                              <Btn
-                                fontSize="14px"
-                                width="120px"
-                                margin="12px 0 16px 0"
-                                tablet_fontSize="14px"
-                                tablet_width="80px"
-                                tablet_height="20px"
-                              >
-                                開放權限
-                              </Btn>
-                            </Divide>
-                          </>
+                      </Divide>
+                    </>
+                  )}
+                  {profile && (
+                    <>
+                      <Text
+                        tablet_fontSize="14px"
+                        margin="0px 0 12px 0"
+                        color=" #B99362"
+                      >
+                        {profile.name}的清單
+                      </Text>
+                      <Divide>
+                        {profile.equipment.length > 0 ? (
+                          profile.equipment.map((item, index) => {
+                            return (
+                              <>
+                                <Divide
+                                  key={index}
+                                  flexDirection="column"
+                                  style={{
+                                    Width: 'calc(100% / 3)',
+                                    margin: 'auto 6px',
+                                  }}
+                                >
+                                  <Text tablet_fontSize="14px">{item}</Text>
+                                  <IconWrapper>
+                                    <IconImage
+                                      style={{
+                                        backgroundImage: `url(${
+                                          equipments[item]
+                                            ? equipments[item]
+                                            : logo
+                                        })`,
+                                      }}
+                                    ></IconImage>
+                                  </IconWrapper>
+                                </Divide>
+                              </>
+                            )
+                          })
+                        ) : (
+                          <Text>{profile.name}目前尚無清單</Text>
                         )}
-                      </ActivePost>
-                    </ActiveBackground>
-                  </Divide>
-                </>
-              )}
-              <TodoList
+                      </Divide>
+                    </>
+                  )}
+                </Divide>
+              </Divide>
+            </Divide>
+            <Divide marginTop="50px">
+              {['認領清單', '住宿分配', '車子分配'].map((text, index) => (
+                <Category
+                  $isActive={index === tabIndex}
+                  key={index}
+                  onClick={() => {
+                    setTabIndex(index)
+                    setCurrentPage(index)
+                  }}
+                >
+                  {text}
+                </Category>
+              ))}
+            </Divide>
+            {currentPage == 0 && (
+              <Itinerary
                 Text={Text}
                 DivideBorder={DivideBorder}
                 Divide={Divide}
@@ -1343,27 +1679,8 @@ const ActivityContent = () => {
                 BackColor={BackColor}
                 SrcImage={SrcImage}
               />
-            </Divide>
-            {/* <Divide> */}
-            <Itinerary
-              Text={Text}
-              DivideBorder={DivideBorder}
-              Divide={Divide}
-              InfoInput={InfoInput}
-              Btn={Btn}
-              BackColor={BackColor}
-              SrcImage={SrcImage}
-              setOwnerAuth={setOwnerAuth}
-              ownerAuth={ownerAuth}
-              setMemberAuth={setMemberAuth}
-              memberAuth={memberAuth}
-            />
-            {/* </Divide> */}
-            <Divide
-              alignItems="start"
-              tablet_flexDirection="column"
-              justifyContent="space-around"
-            >
+            )}
+            {currentPage == 1 && (
               <Accommodation
                 Text={Text}
                 DivideBorder={DivideBorder}
@@ -1373,6 +1690,8 @@ const ActivityContent = () => {
                 BackColor={BackColor}
                 SrcImage={SrcImage}
               />
+            )}
+            {currentPage == 2 && (
               <Cars
                 Text={Text}
                 DivideBorder={DivideBorder}
@@ -1382,7 +1701,7 @@ const ActivityContent = () => {
                 BackColor={BackColor}
                 SrcImage={SrcImage}
               />
-            </Divide>
+            )}
           </Wrapper>
         </>
       )}

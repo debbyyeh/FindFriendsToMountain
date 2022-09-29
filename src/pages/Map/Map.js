@@ -45,10 +45,10 @@ const MountainWrapper = styled.div`
   padding: 12px;
   overflow: scroll;
   &::-webkit-scrollbar {
-    ${'' /* display: none; */}
-    background: transparent;
+    display: none;
+    ${'' /* background: transparent;
     border-radius: 4px;
-    width: 3px;
+    width: 3px; */}
   }
   &::-webkit-scrollbar-track-piece {
     background: transparent;
@@ -103,6 +103,10 @@ const HighMountain = styled.div`
   align-items: center;
   width: 60px;
   height: 40px;
+  @media screen and (max-width: 767px) {
+    height: 30px;
+    width: 40px;
+  }
 `
 const WalkingPlace = styled(HighMountain)`
   background-color: #f6ead6;
@@ -112,6 +116,9 @@ const WalkingPlace = styled(HighMountain)`
 const Signature = styled.div`
   margin: 30px 0 30px;
   display: flex;
+  @media screen and (max-width: 767px) {
+    font-size: 14px;
+  }
 `
 const MobileMap = styled.div`
   ${(props) => props.hideOnDesktop && 'display: none;'}
@@ -154,6 +161,11 @@ const DropDownHeader = styled.select`
   &:focus {
     outline: none;
   }
+  @media screen and (max-width: 767px) {
+    width: 100px;
+    padding: 8px;
+    font-size: 14px;
+  }
 `
 const InputData = styled.div`
   width: 50%;
@@ -195,6 +207,10 @@ const Label = styled.label`
   transition: all 0.3s ease;
   color: #f6ead6;
   font-size: 16px;
+  @media screen and (max-width: 767px) {
+    font-size: 14px;
+    bottom: 10px;
+  }
 `
 
 const Underline = styled.div`
@@ -214,6 +230,9 @@ const Btn = styled.button`
   &:active {
     transform: translateY(0.2rem);
   }
+  @media screen and (max-width: 767px) {
+    font-size: 14px;
+  }
 `
 
 const Map = () => {
@@ -225,8 +244,8 @@ const Map = () => {
   const [position, setPosition] = useState('')
   const [mountainList, setMountainList] = useState([])
   const mountainNameRef = useRef()
-  const [choose, setChoose] = useState()
-  const [categoryChoose, setCategoryChoose] = useState()
+  const [choose, setChoose] = useState('台北市')
+  const [categoryChoose, setCategoryChoose] = useState('trail')
   const [isOpen, setIsOpen] = useState(false)
   const toggling = () => setIsOpen(!isOpen)
 
@@ -365,7 +384,8 @@ const Map = () => {
     })
 
     if (result.length == 0) {
-      window.alert('目前尚無資料')
+      value.alertPopup()
+      value.setAlertContent('目前尚無資料')
     } else {
       setClickCity(result[0].tag)
       const placeList = result[0].category
@@ -405,7 +425,8 @@ const Map = () => {
       categoryChoose !== undefined &&
       mountainNameRef.current.value !== ''
     ) {
-      window.alert('加入成功')
+      value.alertPopup()
+      value.setAlertContent('加入成功')
       const docRef = doc(db, 'users', value.userUid)
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
@@ -473,7 +494,8 @@ const Map = () => {
       }
       mountainNameRef.current.value = ''
     } else {
-      window.alert('資料有缺')
+      value.alertPopup()
+      value.setAlertContent('資料未填完整')
     }
   }
 

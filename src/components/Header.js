@@ -16,6 +16,9 @@ const Divide = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+  position: absolute;
+  top: 50px;
+  z-index: 999;
 `
 
 const IconCircle = styled.div`
@@ -50,6 +53,8 @@ const LoginClick = styled(Link)`
   margin-left: 20px;
   font-size: 20px;
   opacity: 0.5;
+  z-index: 100;
+  line-height: 20px;
   &:after {
     content: '';
     border-bottom: 2px solid #ac6947;
@@ -75,6 +80,8 @@ const Btn = styled.button`
   margin-left: 12px;
   font-size: 20px;
   opacity: 0.5;
+  z-index: 100;
+  line-height: 20px;
   &:after {
     content: '';
     border-bottom: 2px solid #ac6947;
@@ -128,12 +135,12 @@ function Header() {
     signOut(auth)
       .then(() => {
         window.location.reload()
-        window.alert('登出成功，將重新整理一次頁面！')
+        value.alertPopup()
+        value.setAlertContent('登入成功，將重新整理一次頁面')
       })
       .catch((error) => {
         console.log('登出失敗')
       })
-    window.localStorage.removeItem('token')
     navigate('/')
     setIsLogged(false)
   }
@@ -142,9 +149,6 @@ function Header() {
       <Wrapper>
         <Divide>
           <IconCircle>
-            {/* <LogoText>找</LogoText>
-            <LogoSecond>山</LogoSecond>
-            <LogoThird>遊</LogoThird> */}
             <LogoIcon to="/" />
             <Link to="LogIn" />
           </IconCircle>

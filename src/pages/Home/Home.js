@@ -17,7 +17,7 @@ const LoginClick = styled(Link)`
   color: #f6ead6;
   z-index: 100;
   white-space: nowrap;
-  @media screen and (max-width: 1279px) {
+  @media screen and (max-width: 1280px) {
     font-size: 16px;
   }
   @media screen and (max-width: 576px) {
@@ -53,7 +53,7 @@ const BackgroundPic = styled.div`
   width: 550px;
   height: calc(100% - 40px);
   box-shadow: 0 4px 8px rgb(48, 61, 48, 0.8);
-  z-index: 10;
+  z-index: 99;
   @media screen and (max-width: 1279px) {
     width: 450px;
     ${'' /* height: 450px; */}
@@ -87,8 +87,8 @@ const BackgroundLine = styled.div`
 
 const BgBall = styled.div`
   border-radius: 50%;
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   position: absolute;
   display: flex;
   align-items: center;
@@ -96,9 +96,9 @@ const BgBall = styled.div`
   top: 80%;
   right: 20%;
   background-color: rgb(48, 61, 48);
-  @media screen and (max-width: 1279px) {
-    width: 70px;
-    height: 70px;
+  @media screen and (max-width: 1280px) {
+    width: 50px;
+    height: 50px;
     right: 12%;
     z-index: 99;
   }
@@ -125,7 +125,7 @@ const HomeTitle = styled.div`
   letter-spacing: 2px;
   line-height: 60px;
   width: 250px;
-  @media screen and (max-width: 1279px) {
+  @media screen and (max-width: 1280px) {
     font-size: 32px;
     line-height: 32px;
   }
@@ -140,7 +140,7 @@ const TypeWrapper = styled.div`
     line-height: 60px;
     height: 60px;
     overflow: hidden;
-    @media screen and (max-width: 1279px) {
+    @media screen and (max-width: 1280px) {
       line-height: 32px;
       height: 32px;
     }
@@ -188,7 +188,7 @@ const TypingText = styled.div`
   position: relative;
   background-color: #222322;
   animation: ${slide} 12s steps(2) infinite;
-  @media screen and (max-width: 1279px) {
+  @media screen and (max-width: 1280px) {
     margin-left: 10px;
     animation: ${slideMedium} 12s steps(2) infinite;
   }

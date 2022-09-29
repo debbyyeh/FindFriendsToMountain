@@ -13,15 +13,16 @@ import {
 import { db } from '../../utils/firebase'
 
 const AreaTitle = styled.div`
-  position: absolute;
-  top: -20px;
+  ${'' /* position: absolute; */}
+  ${'' /* top: -20px; */}
+  margin:0 auto;
   display: flex;
   width: 140px;
   align-items: center;
   justify-content: center;
   background-color: rgb(48, 61, 48);
   @media screen and (max-width: 767px) {
-    top: -15px;
+    ${'' /* top: -15px; */}
   }
 `
 const AddOne = styled.div`
@@ -29,8 +30,8 @@ const AddOne = styled.div`
   border-radius: 50%;
   border: 1px solid #f6ead6;
   margin-left: 8px;
-  width: 30px;
-  height: 30px;
+  width: 25px;
+  height: 25px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -43,12 +44,11 @@ const AddOne = styled.div`
   }
 `
 const CarContainer = styled.div`
-  width: 45%;
-  margin-right: 5px;
-  margin-top: 30px;
+  ${'' /* box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) inset; */}
+  width: calc(100% / 3);
+  padding: 20px;
   @media screen and (max-width: 1279px) {
     width: 33%;
-    margin-right: 0;
   }
   @media screen and (max-width: 767px) {
     width: 100%;
@@ -65,44 +65,63 @@ const CarseatContainer = styled.input`
   color: white;
 `
 const CarDivide = styled.div`
+  width: 100%;
+  border-radius: 12px;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: center;
   margin-top: 30px;
   margin-bottom: 70px;
+  ${'' /* max-height: 450px;
+  overflow-y: scroll; */}
+  &::-webkit-scrollbar {
+    display: none;
+    ${'' /* background: #f6ead6;
+    border-radius: 4px;
+    width: 1px; */}
+  }
+  &::-webkit-scrollbar-track-piece {
+    background: #f6ead6;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid #f6ead6;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: transparent;
+  }
   @media screen and (max-width: 1279px) {
-    max-height: 500px;
-    overflow-y: scroll;
-    &::-webkit-scrollbar {
-      ${'' /* display: none; */}
-      background: transparent;
-      border-radius: 4px;
-      width: 2px;
-    }
-    &::-webkit-scrollbar-track-piece {
-      background: transparent;
-    }
-    &::-webkit-scrollbar-thumb {
-      border-radius: 4px;
-      background-color: #f6ead6;
-      border: 1px solid #f6ead6;
-    }
-    &::-webkit-scrollbar-track {
-      box-shadow: transparent;
-    }
   }
   @media screen and (max-width: 767px) {
     flex-wrap: nowrap;
     flex-direction: row;
     ${'' /* display: initial; */}
-    max-height: 400px;
-    overflow-x: scroll;
-    &::-webkit-scrollbar {
-      ${'' /* display: none; */}
-      background: transparent;
-      border-radius: 4px;
-      width: 1px;
-    }
+  }
+`
+const SeatDivide = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  max-height: 60px;
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+    ${'' /* background: #f6ead6;
+    border-radius: 4px;
+    width: 1px; */}
+  }
+  &::-webkit-scrollbar-track-piece {
+    background: #f6ead6;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid #f6ead6;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: transparent;
   }
 `
 
@@ -118,14 +137,6 @@ const Cars = ({
   let url = window.location.href
   const newUrl = url.split('/activity/')
   const groupID = newUrl[1]
-  const [add, setAdd] = useState(true)
-  const [num, setNum] = useState(0)
-  const [seat, setSeat] = useState(0)
-  const [member, setMember] = useState()
-  const [chooseMember, setChooseMember] = useState([])
-
-  const [maxSeat, setMaxSeat] = useState(0)
-  const [carInfo, setCarInfo] = useState()
   const [getCar, setGetCar] = useState()
   const [latest, setLatest] = useState()
   const carGroupName = useRef()
@@ -135,29 +146,12 @@ const Cars = ({
   const [passengerNames, setPassengerNames] = useState([])
 
   useEffect(() => {
-    getMemberList()
-    getCarArrangeLists()
     const unsub = onSnapshot(docRef, (doc) => {
       const data = doc.data()
       const latestData = data.carLists
       setLatest(latestData)
     })
   }, [])
-
-  async function getMemberList() {
-    try {
-      const docSnap = await getDoc(docRef)
-      if (docSnap.exists()) {
-        const data = docSnap.data()
-        const memberData = data.memberList
-        const carData = data.carLists
-        setMember(memberData)
-        setGetCar(carData)
-      }
-    } catch {
-      console.log('No such document!')
-    }
-  }
 
   const CarListForm = ({ addCar }) => {
     function handleSubmit(e) {
@@ -170,40 +164,47 @@ const Cars = ({
 
     return (
       <>
-        {add && (
-          <Divide
-            justifyContent="center"
-            marginTop="20px"
-            mobile_justifyContent="flex-start"
+        <Divide
+          justifyContent="center"
+          mobile_justifyContent="flex-start"
+          marginTop="30px"
+        >
+          <InfoInput
+            width="120px"
+            color="#f6ead6"
+            backgroundColor="transparent"
+            boxShadow="none"
+            borderBottom="1px solid #f6ead6"
+            ref={carGroupName}
+            mobile_height="30px"
+            mobile_width="100px"
+            mobile_fontSize="14px"
+            placeholder="誰的車"
+          />
+          <InfoInput
+            width="120px"
+            color="#f6ead6"
+            backgroundColor="transparent"
+            boxShadow="none"
+            borderBottom="1px solid #f6ead6"
+            mobile_width="80px"
+            mobile_height="30px"
+            mobile_fontSize="14px"
+            type="number"
+            min="1"
+            ref={seatNum}
+            placeholder="幾個座位"
+          />
+          <Btn
+            borderRadius="24px"
+            width="60px"
+            mobile_height="30px"
+            tablet_fontSize="14px"
+            onClick={handleSubmit}
           >
-            <InfoInput
-              width="120px"
-              ref={carGroupName}
-              mobile_height="30px"
-              mobile_fontSize="14px"
-              placeholder="誰的車"
-            />
-            <InfoInput
-              width="120px"
-              mobile_width="100px"
-              mobile_height="30px"
-              mobile_fontSize="14px"
-              type="number"
-              min="1"
-              ref={seatNum}
-              placeholder="幾個座位"
-            />
-            <Btn
-              marginLeft="12px"
-              width="60px"
-              mobile_height="30px"
-              tablet_fontSize="14px"
-              onClick={handleSubmit}
-            >
-              安排
-            </Btn>
-          </Divide>
-        )}
+            安排
+          </Btn>
+        </Divide>
       </>
     )
   }
@@ -218,16 +219,17 @@ const Cars = ({
       passengerArrange: [],
     }
     newCar.push(...latest, addCarInfo)
-    console.log(addCarInfo)
-    setCarInfo(newCar)
     updateCarList(newCar)
   }
 
   function findPassenger(carIndex, index, text) {
     let passengerLists = latest[carIndex].passengerArrange
     passengerLists[index] = text
-
-    setPassengerNames(passengerLists)
+    const newarr = latest[carIndex].passengerArrange.filter((name) => {
+      return name !== ''
+    })
+    latest[carIndex].passengerArrange = newarr
+    setPassengerNames(newarr)
     updatePassengerList()
   }
 
@@ -235,11 +237,10 @@ const Cars = ({
     const newCar = [...latest]
     newCar.splice(carIndex, 1)
     updateCarList(newCar)
-    setCarInfo(newCar)
   }
 
-  async function updateCarList(carInfo) {
-    const newArr = [...carInfo]
+  async function updateCarList(latest) {
+    const newArr = [...latest]
     const updateCarsToData = await updateDoc(docRef, {
       carLists: newArr,
     })
@@ -249,59 +250,27 @@ const Cars = ({
     const updateCarsToData = await updateDoc(docRef, {
       carLists: newArr,
     })
-    window.alert('更新成功')
-  }
-  async function getCarArrangeLists(carIndex) {
-    let arrangeLists = latest[carIndex].passengerArrange
-    setChooseMember(arrangeLists)
+    value.alertPopup()
+    value.setAlertContent('更新成功')
   }
 
-  function showInput() {
-    setAdd((current) => !current)
-  }
   return (
     <>
-      <DivideBorder
-        width="45%"
+      <Divide
+        width="80%"
         minHeight="300px"
-        position="relative"
-        marginTop="50px"
-        padding="20px"
+        flexDirection="column"
         tablet_width="100%"
-        border={add ? '4px solid #ac6947' : 'none'}
+        style={{
+          margin: '50px auto',
+        }}
       >
-        <AreaTitle>
-          <Text
-            fontSize="24px"
-            marginRight="12px"
-            marginLeft="12px"
-            tablet_fontSize="20px"
-            mobile_fontSize="16px"
-          >
-            車子分配
-          </Text>
-          <AddOne onClick={() => setAdd((current) => !current)}>
-            {add ? '-' : '+'}
-          </AddOne>
-        </AreaTitle>
-        <Text
-          textAlign="left"
-          position="relative"
-          tablet_fontSize="14px"
-          margin="12px 0 20px 0"
-        >
-          請按＋輸入相關資訊
-          <BackColor
-            width="160px"
-            height="5px"
-            top="100%"
-            left="0"
-            tablet_width="140px"
-          ></BackColor>
-        </Text>
-        <CarListForm addCar={addCar} />
+        <Divide flexDirection="column">
+          <Text textAlign="center">【請輸入下方相關資訊】</Text>
+          <CarListForm addCar={addCar} />
+        </Divide>
         <CarDivide>
-          {latest &&
+          {latest && latest.length > 0 ? (
             latest.map((car, carIndex) => {
               return (
                 <>
@@ -336,12 +305,21 @@ const Cars = ({
                         / {Number(car.maxNum)}位置
                       </Text>
                     </Divide>
-                    <Divide justifyContent="center" flexWrap="wrap">
+                    <SeatDivide>
                       {Array(car.maxNum)
                         .fill(undefined)
                         .map((_, index) => {
                           return (
                             <CarseatContainer
+                              style={{
+                                backgroundColor: latest[carIndex]
+                                  .passengerArrange[index]
+                                  ? '#AC6947'
+                                  : 'transparent',
+                                border: latest[carIndex].passengerArrange[index]
+                                  ? '1px solid #AC6947 '
+                                  : '1px dashed #F6EAD6',
+                              }}
                               defaultValue={
                                 latest[carIndex].passengerArrange[index]
                               }
@@ -354,30 +332,30 @@ const Cars = ({
                             />
                           )
                         })}
-                    </Divide>
+                    </SeatDivide>
                   </CarContainer>
                 </>
               )
-            })}
+            })
+          ) : (
+            <Divide width="100%" justifyContent="center">
+              <SrcImage width="150px" height="75px" src={carIcon} />
+            </Divide>
+          )}
         </CarDivide>
-        {add && (
+        {latest && latest.length > 0 && (
           <Btn
             width="150px"
-            margin="0px auto 0px auto"
             tablet_fontSize="14px"
             mobile_width="100px"
-            position="absolute"
-            left="50%"
-            top="calc(100% - 20px)"
-            style={{
-              transform: 'translate(-50%,-100%)',
-            }}
+            borderRadius="24px"
+            mobile_height="30px"
             onClick={updatePassengerList}
           >
             儲存送出
           </Btn>
         )}
-      </DivideBorder>
+      </Divide>
     </>
   )
 }

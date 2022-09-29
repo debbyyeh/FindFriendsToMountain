@@ -12,6 +12,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 import { useForm } from 'react-hook-form'
 import backgroundImage from './background.jpg'
+import logo from './Mountain.png'
 
 const Wrapper = styled.div`
   max-width: calc(1320px - 40px);
@@ -58,44 +59,39 @@ const ChangeModeDiv = styled.div`
   cursor: pointer;
   color: #b99362;
   font-weight: 700;
-  z-index: 100;
   height: 40px;
   padding: 12px;
-
+  width: 155px;
   text-align: center;
-
-  background-color: #222322;
-  position: absolute;
-  left: 55%;
-  transform: ${(props) => {
-    return props.toggle ? 'translateX(-55%) ' : 'translateX(-155%)'
-  }};
-  transition: 0.5s;
-  @media screen and (max-width: 767px) {
-    top: -50px;
-    right: 0;
-    left: 0;
-    transform: none;
-    background-color: transparent;
-    text-align: right;
+  margin: 0 auto;
+  transition: all 0.3s;
+  &:hover {
+    border-bottom: 2px solid #b99362;
+  }
+`
+const Divide = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-bottom: 60px;
+  @media screen and (max-width: 1279px) {
+    margin-bottom: 40px;
   }
 `
 
-const MainTitle = styled.h2`
+const MainTitle = styled.div`
   font-size: 32px;
   color: #b99362;
-  margin-bottom: 100px;
 
   @media screen and (max-width: 1279px) {
     font-size: 24px;
-    margin-bottom: 40px;
     margin-top: 0;
   }
   @media screen and (max-width: 767px) {
     font-size: 18px;
-    margin-bottom: 20px;
   }
 `
+
 const Title = styled.div`
   font-size: 24px;
   color: #f6ead6;
@@ -249,14 +245,80 @@ const FileLabel = styled.label`
   }
 `
 const Note = styled.p`
-  margin-left: 0;
+  width: 80px;
+  margin-left: auto;
   color: #b99362;
   font-size: 14px;
-  margin-top: 0;
+  margin-top: 8px;
 `
 const Text = styled.div`
   color: #f6ead6;
   font-size: 14px;
+`
+const LoadingBackground = styled.div`
+  position: fixed;
+  z-index: 99;
+  background-color: rgba(34, 35, 34, 0.8);
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  ${'' /* left: 25%; */}
+  ${'' /* transform: translate(-25%, -50%); */}
+  display:${(props) => (props.loading ? 'block' : 'none')};
+`
+const move = keyframes`
+  0%,
+   {
+    left: 0;
+    transform:rotate(0deg)
+  }
+  25%{
+    left:400px;
+    transform:rotate(20deg)
+  }
+  50% {
+    transform:rotate(0deg)
+    left: 80%;
+  }
+  55%{
+    transform:rotate(0deg)
+    left: 90%;
+  }
+  70%{
+    transform:rotate(0deg)
+    left: 75%;
+  }
+  100%{
+    left: 0%;
+    transform:rotate(-360deg)
+  }
+`
+const LoadingStyle = styled.span`
+  font-family: 'Rubik Moonrocks', cursive;
+  font-size: 60px;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  position: absolute;
+  top:50%;
+  left:25%;
+  color:#B99362;
+  background-clip: text;
+  &:before {
+    content: '';
+    z-index:99;
+    width: 80px;
+    height: 80px;
+    ${'' /* background-color: rgba(34, 35, 34, 0.8); */}
+    background-image:url(${logo});
+    background-size:cover;
+    ${'' /* background-color: white; */}
+    border-radius: 50%;
+    position: absolute;
+    top: -30%;
+    left: 0;
+    mix-blend-mode: difference;
+    animation: ${move} 3s ease-in-out infinite;
+  }
 `
 
 function Login() {
@@ -266,6 +328,7 @@ function Login() {
   const [imageURLs, setImageURLs] = useState()
   const [downloadUrl, setDownloadUrl] = useState([])
   const [jwtUid, setjwtUid] = useState()
+  const [loading, setLoading] = useState(false)
   const value = useContext(UserContext)
   const [mode, setMode] = useState(true)
   const navigate = useNavigate()
@@ -294,23 +357,28 @@ function Login() {
         const user = userCredential.user
         if (user) {
           setjwtUid(user.uid)
-          alert('登入成功')
+          value.alertPopup()
+          value.setAlertContent('登入成功')
           navigate('/profile')
         }
       })
       .catch((error) => {
         console.log(error.code)
         if (error.code == 'auth/wrong-password') {
-          alert('帳號或密碼有誤')
+          console.log(124)
+          value.alertPopup()
+          value.setAlertContent('帳號或密碼有誤')
           const errorMessage = error.message
         }
       })
   }
 
   const onSubmit = async (data) => {
-    if (images.length < 1) {
-      alert('照片不得為空')
+    if (images == undefined) {
+      value.alertPopup()
+      value.setAlertContent('照片不得為空')
     } else {
+      setLoading(true)
       JSON.stringify(data)
       createUserWithEmailAndPassword(auth, data.email, data.password)
         .then((userCredential) => {
@@ -335,8 +403,9 @@ function Login() {
                   })
                   console.log(newDocRef)
                   if (downloadUrl !== undefined) {
-                    console.log('loading')
-                    alert('註冊成功')
+                    setLoading(false)
+                    value.alertPopup()
+                    value.setAlertContent('註冊成功')
                     navigate('/profile')
                   }
                 })
@@ -348,9 +417,13 @@ function Login() {
           const errorCode = error.code
           console.log(error.code)
           if (errorCode == 'auth/email-already-in-use') {
-            alert('帳號重複註冊')
+            value.alertPopup()
+            value.setAlertContent('帳號重複註冊')
+            setLoading(false)
           } else if (errorCode == 'auth/invalid-email') {
-            alert('無效Email')
+            value.alertPopup()
+            value.setAlertContent('無效Email')
+            setLoading(false)
           }
         })
     }
@@ -358,6 +431,9 @@ function Login() {
 
   return (
     <>
+      <LoadingBackground loading={loading}>
+        <LoadingStyle></LoadingStyle>
+      </LoadingBackground>
       <Wrapper>
         <PhotoWrapper>
           <InfoWrapper toggle={mode}></InfoWrapper>
@@ -374,7 +450,20 @@ function Login() {
           {login && (
             <>
               <LoginForm onSubmit={handleSubmit(signInCheck)}>
-                <MainTitle>登入帳號</MainTitle>
+                <Divide>
+                  <MainTitle>登入帳號</MainTitle>
+                  <ChangeModeDiv
+                    toggle={mode}
+                    onClick={() => {
+                      setMode(!mode)
+                      setSignUp(true)
+                      setLogin(false)
+                    }}
+                  >
+                    <Text>沒有帳號，註冊去!</Text>
+                  </ChangeModeDiv>
+                </Divide>
+
                 <InputData>
                   <InfoInput
                     name="email"
@@ -412,20 +501,7 @@ function Login() {
                   <Label htmlFor="pwd">密碼</Label>
                   <Note>{errors.password?.message}</Note>
                 </InputData>
-                <ChangeModeDiv
-                  toggle={mode}
-                  onClick={() => {
-                    setMode(!mode)
-                    setSignUp((current) => !current)
-                    setLogin((current) => !current)
-                  }}
-                >
-                  {signUp ? (
-                    <Text>我要登入</Text>
-                  ) : (
-                    <Text>沒有帳號，註冊去!</Text>
-                  )}
-                </ChangeModeDiv>
+
                 <Btn type="submit" value="登入">
                   登入
                 </Btn>
@@ -435,7 +511,20 @@ function Login() {
           {signUp && (
             <SignUp>
               <SignUpForm onSubmit={handleSubmit(onSubmit)}>
-                <MainTitle>註冊帳號</MainTitle>
+                <Divide>
+                  <MainTitle>註冊帳號</MainTitle>
+                  <ChangeModeDiv
+                    toggle={mode}
+                    onClick={() => {
+                      setMode(!mode)
+                      setSignUp(false)
+                      setLogin(true)
+                    }}
+                  >
+                    <Text>有帳號了，登入去</Text>
+                  </ChangeModeDiv>
+                </Divide>
+
                 <InputData>
                   <InfoInput
                     name="email"

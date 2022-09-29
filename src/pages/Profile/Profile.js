@@ -11,11 +11,19 @@ import mountain from './Done.png'
 import equipments from '../../equipments/equipments'
 import remove from './Remove.png'
 import logo from './Mountain.png'
+import trekking from './Trekking.png'
 
 const Wrapper = styled.div`
   max-width: calc(1320px - 40px);
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 70px 20px 120px;
+  @media screen and (max-width: 1279px) {
+    padding: 40px 0px 60px;
+  }
+  @media screen and (max-width: 767px) {
+    padding: 20px 0px 40px;
+  }
+  ${'' /* padding-left: 20px;
+  padding-right: 20px; */}
   margin: 0 auto;
   font-family: Poppins;
 `
@@ -91,7 +99,11 @@ const CardDivide = styled(Divide)`
   }
 `
 const ToolWrapper = styled(Divide)`
-  width: calc(100% - 40px);
+  width: calc(100% - 400px);
+  justify-content: flex-start;
+  @media screen and (max-width: 1279px) {
+    width: calc(100% - 200px);
+  }
   @media screen and (max-width: 767px) {
     width: 100%;
   }
@@ -100,24 +112,25 @@ const ToolWrapper = styled(Divide)`
   max-height: 300px;
   overflow: scroll;
   &::-webkit-scrollbar {
-    ${'' /* display: none; */}
-    background: transparent;
+    display: none;
+    ${'' /* background: transparent;
     border-radius: 4px;
-    width: 3px;
+    width: 3px; */}
   }
   &::-webkit-scrollbar-track-piece {
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
     border-radius: 4px;
-    background-color: #f6ead6;
-    border: 1px solid #f6ead6;
+    background-color: transparent;
+    border: 1px solid transparent;
   }
   &::-webkit-scrollbar-track {
     box-shadow: transparent;
   }
 `
 const Flex = styled.div`
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
 `
@@ -132,8 +145,8 @@ const CategoryDivide = styled.div`
     padding: 18px;
   }
 `
-
-const ActivityCard = styled.div`
+const ActivityCard = styled(Link)`
+  color: #f6ead6;
   border-radius: 8px;
   width: 31%;
   margin: 20px 1%;
@@ -150,6 +163,7 @@ const ActivityCard = styled.div`
   @media screen and (max-width: 767px) {
     ${'' /* width: 40%; */}
     margin-bottom: 14px;
+    padding: 12px;
   }
 `
 const ActivityTitle = styled.div`
@@ -165,7 +179,7 @@ const ActivityTitle = styled.div`
     margin-bottom: 8px;
   }
 `
-const ActivityLink = styled.div`
+const ActivityLink = styled(Link)`
   border-radius: 12px;
   background-color: rgba(34, 35, 34, 0.5);
   position: absolute;
@@ -191,6 +205,9 @@ const GroupLink = styled(Link)`
   @media screen and (max-width: 1279px) {
     font-size: 20px;
   }
+  @media screen and (max-width: 767px) {
+    font-size: 14px;
+  }
 `
 const ActivityImage = styled.div`
   background-position: center;
@@ -211,11 +228,9 @@ const ActivityImage = styled.div`
     }
   }
 `
-
 const Content = styled.div`
   position: relative;
 `
-
 const DateRange = styled.div`
   font-size: 14px;
   margin-bottom: 12px;
@@ -229,10 +244,12 @@ const DateRange = styled.div`
   }
 `
 const ToolDivide = styled(Divide)`
-  width: calc(100% / 4);
+  ${'' /* width: calc(100% / 4); */}
+  width: calc(100% / 3);
+  justify-content: space-evenly;
   margin-bottom: 12px;
   @media screen and (max-width: 1279px) {
-    width: calc(100% / 3);
+    ${'' /* width: calc(100% / 3); */}
     justify-content: center;
   }
   @media screen and (max-width: 767px) {
@@ -369,15 +386,23 @@ const DefaultMsg = styled.div`
   }
 `
 const BeALeader = styled.button`
-  margin-top: 20px;
+  display: block;
   background-color: transparent;
-  width: 100%;
-
+  width: 250px;
+  padding-bottom: 3px;
+  margin: 0 auto;
+  margin-top: 20px;
   color: #ac6947;
   font-weight: 700;
   font-size: 24px;
   text-align: center;
   letter-spacing: 2px;
+  border-bottom: none;
+  transition: all 0.3s;
+  &:hover {
+    color: #b99362;
+    border-bottom: 1px solid #b99362;
+  }
   @media screen and (max-width: 1279px) {
     font-size: 20px;
   }
@@ -395,52 +420,171 @@ const DefaultImg = styled.img`
     height: calc(100% - 20px);
   }
 `
+const NoteBtn = styled.div`
+  cursor: pointer;
+  background-image: url(${trekking});
+  background-size: contain;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  max-width: calc(1320px - 40px);
+  position: fixed;
+  font-family: Poppins;
+  transition: all 0.3s;
+  z-index: 99;
+  right: 0;
+  top: 25%;
+  &:hover {
+    border: 1px solid #b99362;
+  }
+  @media screen and (max-width: 1279px) {
+    top: 15%;
+  }
+  @media screen and (max-width: 767px) {
+    width: 40px;
+    height: 40px;
+  }
+`
+const PreviewArea = styled.div`
+  position: absolute;
+  padding: 20px;
+  right: 20%;
+  transform: translateX(-20%);
+  background-color: rgba(34, 35, 34, 0.8);
+  width: 400px;
+  height: auto;
+  border-radius: 24px;
+  ${'' /* @media */}
+  @media screen and (max-width:576px) {
+    width: 300px;
+  }
+`
+const Lists = styled.ul`
+  padding-left: 0;
+  @media screen and (max-width: 1279px) {
+    font-size: 14px;
+  }
+`
+const List = styled.li`
+  margin-bottom: 12px;
+`
+const LoadingBackground = styled.div`
+  position: fixed;
+  z-index: 999;
+  background-color: rgba(34, 35, 34, 0.8);
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  ${'' /* left: 25%; */}
+  ${'' /* transform: translate(-25%, -50%); */}
+  display:${(props) => (props.loading ? 'block' : 'none')};
+`
+const move = keyframes`
+  0%,
+   {
+    left: 0;
+    transform:rotate(0deg)
+  }
+  25%{
+    left:400px;
+    transform:rotate(20deg)
+  }
+  50% {
+    transform:rotate(0deg)
+    left: 80%;
+  }
+  55%{
+    transform:rotate(0deg)
+    left: 90%;
+  }
+  70%{
+    transform:rotate(0deg)
+    left: 75%;
+  }
+  100%{
+    left: 0%;
+    transform:rotate(-360deg)
+  }
+`
+const LoadingStyle = styled.span`
+  font-family: 'Rubik Moonrocks', cursive;
+  font-size: 60px;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  position: absolute;
+  top:50%;
+  left:25%;
+  color:#B99362;
+  background-clip: text;
+  &:before {
+    content: '';
+    z-index:99;
+    width: 80px;
+    height: 80px;
+    ${'' /* background-color: rgba(34, 35, 34, 0.8); */}
+    background-image:url(${logo});
+    background-size:cover;
+    ${'' /* background-color: white; */}
+    border-radius: 50%;
+    position: absolute;
+    top: -30%;
+    left: 0;
+    mix-blend-mode: difference;
+    animation: ${move} 3s ease-in-out infinite;
+  }
+`
 
 function Profile() {
   const [getUserData, setGetUserData] = useState()
   const [joinGroup, setJoinGroup] = useState([])
   const [leadGroup, setLeadGroup] = useState([])
   const [tools, setTools] = useState([])
-  const [isActive, setIsActive] = useState(false)
   const [tabIndex, setTabIndex] = useState(0)
   const [currentPage, setCurrentPage] = useState(0)
+  const [isPreview, setIsPreview] = useState(true)
+  const [loading, setLoading] = useState(false)
   const value = useContext(UserContext)
   const equipmentSearch = useRef()
   const navigate = useNavigate()
   useEffect(() => {
-    console.log(value.userAuth)
-    // if (value.userAuth === null) {
-    //   window.alert('會員尚未登入')
-    // } else {
-    const docRef = doc(db, 'users', value.userUid)
     async function getDBInfo() {
-      try {
-        const docSnap = await getDoc(docRef)
-        if (docSnap.exists()) {
-          const userData = docSnap.data()
-          setGetUserData(userData)
-          setJoinGroup(userData.joinGroup)
-          setLeadGroup(userData.leadGroup)
-          setTools(userData.equipment)
+      if (value.userAuth === null) {
+        value.alertPopup()
+        value.setAlertContent('您尚未登入')
+        navigate('/')
+      } else {
+        setLoading(true)
+        const docRef = doc(db, 'users', value.userUid)
+        try {
+          const docSnap = await getDoc(docRef)
+          if (docSnap.exists()) {
+            const userData = docSnap.data()
+            setGetUserData(userData)
+            setJoinGroup(userData.joinGroup)
+            setLeadGroup(userData.leadGroup)
+            setTools(userData.equipment)
+            const unsub = onSnapshot(docRef, (doc) => {
+              const data = doc.data()
+              const joinData = data.joinGroup
+              const leadData = data.leadGroup
+              setJoinGroup(joinData)
+              setLeadGroup(leadData)
+            })
+          }
+          setTimeout(() => setLoading(false), 3000)
+        } catch {
+          console.log('No such document!')
         }
-      } catch {
-        console.log('No such document!')
       }
     }
-    const unsub = onSnapshot(docRef, (doc) => {
-      const data = doc.data()
-      const joinData = data.joinGroup
-      const leadData = data.leadGroup
-      setJoinGroup(joinData)
-      setLeadGroup(leadData)
-    })
     getDBInfo()
-    // }
-  }, [value.userAuth])
+  }, [value.userAuth, value.userUid])
 
   async function addTool() {
     if (equipmentSearch.current.value == '') {
-      alert('請輸入中文登山裝備')
+      value.alertPopup()
+      value.setAlertContent('請輸入登山裝備')
     } else {
       tools.push(equipmentSearch.current.value)
       setTools([...tools])
@@ -478,6 +622,9 @@ function Profile() {
 
   return (
     <>
+      <LoadingBackground loading={loading}>
+        <LoadingStyle></LoadingStyle>
+      </LoadingBackground>
       <Wrapper>
         {getUserData && (
           <>
@@ -488,6 +635,47 @@ function Profile() {
           </>
         )}
         <CategoryDivide>
+          <NoteBtn
+            onMouseEnter={() => setIsPreview(true)}
+            onMouseLeave={() => setIsPreview(false)}
+          >
+            {isPreview && (
+              <>
+                <PreviewArea>
+                  <Lists>
+                    {currentPage == 0 && (
+                      <>
+                        <List>
+                          √ 按下發起活動成為主揪，邀請朋友一起來爬山吧
+                        </List>
+                        <List>
+                          √ 發起過的活動都會保存於此，可隨時修改相關資訊
+                        </List>
+                      </>
+                    )}
+                    {currentPage == 1 && (
+                      <>
+                        <List>√ 你曾經加入過的群組資訊皆會保留於此</List>
+                      </>
+                    )}
+                    {currentPage == 2 && (
+                      <>
+                        <List>√ 輸入你所有的裝備，讓夥伴知道</List>
+                        <List>√ 進入群組後也可查看夥伴所擁有的裝備</List>
+                      </>
+                    )}
+                    {currentPage == 3 && (
+                      <>
+                        <List>√ 創建自己的高山地圖</List>
+                        <List>√ 可於左側選擇縣市及爬過的路線後，按下加入</List>
+                        <List>√ 點選加入過的縣市查看你的登山清單</List>
+                      </>
+                    )}
+                  </Lists>
+                </PreviewArea>
+              </>
+            )}
+          </NoteBtn>
           <Divide>
             {['發起的團', '加入的團', '登山裝備', '高山地圖'].map(
               (text, index) => (
@@ -508,7 +696,6 @@ function Profile() {
             <>
               <BeALeader onClick={addActivity}>點我發起活動吧!</BeALeader>
               <CardDivide
-                // mobile_flexDirection="column"
                 justifyContent="center"
                 flexWrap="wrap"
                 maxHeight="600px"
@@ -516,12 +703,14 @@ function Profile() {
                 {leadGroup.length > 0 ? (
                   Object.values(leadGroup).map((item, index) => {
                     return (
-                      <ActivityCard key={index}>
+                      <ActivityCard
+                        key={index}
+                        to={`/activity/${item.groupID}`}
+                      >
                         <ActivityTitle>{item.groupName}</ActivityTitle>
-                        <Divide justifyContent="center">
+                        <Divide justifyContent="flex-start">
                           <DateRange>
                             日期：
-                            <br />
                             {item.startDate} ~ {item.endDate}
                           </DateRange>
                         </Divide>
@@ -535,8 +724,7 @@ function Profile() {
                               })`,
                             }}
                           >
-                            <ActivityLink>
-                              {' '}
+                            <ActivityLink to={`/activity/${item.groupID}`}>
                               <GroupLink to={`/activity/${item.groupID}`}>
                                 前往這座山
                               </GroupLink>
@@ -549,26 +737,32 @@ function Profile() {
                 ) : (
                   <Flex>
                     <DefaultMsg>目前尚無發起群組</DefaultMsg>
-                    <DefaultImg src={hiking} />
+                    <DefaultImg
+                      style={{ cursor: 'pointer' }}
+                      src={hiking}
+                      onClick={addActivity}
+                    />
                   </Flex>
                 )}
               </CardDivide>
             </>
           )}
           {currentPage == 1 && (
-            <Divide
-              mobile_flexDirection="column"
+            <CardDivide
               justifyContent="center"
-              marginTop="30px"
+              flexWrap="wrap"
+              maxHeight="600px"
             >
               {joinGroup.length > 0 ? (
                 Object.values(joinGroup).map((item, index) => {
                   return (
-                    <ActivityCard key={index}>
+                    <ActivityCard key={index} to={`/activity/${item.groupID}`}>
                       <ActivityTitle>{item.groupName}</ActivityTitle>
-                      <Divide>
-                        <DateRange>{item.startDate} - </DateRange>
-                        <DateRange>{item.endDate}</DateRange>
+                      <Divide justifyContent="flex-start">
+                        <DateRange>
+                          日期：
+                          {item.startDate} ~ {item.endDate}
+                        </DateRange>
                       </Divide>
                       <Content>
                         <ActivityImage
@@ -580,8 +774,7 @@ function Profile() {
                             })`,
                           }}
                         >
-                          <ActivityLink>
-                            {' '}
+                          <ActivityLink to={`/activity/${item.groupID}`}>
                             <GroupLink to={`/activity/${item.groupID}`}>
                               前往這座山
                             </GroupLink>
@@ -597,7 +790,7 @@ function Profile() {
                   <DefaultImg src={hiking} />
                 </Flex>
               )}
-            </Divide>
+            </CardDivide>
           )}
           {currentPage == 2 && (
             <>

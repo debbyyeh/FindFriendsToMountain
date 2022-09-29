@@ -11,110 +11,65 @@ import {
   onSnapshot,
 } from 'firebase/firestore'
 import { db } from '../../utils/firebase'
+import send from './send.png'
 
 const ListInput = styled.input`
-  width: 70%;
-  border-bottom: dashed 3px #222322;
-  margin-top: 12px;
-  margin-bottom: 14px;
-  height: 40px;
-  padding-left: 12px;
-  color: #222322;
-  font-size: 18px;
-  &:focus {
-    border: solid 2px #222322;
-  }
-  @media screen and (max-width: 1279px) {
-    font-size: 14px;
-  }
-`
-
-const AddBtn = styled.button`
-  color: #222322;
-  padding: 0px;
-  border: none;
-  font-size: 20px;
-  transform: rotate(4deg);
-  transform-origin: center;
-  border-radius: 5px;
-  ${'' /* background-color: rgba(172, 105, 71, 0.8); */}
-  padding-bottom: 3px;
-  box-shadow: 0 2px 0 rgb(135, 88, 57);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  span {
-    display: block;
-    padding: 8px 12px;
-    border-radius: 5px;
-    border: 2px solid rgb(135, 88, 57);
-  }
-  &:active,
-  &:focus {
-    transform: translateY(4px);
-    padding-bottom: 0px;
-    outline: 0;
-  }
-  @media screen and (max-width: 1279px) {
-    font-size: 16px;
-    span {
-      padding: 8px;
-    }
-  }
-  @media screen and (max-width: 767px) {
-    font-size: 16px;
-    span {
-      padding: 4px;
-    }
-  }
-`
-
-const CheckedInput = styled.div`
   width: 100%;
-  font-size: 18px;
-`
-const Complete = styled.p`
-  width: 20%;
-  color: #ac6947;
-  font-weight: 900;
-  margin: 0;
+  border-bottom: solid 2px #222322;
+  margin-bottom: 6px;
+  height: 40px;
+  color: #222322;
+  font-size: 14px;
   @media screen and (max-width: 1279px) {
     font-size: 14px;
   }
 `
 
 const ToDoContainer = styled.div`
-  width: 100%;
-  height: auto;
-  min-height: 500px;
+  min-height: 300px;
+  ${'' /* min-height: 500px; */}
   min-width: 250px;
+  max-width: 300px;
   background: #f1f5f8;
-  background-image: radial-gradient(#bfc0c1 7.2%, transparent 0);
+  background-image: radial-gradient(#bfc0c1 4.2%, transparent 0);
   background-size: 25px 25px;
   border-radius: 20px;
   box-shadow: 4px 3px 7px 2px #00000040;
   padding: 20px;
-  box-sizing: border-box;
-  position: relative;
 `
 
-const ToDoTitle = styled.div`
-  width: 250px;
-  color: #F6EAD;
-  transform: rotate(2deg);
-  padding: 8px 16px;
-  border-radius: 20% 5% 20% 5%/5% 20% 25% 20%;
-  background-color: #ac6947;
-  font-size: 24px;
-  @media screen and (max-width: 1279px) {
-    font-size: 20px;
-    width: 100px;
-    padding: 4px 8px;
+const CommentContainer = styled.div`
+  max-height: 300px;
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    ${'' /* display: none; */}
+    background: transparent;
+    border-radius: 4px;
+    width: 3px;
   }
-  @media screen and (max-width: 767px) {
-    font-size: 16px;
-    width: 50%;
-    padding: 4px 8px;
+  &::-webkit-scrollbar-track-piece {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    padding-left: 2px;
+    background-color: #b99362;
+    border: 1px solid #f6ead6;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: transparent;
   }
 `
+const Comment = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px auto;
+  @media screen and (max-width: 1279px) {
+    margin: 6px auto;
+  }
+`
+
 const TodoList = ({
   Text,
   DivideBorder,
@@ -146,7 +101,6 @@ const TodoList = ({
   //取得group的todolist
 
   async function getToDoList() {
-    console.log('取得TODOLIST資訊')
     try {
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
@@ -168,7 +122,8 @@ const TodoList = ({
     function handleSubmit(e) {
       e.preventDefault()
       if (listRef.current.value == '') {
-        window.alert('不可為空')
+        value.alertPopup()
+        value.setAlertContent('格內不可為空')
       } else {
         listRef.current.value && addTodo(listRef.current.value)
       }
@@ -176,16 +131,33 @@ const TodoList = ({
 
     return (
       <>
-        <Divide>
+        <Divide
+          style={{
+            position: 'relative',
+          }}
+        >
           <ListInput
             type="text"
             onKeyDown={onKeyDown}
             ref={listRef}
             placeholder="enter the text"
           />
-          <AddBtn onClick={handleSubmit}>
-            <span>Submit</span>
-          </AddBtn>
+          <Btn
+            position="absolute"
+            right="10px"
+            top="10px"
+            border="1px solid #222322"
+            color="#222322"
+            fontSize="14px"
+            onClick={handleSubmit}
+            style={{
+              backgroundImage: `url(${send})`,
+              backgroundSize: 'contain',
+              width: '20px',
+              height: '20px',
+              backgroundRepeat: 'no-repeat',
+            }}
+          ></Btn>
         </Divide>
       </>
     )
@@ -209,12 +181,6 @@ const TodoList = ({
     setTodoList(newTodo)
     updateToDoList(newTodo)
   }
-  const stateTask = (index) => {
-    const newTodo = [...latest]
-    newTodo[index].checked = !newTodo[index].checked
-    setTodoList(newTodo)
-    updateToDoList(newTodo)
-  }
 
   async function updateToDoList(latest) {
     const newArr = [...latest]
@@ -233,84 +199,52 @@ const TodoList = ({
   }
   return (
     <>
-      <DivideBorder
-        width="50%"
-        height="auto"
-        border="none"
-        mobile_width="100%"
-        mobile_marginTop="20px"
-      >
-        <ToDoContainer>
-          <ToDoTitle>留言板</ToDoTitle>
-          <ToDoListForm addTodo={addTodo} />
-          {/* <Text
-            textAlign="left"
-            color="#222322"
-            fontSize="14px"
-            tablet_fontSize="12px"
-            mobile_fontSize="12px"
-          >
-            輸入需協助事項，完成後點選訊息更改狀態即可
-          </Text> */}
+      <div class="container"></div>
+      <ToDoContainer>
+        {/* <ToDoTitle>留言板</ToDoTitle> */}
+        <ToDoListForm addTodo={addTodo} />
+        <CommentContainer>
           {latest &&
             latest.map((list, index) => {
               return (
                 <>
-                  <Divide
-                    marginTop="12px"
-                    marginBottom="12px"
-                    alignItmes="center"
-                    key={index}
-                  >
-                    <Divide justifyContent="flex-start">
+                  <Comment key={index}>
+                    <Divide
+                      justifyContent="flex-start"
+                      flexDirection="column"
+                      alignItems="start"
+                    >
                       <Text
-                        fontSize="20px"
-                        tablet_fontSize="16px"
+                        fontSize="14px"
                         mobile_fontSize="14px"
-                        color="#B99362"
+                        color="#222322"
                       >
                         {list.post}:
                       </Text>
-                      <CheckedInput
-                        onClick={() => stateTask(index)}
-                        style={{
-                          color: '#AC6947',
-                          textDecoration: list.checked
-                            ? 'line-through'
-                            : 'none',
-                        }}
-                      >
-                        <Text
-                          color="#222322"
-                          margin="0 0 0 8px"
-                          mobile_fontSize="14px"
-                          style={{
-                            cursor: 'pointer',
-                          }}
-                        >
-                          {list.text}
-                        </Text>
-                      </CheckedInput>
+                      <Text fontSize="12px" color="#222322">
+                        {list.text}
+                      </Text>
                     </Divide>
-                    {list.checked ? <Complete>已完成</Complete> : null}
                     <Btn
+                      margin="0 2px 0 0"
                       color="#222322"
-                      width="30px"
-                      height="30px"
+                      width="20px"
+                      height="20px"
                       border="1px solid #222322"
                       borderRadius="50%"
                       padding="0px"
-                      tablet_width="0"
-                      tablet_height="0"
+                      tablet_width="20px"
+                      tablet_border="none"
                       onClick={() => removeTodo(index)}
                     >
                       x
                     </Btn>
-                  </Divide>
+                  </Comment>
                 </>
               )
             })}
-          <Btn
+        </CommentContainer>
+        {/* <Btn
             marginLeft="auto"
             color="#222322"
             width="200px"
@@ -319,6 +253,7 @@ const TodoList = ({
             position="absolute"
             bottom="30px"
             left="90%"
+            top="calc(100% - 50px)"
             tablet_width="140px"
             tablet_fontSize="12px"
             tablet_height="30px"
@@ -328,9 +263,8 @@ const TodoList = ({
             onClick={deleteCompletedItems}
           >
             清除所有留言
-          </Btn>
-        </ToDoContainer>
-      </DivideBorder>
+          </Btn> */}
+      </ToDoContainer>
     </>
   )
 }
