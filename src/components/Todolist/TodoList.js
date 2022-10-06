@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { UserContext } from '../../utils/userContext'
+import { useParams } from 'react-router-dom'
 
 import {
   collection,
@@ -70,17 +71,8 @@ const Comment = styled.div`
   }
 `
 
-const TodoList = ({
-  Text,
-  DivideBorder,
-  Divide,
-  Btn,
-  InfoInput,
-  BackColor,
-  SrcImage,
-}) => {
+const TodoList = ({ Text, Divide, Btn, ownerAuth, memberAuth }) => {
   useEffect(() => {
-    getToDoList()
     const unsub = onSnapshot(docRef, (doc) => {
       const data = doc.data()
       const todotData = data.todoList
@@ -88,30 +80,13 @@ const TodoList = ({
     })
   }, [])
 
-  const [getToDo, setGetTodo] = useState([])
   const [todoList, setTodoList] = useState([])
   const [latest, setLatest] = useState()
-
+  const urlID = useParams()
   const value = useContext(UserContext)
-  let url = window.location.href
-  const newUrl = url.split('/activity/')
-  const groupID = newUrl[1]
-  const listRef = useRef()
-  const docRef = doc(db, 'groupContents', groupID)
-  //取得group的todolist
 
-  async function getToDoList() {
-    try {
-      const docSnap = await getDoc(docRef)
-      if (docSnap.exists()) {
-        const todoListData = docSnap.data()
-        const oldToDo = todoListData.todoList
-        setGetTodo(oldToDo)
-      }
-    } catch {
-      console.log('No such document!')
-    }
-  }
+  const listRef = useRef()
+  const docRef = doc(db, 'groupContents', urlID.id)
 
   function onKeyDown(e) {
     if (e.key == 'Enter') {
@@ -167,8 +142,8 @@ const TodoList = ({
     let newArr = []
     const newAdd = {
       text: listRef.current.value,
-      checked: false,
       post: value.userName,
+      postID: memberAuth ? memberAuth : ownerAuth,
     }
     newArr.push(newAdd, ...latest)
     setTodoList(newArr)
@@ -201,7 +176,6 @@ const TodoList = ({
     <>
       <div class="container"></div>
       <ToDoContainer>
-        {/* <ToDoTitle>留言板</ToDoTitle> */}
         <ToDoListForm addTodo={addTodo} />
         <CommentContainer>
           {latest &&
@@ -225,20 +199,23 @@ const TodoList = ({
                         {list.text}
                       </Text>
                     </Divide>
-                    <Btn
-                      margin="0 2px 0 0"
-                      color="#222322"
-                      width="20px"
-                      height="20px"
-                      border="1px solid #222322"
-                      borderRadius="50%"
-                      padding="0px"
-                      tablet_width="20px"
-                      tablet_border="none"
-                      onClick={() => removeTodo(index)}
-                    >
-                      x
-                    </Btn>
+                    {(value.userUid == ownerAuth ||
+                      value.userUid == latest[index].postID) && (
+                      <Btn
+                        margin="0 2px 0 0"
+                        color="#222322"
+                        width="20px"
+                        height="20px"
+                        border="1px solid #222322"
+                        borderRadius="50%"
+                        padding="0px"
+                        tablet_width="20px"
+                        tablet_border="none"
+                        onClick={() => removeTodo(index)}
+                      >
+                        x
+                      </Btn>
+                    )}
                   </Comment>
                 </>
               )

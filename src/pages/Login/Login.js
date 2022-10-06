@@ -13,6 +13,7 @@ import styled, { keyframes } from 'styled-components'
 import { useForm } from 'react-hook-form'
 import backgroundImage from './background.jpg'
 import logo from './Mountain.png'
+import mountainMapLists from '../Map/mountainMapLists'
 
 const Wrapper = styled.div`
   max-width: calc(1320px - 40px);
@@ -63,9 +64,11 @@ const ChangeModeDiv = styled.div`
   padding: 12px;
   width: 155px;
   text-align: center;
-  margin: 0 auto;
+  margin: 10px auto;
+  opacity: 0.6;
   transition: all 0.3s;
   &:hover {
+    opacity: 1;
     border-bottom: 2px solid #b99362;
   }
 `
@@ -80,7 +83,7 @@ const Divide = styled.div`
 `
 
 const MainTitle = styled.div`
-  font-size: 32px;
+  font-size: 28px;
   color: #b99362;
 
   @media screen and (max-width: 1279px) {
@@ -110,9 +113,9 @@ const Label = styled.label`
   left: 0;
   transition: all 0.3s ease;
   color: #f6ead6;
-  font-size: 24px;
+  font-size: 20px;
   @media screen and (max-width: 1279px) {
-    font-size: 20px;
+    font-size: 16px;
     bottom: 30px;
   }
   @media screen and (max-width: 767px) {
@@ -193,9 +196,13 @@ const Btn = styled.button`
   padding: 8px 12px;
   font-size: 20px;
   display: inherit;
+  border-radius: 8px;
 
   &:active {
     transform: translateY(0.2rem);
+  }
+  &:hover {
+    background-color: #b99362;
   }
 
   @media screen and (max-width: 1279px) {
@@ -389,14 +396,13 @@ function Login() {
             if (jwtUid !== undefined) {
               const imageRef = ref(storage, `images/${jwtUid}`)
               uploadBytes(imageRef, images[0]).then(() => {
-                console.log('檔案上傳成功')
                 getDownloadURL(imageRef).then((url) => {
                   setDownloadUrl(url)
                   const newDocRef = setDoc(doc(db, 'users', jwtUid), {
                     id: jwtUid,
                     name: data.nickname,
                     photoURL: url,
-                    mountainLists: [],
+                    mountainLists: mountainMapLists,
                     joinGroup: [],
                     leadGroup: [],
                     equipment: [],
@@ -437,33 +443,12 @@ function Login() {
       <Wrapper>
         <PhotoWrapper>
           <InfoWrapper toggle={mode}></InfoWrapper>
-          {/* <ChangeModeDiv
-            toggle={mode}
-            onClick={() => {
-              setMode(!mode)
-              setSignUp((current) => !current)
-              setLogin((current) => !current)
-            }}
-          >
-            {signUp ? <Text>我要登入</Text> : <Text>沒有帳號，註冊去!</Text>}
-          </ChangeModeDiv> */}
           {login && (
             <>
               <LoginForm onSubmit={handleSubmit(signInCheck)}>
                 <Divide>
                   <MainTitle>登入帳號</MainTitle>
-                  <ChangeModeDiv
-                    toggle={mode}
-                    onClick={() => {
-                      setMode(!mode)
-                      setSignUp(true)
-                      setLogin(false)
-                    }}
-                  >
-                    <Text>沒有帳號，註冊去!</Text>
-                  </ChangeModeDiv>
                 </Divide>
-
                 <InputData>
                   <InfoInput
                     name="email"
@@ -501,10 +486,19 @@ function Login() {
                   <Label htmlFor="pwd">密碼</Label>
                   <Note>{errors.password?.message}</Note>
                 </InputData>
-
                 <Btn type="submit" value="登入">
                   登入
                 </Btn>
+                <ChangeModeDiv
+                  toggle={mode}
+                  onClick={() => {
+                    setMode(!mode)
+                    setSignUp(true)
+                    setLogin(false)
+                  }}
+                >
+                  <Text>沒有帳號，註冊去!</Text>
+                </ChangeModeDiv>
               </LoginForm>
             </>
           )}
@@ -513,18 +507,7 @@ function Login() {
               <SignUpForm onSubmit={handleSubmit(onSubmit)}>
                 <Divide>
                   <MainTitle>註冊帳號</MainTitle>
-                  <ChangeModeDiv
-                    toggle={mode}
-                    onClick={() => {
-                      setMode(!mode)
-                      setSignUp(false)
-                      setLogin(true)
-                    }}
-                  >
-                    <Text>有帳號了，登入去</Text>
-                  </ChangeModeDiv>
                 </Divide>
-
                 <InputData>
                   <InfoInput
                     name="email"
@@ -578,7 +561,6 @@ function Login() {
                   <Note>{errors.password?.message}</Note>
                 </InputData>
                 <Title>照片</Title>
-                {/* <Divide> */}
                 <UploadPic>
                   {imageURLs ? (
                     <UploadPhoto src={imageURLs} alt="uploadImage" />
@@ -596,10 +578,19 @@ function Login() {
                     />
                   </FileLabel>
                 </UploadPic>
-                {/* </Divide> */}
                 <Btn type="submit" value="註冊帳號">
                   註冊帳號
                 </Btn>
+                <ChangeModeDiv
+                  toggle={mode}
+                  onClick={() => {
+                    setMode(!mode)
+                    setSignUp(false)
+                    setLogin(true)
+                  }}
+                >
+                  <Text>有帳號了，登入去</Text>
+                </ChangeModeDiv>
               </SignUpForm>
             </SignUp>
           )}

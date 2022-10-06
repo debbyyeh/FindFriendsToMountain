@@ -6,15 +6,14 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { UserContext } from '../../utils/userContext'
 import { Link, useNavigate } from 'react-router-dom'
 import { HashLink } from 'react-router-hash-link'
+import { Btn, Divide } from '../../css/style'
 import Calendar from 'react-calendar'
 import trekking from './Trekking.png'
-import cover from './cover.jpg'
 import back from './back.png'
 import check from './check.png'
 import share from './Share.png'
 import logo from './Mountain.png'
 import 'react-calendar/dist/Calendar.css'
-import background from './南湖.jpg'
 import top from './top.png'
 
 const Background = styled.div`
@@ -30,25 +29,15 @@ const Background = styled.div`
   transform: translate(-40%, -50%);
 `
 const Wrapper = styled.div`
-  ${'' /* max-width: calc(1320px - 40px); */}
-  max-width:calc(800px - 40px);
-  padding-left: 20px;
-  padding-right: 20px;
+  max-width: calc(600px - 40px);
   margin: 0 auto;
   font-family: Poppins;
-`
-const Divide = styled.div`
-  display: flex;
-  justify-content: ${(props) => props.justifyContent || 'space-between'};
-  align-items: ${(props) => props.alignItems || 'center'};
-  flex-direction: ${(props) => props.flexDirection || 'row'};
-  margin-bottom: ${(props) => props.marginBottom || '0px'};
-  margin-top: ${(props) => props.marginTop || '0px'};
-  flex-wrap: ${(props) => props.flexWrap || 'no-wrap'};
-  border: ${(props) => props.border || 'none'};
-  padding: ${(props) => props.padding || 'none'};
+  padding: 70px 20px 120px;
+  @media screen and (max-width: 1279px) {
+    padding: 40px 20px 60px;
+  }
   @media screen and (max-width: 767px) {
-    flex-direction: ${(props) => props.mobile_flexDirection || 'row'};
+    padding: 20px 20px 40px;
   }
 `
 const FlexDivide = styled.div`
@@ -65,12 +54,6 @@ const FlexDivide = styled.div`
     ${'' /* margin-left: 0%; */}
   }
 `
-
-const StepDivide = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
 const Label = styled.label`
   position: absolute;
   bottom: 40px;
@@ -89,7 +72,7 @@ const Label = styled.label`
 const Text = styled.div`
   color: #f6ead6;
   font-size: 24px;
-  margin-top: -20px;
+  margin-top: -30px;
   margin-bottom: 12px;
   @media screen and (max-width: 1279px) {
     font-size: 20px;
@@ -156,18 +139,31 @@ const InfoInput = styled.input`
 `
 const FileInput = styled.input``
 const FileLabel = styled.label`
-  display: inline-block;
+  display: block;
   cursor: pointer;
   color: #f6ead6;
   text-align: center;
-  font-size: 20px;
+  font-size: 16px;
   margin: 12px auto;
   transition: all 0.4s;
-  &:hover {
-    border-bottom: 1px solid #f6ead6;
-  }
   @media screen and (max-width: 1279px) {
     font-size: 14px;
+  }
+  &:after {
+    content: '';
+    border-bottom: 2px solid #ac6947;
+    margin: auto;
+    position: relative;
+    top: 5px;
+    width: 0;
+    display: block;
+    transition: all 0.3s;
+  }
+  &:hover {
+    opacity: 1;
+    &:after {
+      width: 100px;
+    }
   }
 `
 
@@ -199,13 +195,13 @@ const AfterUpload = styled.div`
 const TextInput = styled.textarea`
   resize: none;
   width: 100%;
-  height: 300px;
+  min-height: 100px;
   background-color: transparent;
 
   color: #f6ead6;
-  font-size: 24px;
+  font-size: 20px;
   line-height: 40px;
-  padding: 20px;
+  padding: 16px;
   &:focus {
     outline: none;
   }
@@ -221,8 +217,7 @@ const TextInput = styled.textarea`
 `
 
 const Basic = styled.div`
-  ${'' /* width: 45%; */}
-  width:100%;
+  width: 100%;
   margin-rigth: auto;
   margin-left: auto;
   margin-top: 30px;
@@ -234,12 +229,7 @@ const Basic = styled.div`
 `
 const FormDate = styled.div`
   width: 100%;
-  ${'' /* height: 50%; */}
-  margin-bottom:30px;
   margin-bottom: 50px;
-  @media screen and (max-width: 767px) {
-    margin-bottom: 20px;
-  }
 `
 const Photo = styled.div`
   width: 100%;
@@ -277,7 +267,6 @@ const CalendarContainer = styled.div`
     &:hover {
       background-color: #a5c1a5;
     }
-
     &:active {
       background-color: #a5c1a5;
     }
@@ -337,52 +326,24 @@ const CalendarContainer = styled.div`
   }
 `
 
-const Btn = styled.button`
-  display: block;
-  color: ${(props) => props.color || '#F6EAD6'};
-  width: ${(props) => props.width || '0px'};
-  height: ${(props) => props.height || '40px'};
-  font-size: ${(props) => props.fontSize || '16px'};
-  border-radius: ${(props) => props.borderRadius || '0'};
-  border: ${(props) => props.border || '1px solid #F6EAD6'};
-  padding: ${(props) => props.padding || 'none'};
-  margin: ${(props) => props.margin || '0px 0px 0px 0px'};
-  position: ${(props) => props.position || 'none'};
-  top: ${(props) => props.top || 'none'};
-  left: ${(props) => props.left || 'none'};
-  bottom: ${(props) => props.bottom || 'none'};
-  line-height: ${(props) => props.lineHeight || 'none'};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  &:active {
-    transform: translateY(0.2rem);
-  }
-  @media screen and (max-width: 1279px) {
-    width: ${(props) => props.tablet_width || props.width};
-    height: ${(props) => props.tablet_height || props.height};
-    padding: ${(props) => props.tablet_padding || props.padding};
-    margin: ${(props) => props.tablet_margin || props.margin};
-    font-size: ${(props) => props.tablet_fontSize || props.fontSize};
-    left: ${(props) => props.tablet_left || props.left};
-  }
-`
 const Card = styled.div`
   background-size: cover;
   width: 400px;
   height: auto;
   background-position: center;
   background-repeat: no-repeat;
-  ${'' /* position: relative; */}
   margin: 0 auto;
   padding: 20px;
+  @media screen and (max-width: 576px) {
+    width: 300px;
+  }
 `
 const Contents = styled.div`
   width: 100%;
   height: 100%;
   color: #f6ead6;
   font-weight: 500;
-  background-color: rgba(19, 31, 25, 0.5);
+  background-color: rgba(19, 31, 25, 0.8);
   padding: 14px;
 `
 const ContentInfo = styled.div`
@@ -393,12 +354,13 @@ const PreviewArea = styled.div`
   padding: 20px;
   right: 20%;
   transform: translateX(-20%);
-  background-color: rgba(34, 35, 34, 0.8);
+  background-color: rgba(34, 35, 34, 0.9);
   width: 400px;
   height: auto;
   border-radius: 24px;
-  ${'' /* @media */}
-  @media screen and (max-width:576px) {
+  @media screen and (max-width: 576px) {
+    right: 10%;
+    transform: translateX(-10%);
     width: 300px;
   }
 `
@@ -439,9 +401,7 @@ const LoadingBackground = styled.div`
   width: 100vw;
   height: 100vh;
   top: 0;
-  ${'' /* left: 25%; */}
-  ${'' /* transform: translate(-25%, -50%); */}
-  display:${(props) => (props.loading ? 'block' : 'none')};
+  display: ${(props) => (props.loading ? 'block' : 'none')};
 `
 const move = keyframes`
   0%,
@@ -476,19 +436,17 @@ const LoadingStyle = styled.span`
   text-transform: uppercase;
   letter-spacing: 5px;
   position: absolute;
-  top:50%;
-  left:25%;
-  color:#B99362;
+  top: 50%;
+  left: 25%;
+  color: #b99362;
   background-clip: text;
   &:before {
     content: '';
-    z-index:99;
+    z-index: 99;
     width: 80px;
     height: 80px;
-    ${'' /* background-color: rgba(34, 35, 34, 0.8); */}
-    background-image:url(${logo});
-    background-size:cover;
-    ${'' /* background-color: white; */}
+    background-image: url(${logo});
+    background-size: cover;
     border-radius: 50%;
     position: absolute;
     top: -30%;
@@ -503,13 +461,6 @@ const Icon = styled.img`
   width: 20px;
   height: 20px;
   margin-rigth: 8px;
-  transition: all 0.2s;
-  &:hover {
-    border: 2px solid #b99362;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-  }
 `
 const NoteBtn = styled.div`
   cursor: pointer;
@@ -524,6 +475,7 @@ const NoteBtn = styled.div`
   font-family: Poppins;
   transition: all 0.3s;
   z-index: 99;
+  top: 50px;
   right: 0;
   &:hover {
     border: 1px solid #b99362;
@@ -555,6 +507,12 @@ const Scroll = styled.div`
 
   cursor: pointer;
 `
+const HoverBtn = styled(Btn)`
+  &:hover {
+    background-color: #ac6947;
+    border: 1px solid #ac6947;
+  }
+`
 
 function Activity() {
   const nameRef = useRef()
@@ -564,9 +522,7 @@ function Activity() {
   const textRef = useRef()
   const [images, setImages] = useState()
   const [imageURLs, setImageURLs] = useState()
-  const [downloadUrl, setDownloadUrl] = useState([])
   const [group, setGroup] = useState()
-  const [groupID, setGroupID] = useState()
   const [isInfo, setIsInfo] = useState(false)
   const [step, setStep] = useState(false)
   const [isPreview, setIsPreview] = useState(true)
@@ -582,37 +538,16 @@ function Activity() {
     setImageURLs(newImageUrls)
   }
 
-  useEffect(() => {
-    async function getMyGroup() {
-      try {
-        const docRef = doc(db, 'groupLists', groupID)
-        const docSnap = await getDoc(docRef)
-        if (docSnap.exists()) {
-          const mountainData = docSnap.data()
-          setGroup(mountainData)
-        }
-      } catch {
-        console.log('No such document!')
-      }
-    }
-    getMyGroup()
-  }, [])
-
   const settingCard = async () => {
-    if (
-      nameRef.current.value == '' ||
-      groupPassword.current.value == ''
-      // images == undefined
-    ) {
+    if (nameRef.current.value == '' || groupPassword.current.value == '') {
       value.alertPopup()
       value.setAlertContent('密碼及團名為必填資訊')
       setIsInfo(false)
     } else {
       setIsActive(true)
-      // setComplete((current) => !current)
       setLoading(true)
       const userdocRef = doc(db, 'users', value.userUid)
-      const docRef = doc(collection(db, 'groupLists'))
+      const docRef = doc(collection(db, 'groupContents'))
       const docSnap = await getDoc(userdocRef)
       const id = docRef.id
       if (images == undefined) {
@@ -642,13 +577,11 @@ function Activity() {
               : null,
           groupIntro: textRef.current.value ? textRef.current.value : null,
         }
-        const newDocRef = setDoc(doc(db, 'groupLists', id), newGroup)
+        const newDocRef = setDoc(doc(db, 'groupContents', id), newGroup)
         setGroup(newGroup)
         setLoading(false)
         setIsInfo(true)
-        setGroupID(id)
       } else {
-        setGroupID(id)
         const imageRef = ref(
           storage,
           `images/${nameRef.current.value}_${id}_登山團封面照`,
@@ -656,7 +589,6 @@ function Activity() {
         uploadBytes(imageRef, images[0]).then(() => {
           console.log('檔案上傳成功')
           getDownloadURL(imageRef).then((url) => {
-            setDownloadUrl(url)
             let newGroup = {
               groupName: nameRef.current.value ? nameRef.current.value : null,
               groupID: id,
@@ -683,16 +615,16 @@ function Activity() {
                   : null,
               groupIntro: textRef.current.value ? textRef.current.value : null,
             }
-            const newDocRef = setDoc(doc(db, 'groupLists', id), newGroup)
-            setGroup(newGroup)
+            const newDocRef = setDoc(doc(db, 'groupContents', id), newGroup)
             setLoading(false)
+            setGroup(newGroup)
             setIsInfo(true)
           })
         })
       }
     }
   }
-
+  console.log(group)
   function backToSet() {
     value.alertPopup()
     value.setAlertContent('關閉後請重新設定資訊')
@@ -700,23 +632,11 @@ function Activity() {
     setIsActive(false)
     setIsInfo(false)
   }
-  async function getMyGroup() {
-    try {
-      const docRef = doc(db, 'groupLists', groupID)
-      const docSnap = await getDoc(docRef)
-      if (docSnap.exists()) {
-        const mountainData = docSnap.data()
-        setGroup(mountainData)
-      }
-    } catch {
-      console.log('No such document!')
-    }
-  }
 
   async function handleShareButton() {
     if (navigator.share) {
       const shareData = {
-        url: `https://find-friends-to-mountain.web.app/activity/${groupID}`,
+        url: `https://find-friends-to-mountain.web.app/activity/${group.groupID}`,
         title: '『找山遊』邀請連結',
         text: '來參加我的登山團',
       }
@@ -736,63 +656,49 @@ function Activity() {
   async function sendTheInfo() {
     const userdocRef = doc(db, 'users', value.userUid)
     const docSnap = await getDoc(userdocRef)
-    //放進那個人的leadgroup
     if (docSnap.exists()) {
       const leadPersonData = docSnap.data()
       const oldLeadList = leadPersonData.leadGroup
       let newLeadList = []
       const leadGroupInfo = {
-        groupID: groupID,
-        groupName: nameRef.current.value,
-        groupPhoto: downloadUrl ? downloadUrl : null,
-        startDate:
-          date.length > 0
-            ? `${date[0].getFullYear()} -
-              ${date[0].getMonth() + 1}
-               -
-              ${date[0].getDate()}`
-            : null,
-        endDate:
-          date.length > 0
-            ? `${date[1].getFullYear()} -
-              ${date[1].getMonth() + 1}
-               -
-              ${date[1].getDate()}`
-            : null,
+        groupID: group.groupID,
+        groupName: group.groupName,
+        groupPhoto: group.groupPhoto,
+        startDate: group.startDate,
+        endDate: group.endDate,
       }
-      console.log(leadGroupInfo)
       newLeadList.push(leadGroupInfo, ...oldLeadList)
       const updateLeadGroup = updateDoc(userdocRef, {
         leadGroup: newLeadList,
       })
-      navigate(`/activity/${groupID}`)
+      navigate(`/activity/${group.groupID}`)
     }
   }
 
   async function setTheContent() {
     setComplete((current) => !current)
-    const groupRef = setDoc(doc(db, 'groupContents', groupID), {
-      bedLists: [],
-      carLists: [],
-      groupOwner: value.userUid,
-      memberList: [],
-      todoList: [],
-      itineraryList: {
-        ['事項清單']: {
-          name: '事項清單',
-          items: [],
-        },
-        ['未完成']: {
-          name: '未完成',
-          items: [],
-        },
-        ['已解決']: {
-          name: '已解決',
-          items: [],
+    const docRef = doc(db, 'groupContents', group.groupID)
+    const updateGroupInfo = setDoc(
+      docRef,
+      {
+        bedLists: [],
+        carLists: [],
+        groupOwner: value.userUid,
+        memberList: [],
+        todoList: [],
+        itineraryList: {
+          ['事項清單']: {
+            name: '事項清單',
+            items: [],
+          },
+          ['已解決']: {
+            name: '已解決',
+            items: [],
+          },
         },
       },
-    })
-    console.log(groupRef)
+      { merge: true },
+    )
   }
 
   return (
@@ -845,7 +751,6 @@ function Activity() {
           style={{
             borderRadius: '12px',
             backgroundColor: 'rgba(0, 0, 0, .25)',
-            // backdropFilter: 'invert(80%)',
           }}
         >
           <Basic id="basic">
@@ -891,17 +796,27 @@ function Activity() {
             </InputData>
             <Text>團主版規</Text>
             <TextInput type="text" placeholder="版規規定" ref={textRef} />
-            <Btn
-              width="100px"
-              margin="12px auto 20px auto"
+            <HashLink
+              style={{
+                textAlign: 'center',
+                height: '40px',
+                lineHeight: '40px',
+                borderRadius: '8px',
+                color: '#F6EAD6',
+                width: '100px',
+                border: '1px solid #F6EAD6',
+                margin: '12px auto 50px auto',
+              }}
               onClick={() => setStep(true)}
+              smooth
+              to="#form"
             >
               下一步
-            </Btn>
+            </HashLink>
           </Basic>
           {step && (
             <>
-              <FlexDivide>
+              <FlexDivide id="form">
                 <FormDate id="formdate">
                   <Text>開團日期</Text>
                   <CalendarContainer>
@@ -912,7 +827,6 @@ function Activity() {
                       selectRange={true}
                     />
                   </CalendarContainer>
-
                   {date.length > 0 ? (
                     <>
                       <SubText>
@@ -951,7 +865,7 @@ function Activity() {
               </FlexDivide>
               <Btn
                 width="20%"
-                tablet_width="20%"
+                tablet_width="30%"
                 margin="20px auto 0 auto"
                 borderRadius="8px"
                 onClick={settingCard}
@@ -972,7 +886,7 @@ function Activity() {
                       <Divide justifyContent="flex-start">
                         <Icon src={back} onClick={backToSet} />
                         <Btn
-                          width="150px"
+                          width="auto"
                           border="none"
                           fontSize="14px"
                           onClick={backToSet}
@@ -986,7 +900,7 @@ function Activity() {
                         <Icon src={back} onClick={backToSet} />
                         <Btn
                           fontSize="14px"
-                          width="250px"
+                          width="auto"
                           border="none"
                           onClick={backToSet}
                         >
@@ -998,7 +912,7 @@ function Activity() {
                         <Icon src={check} onClick={setTheContent} />
                         <Btn
                           fontSize="14px"
-                          width="120px"
+                          width="auto"
                           border="none"
                           onClick={setTheContent}
                         >
@@ -1035,17 +949,16 @@ function Activity() {
                           <Icon src={share} onClick={handleShareButton} />
                           <Btn
                             fontSize="14px"
-                            width="250px"
+                            width="auto"
                             border="none"
                             onClick={handleShareButton}
                           >
                             分享連結，邀請朋友來加入登山團
                           </Btn>
                         </Divide>
-
-                        <Btn
+                        <HoverBtn
                           height="50px"
-                          color="#B99362"
+                          color="#F6EAD6"
                           width="250px"
                           margin="12px auto 0px"
                           padding="8px"
@@ -1053,7 +966,7 @@ function Activity() {
                           borderRadius="8px"
                         >
                           前往下一步輸入更多團內資訊
-                        </Btn>
+                        </HoverBtn>
                       </>
                     )}
                   </>

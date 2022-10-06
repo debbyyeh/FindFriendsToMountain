@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { UserContext } from '../../utils/userContext'
+import { useParams } from 'react-router-dom'
 import carIcon from './Car.png'
+import cancel from './CancelNormal.png'
+import cancelHover from './Cancel.png'
 import {
   collection,
   setDoc,
@@ -12,137 +15,94 @@ import {
 } from 'firebase/firestore'
 import { db } from '../../utils/firebase'
 
-const AreaTitle = styled.div`
-  ${'' /* position: absolute; */}
-  ${'' /* top: -20px; */}
-  margin:0 auto;
-  display: flex;
-  width: 140px;
-  align-items: center;
-  justify-content: center;
-  background-color: rgb(48, 61, 48);
-  @media screen and (max-width: 767px) {
-    ${'' /* top: -15px; */}
-  }
-`
-const AddOne = styled.div`
-  font-size: 18px;
-  border-radius: 50%;
-  border: 1px solid #f6ead6;
-  margin-left: 8px;
-  width: 25px;
-  height: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  cursor: pointer;
-  @media screen and (max-width: 1279px) {
-    width: 20px;
-    height: 20px;
-    font-size: 14px;
-  }
-`
 const CarContainer = styled.div`
-  ${'' /* box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) inset; */}
   width: calc(100% / 3);
   padding: 20px;
-  @media screen and (max-width: 1279px) {
-    width: 33%;
-  }
   @media screen and (max-width: 767px) {
     width: 100%;
+    padding: 0;
+    margin-bottom: 20px;
   }
 `
 
 const CarseatContainer = styled.input`
-  border: 1px dashed white;
   border-radius: 8px;
-  width: 50px;
+  width: 47%;
   height: 40px;
   margin: 8px 4px;
   text-align: center;
-  color: white;
+  color: #f6ead6;
+  border: 1px dashed #f6ead6;
+  font-size: 16px;
+  color: #222322;
+  @media screen and (max-width: 1279px) {
+    width: 40%;
+  }
 `
 const CarDivide = styled.div`
   width: 100%;
   border-radius: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
   margin-top: 30px;
-  margin-bottom: 70px;
-  ${'' /* max-height: 450px;
-  overflow-y: scroll; */}
-  &::-webkit-scrollbar {
-    display: none;
-    ${'' /* background: #f6ead6;
-    border-radius: 4px;
-    width: 1px; */}
-  }
-  &::-webkit-scrollbar-track-piece {
-    background: #f6ead6;
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid #f6ead6;
-  }
-  &::-webkit-scrollbar-track {
-    box-shadow: transparent;
-  }
-  @media screen and (max-width: 1279px) {
-  }
-  @media screen and (max-width: 767px) {
-    flex-wrap: nowrap;
-    flex-direction: row;
-    ${'' /* display: initial; */}
-  }
+  margin-bottom: 30px;
 `
 const SeatDivide = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  max-height: 60px;
-  overflow-y: scroll;
-  &::-webkit-scrollbar {
-    display: none;
-    ${'' /* background: #f6ead6;
-    border-radius: 4px;
-    width: 1px; */}
+`
+const ScrollDivide = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: start;
+  @media screen and (max-width: 767px) {
+    max-height: 500px;
+    overflow-y: scroll;
+    margin: 0 auto;
+    &::-webkit-scrollbar {
+      width: 1px;
+    }
+    &::-webkit-scrollbar-button {
+      display: none;
+    }
+    &::-webkit-scrollbar-track-piece {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background-color: rgba(0, 0, 0, 0.2);
+      border: 1px solid #f6ead6;
+    }
+    &::-webkit-scrollbar-track {
+      box-shadow: transparent;
+    }
   }
-  &::-webkit-scrollbar-track-piece {
-    background: #f6ead6;
+`
+const CancelBtn = styled.div`
+  cursor: pointer;
+  background-image: url(${cancel});
+  background-size: cover;
+  width: 30px;
+  height: 30px;
+  margin-left: 12px;
+  transition: all 0.3s;
+  &:hover {
+    background-image: url(${cancelHover});
   }
-  &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid #f6ead6;
-  }
-  &::-webkit-scrollbar-track {
-    box-shadow: transparent;
+  @media screen and (max-width: 1279px) {
+    width: 20px;
+    height: 20px;
   }
 `
 
-const Cars = ({
-  Text,
-  DivideBorder,
-  Divide,
-  Btn,
-  InfoInput,
-  BackColor,
-  SrcImage,
-}) => {
-  let url = window.location.href
-  const newUrl = url.split('/activity/')
-  const groupID = newUrl[1]
-  const [getCar, setGetCar] = useState()
+const Cars = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
+  const urlID = useParams()
   const [latest, setLatest] = useState()
+  const [leftNum, setLeftNum] = useState(0)
   const carGroupName = useRef()
   const seatNum = useRef()
   const value = useContext(UserContext)
-  const docRef = doc(db, 'groupContents', groupID)
+  const docRef = doc(db, 'groupContents', urlID.id)
   const [passengerNames, setPassengerNames] = useState([])
 
   useEffect(() => {
@@ -212,7 +172,6 @@ const Cars = ({
   const addCar = () => {
     let newCar = []
     const addCarInfo = {
-      currentNum: 0,
       whoseCar: carGroupName.current.value,
       maxNum: Number(seatNum.current.value),
       seat: Number(seatNum.current.value),
@@ -230,7 +189,16 @@ const Cars = ({
     })
     latest[carIndex].passengerArrange = newarr
     setPassengerNames(newarr)
-    updatePassengerList()
+    updateCarSeatList(latest)
+  }
+
+  async function updateCarSeatList(latest) {
+    const newArr = [...latest]
+    const updateCarsToData = await updateDoc(docRef, {
+      carLists: newArr,
+    })
+    value.alertPopup()
+    value.setAlertContent('更新成功')
   }
 
   function deleteCar(carIndex) {
@@ -245,24 +213,20 @@ const Cars = ({
       carLists: newArr,
     })
   }
-  async function updatePassengerList() {
-    const newArr = [...latest]
-    const updateCarsToData = await updateDoc(docRef, {
-      carLists: newArr,
-    })
-    value.alertPopup()
-    value.setAlertContent('更新成功')
-  }
 
   return (
     <>
       <Divide
-        width="80%"
+        width="100%"
         minHeight="300px"
         flexDirection="column"
         tablet_width="100%"
+        padding="20px 60px 20px 60px"
+        tablet_padding="20px 20px 20px 20px"
         style={{
           margin: '50px auto',
+          border: '1px solid white',
+          borderRadius: '24px',
         }}
       >
         <Divide flexDirection="column">
@@ -270,78 +234,84 @@ const Cars = ({
           <CarListForm addCar={addCar} />
         </Divide>
         <CarDivide>
-          {latest && latest.length > 0 ? (
-            latest.map((car, carIndex) => {
-              return (
-                <>
-                  <CarContainer key={carIndex}>
-                    <Divide justifyContent="center" marginBottom="12px">
-                      <Text fontSize="20px" mobile_fontSize="14px">
-                        {car.whoseCar}的車子
-                      </Text>
-                      <Btn
-                        borderRadius="50%"
-                        margin="0px 0px 0px 12px"
-                        width="20px"
-                        height="20px"
-                        padding="0px"
-                        onClick={() => deleteCar(carIndex)}
-                      >
-                        x
-                      </Btn>
-                    </Divide>
-                    <Divide flexDirection="column">
-                      <SrcImage
-                        src={carIcon}
-                        width="70px"
-                        height="60px"
-                        objectFit="contain"
-                      />
-                      <Text marginTop="8px" mobile_fontSize="14px">
-                        目前還有{' '}
-                        {Number(
-                          car.maxNum - latest[carIndex].passengerArrange.length,
-                        )}
-                        / {Number(car.maxNum)}位置
-                      </Text>
-                    </Divide>
-                    <SeatDivide>
-                      {Array(car.maxNum)
-                        .fill(undefined)
-                        .map((_, index) => {
-                          return (
-                            <CarseatContainer
-                              style={{
-                                backgroundColor: latest[carIndex]
-                                  .passengerArrange[index]
-                                  ? '#AC6947'
-                                  : 'transparent',
-                                border: latest[carIndex].passengerArrange[index]
-                                  ? '1px solid #AC6947 '
-                                  : '1px dashed #F6EAD6',
-                              }}
-                              defaultValue={
-                                latest[carIndex].passengerArrange[index]
-                              }
-                              type="text"
-                              key={index}
-                              placeholder="乘客"
-                              onChange={(e) => {
-                                findPassenger(carIndex, index, e.target.value)
-                              }}
-                            />
-                          )
-                        })}
-                    </SeatDivide>
-                  </CarContainer>
-                </>
-              )
-            })
-          ) : (
-            <Divide width="100%" justifyContent="center">
-              <SrcImage width="150px" height="75px" src={carIcon} />
-            </Divide>
-          )}
+          <ScrollDivide>
+            {latest && latest.length > 0 ? (
+              latest.map((car, carIndex) => {
+                return (
+                  <>
+                    <CarContainer key={carIndex}>
+                      <Divide justifyContent="center" marginBottom="12px">
+                        <Text fontSize="20px" mobile_fontSize="14px">
+                          {car.whoseCar}的車子
+                        </Text>
+                        <CancelBtn
+                          onClick={() => deleteCar(carIndex)}
+                        ></CancelBtn>
+                      </Divide>
+                      <Divide flexDirection="column">
+                        <SrcImage
+                          src={carIcon}
+                          width="70px"
+                          height="60px"
+                          objectFit="contain"
+                        />
+                        <Text marginTop="8px" mobile_fontSize="14px">
+                          目前還有{' '}
+                          {Number(
+                            car.maxNum -
+                              latest[carIndex].passengerArrange.length,
+                          )}
+                          / {Number(car.maxNum)}位置
+                        </Text>
+                      </Divide>
+                      <SeatDivide>
+                        {Array(car.maxNum)
+                          .fill(undefined)
+                          .map((_, index) => {
+                            return (
+                              <CarseatContainer
+                                style={{
+                                  backgroundColor: latest[carIndex]
+                                    .passengerArrange[index]
+                                    ? '#B99362'
+                                    : 'transparent',
+                                  border: latest[carIndex].passengerArrange[
+                                    index
+                                  ]
+                                    ? '1px solid #B99362'
+                                    : '1px dashed #F6EAD6',
+                                }}
+                                defaultValue={
+                                  latest[carIndex].passengerArrange[index]
+                                }
+                                type="text"
+                                key={index}
+                                placeholder="乘客"
+                                onChange={(e) => {
+                                  findPassenger(carIndex, index, e.target.value)
+                                }}
+                              />
+                            )
+                          })}
+                      </SeatDivide>
+                    </CarContainer>
+                  </>
+                )
+              })
+            ) : (
+              <>
+                <SrcImage
+                  width="150px"
+                  height="125px"
+                  style={{
+                    objectFit: 'contain',
+                    margin: '0 auto',
+                  }}
+                  src={carIcon}
+                />
+              </>
+            )}
+          </ScrollDivide>
         </CarDivide>
         {latest && latest.length > 0 && (
           <Btn
@@ -350,7 +320,7 @@ const Cars = ({
             mobile_width="100px"
             borderRadius="24px"
             mobile_height="30px"
-            onClick={updatePassengerList}
+            onClick={updateCarSeatList}
           >
             儲存送出
           </Btn>

@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
+import { Divide } from '../../css/style'
 import React, { useState, useEffect, useRef, useContext } from 'react'
-import { db, storage, auth } from '../../utils/firebase'
-import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore'
+import { db } from '../../utils/firebase'
+import { doc, updateDoc, onSnapshot } from 'firebase/firestore'
 import Map from '../Map/Map'
 import styled, { keyframes } from 'styled-components'
 import { Link } from 'react-router-dom'
@@ -22,8 +23,6 @@ const Wrapper = styled.div`
   @media screen and (max-width: 767px) {
     padding: 20px 0px 40px;
   }
-  ${'' /* padding-left: 20px;
-  padding-right: 20px; */}
   margin: 0 auto;
   font-family: Poppins;
 `
@@ -33,9 +32,8 @@ const ProfileWrapper = styled.div`
   height: 100px;
   margin: 40px auto;
   position: relative;
-  ${'' /* margin-bottom: 60px; */}
   @media screen and (max-width: 767px) {
-    margin: 30px auto;
+    margin: 80px auto 40px auto;
   }
 `
 
@@ -64,35 +62,13 @@ const PersonName = styled.div`
   }
 `
 
-const Divide = styled.div`
-  display: flex;
-  max-height: ${(props) => props.maxHeight || 'none'};
-  justify-content: ${(props) => props.justifyContent || 'space-between'};
-  align-items: ${(props) => props.alignItems || 'center'};
-  flex-direction: ${(props) => props.flexDirection || 'row'};
-  margin-bottom: ${(props) => props.marginBottom || '0px'};
-  margin-top: ${(props) => props.marginTop || '0px'};
-  flex-wrap: ${(props) => props.flexWrap || 'no-wrap'};
-
-  @media screen and (max-width: 767px) {
-    flex-direction: ${(props) => props.mobile_flexDirection || 'row'};
-  }
-`
 const CardDivide = styled(Divide)`
-  overflow: scroll;
+  overflow-y: scroll;
   &::-webkit-scrollbar {
-    ${'' /* display: none; */}
-    background: transparent;
-    border-radius: 4px;
-    width: 3px;
-  }
-  &::-webkit-scrollbar-track-piece {
-    background: transparent;
+    width: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
     background-color: #f6ead6;
-    border: 1px solid #f6ead6;
   }
   &::-webkit-scrollbar-track {
     box-shadow: transparent;
@@ -161,7 +137,7 @@ const ActivityCard = styled(Link)`
     margin-bottom: 14px;
   }
   @media screen and (max-width: 767px) {
-    ${'' /* width: 40%; */}
+    width: 100%;
     margin-bottom: 14px;
     padding: 12px;
   }
@@ -235,7 +211,6 @@ const DateRange = styled.div`
   font-size: 14px;
   margin-bottom: 12px;
   font-weight: 400px;
-  ${'' /* letter-spacing: 1px; */}
   @media screen and (max-width: 1279px) {
     margin-bottom: 8px;
   }
@@ -244,12 +219,10 @@ const DateRange = styled.div`
   }
 `
 const ToolDivide = styled(Divide)`
-  ${'' /* width: calc(100% / 4); */}
   width: calc(100% / 3);
   justify-content: space-evenly;
   margin-bottom: 12px;
   @media screen and (max-width: 1279px) {
-    ${'' /* width: calc(100% / 3); */}
     justify-content: center;
   }
   @media screen and (max-width: 767px) {
@@ -265,14 +238,12 @@ const Category = styled.div`
   letter-spacing: 2px;
   cursor: pointer;
   padding-bottom: 4px;
-  border-bottom: 2px solid #875839;
+  border-bottom: 2px solid #b99362;
   transition: all 0.3s;
 
-  opacity: ${(props) => (props.$isActive ? 1 : 0.2)};
-  text-shadow: ${(props) =>
-    props.$isActive ? '1px 1px 20px #F6EAD6' : 'none'};
+  opacity: ${(props) => (props.$isActive ? 1 : 0.5)};
   @media screen and (max-width: 767px) {
-    font-size: 16px;
+    font-size: 14px;
     letter-spacing: 1px;
     white-space: no-wrap;
     padding: 12px 0;
@@ -299,9 +270,10 @@ const ToolInput = styled.input`
   }
 `
 const AddToolBtn = styled.button`
-  color: #222322;
+  color: #f6ead6;
   padding: 12px;
-  font-weight: 700;
+  letter-spacing: 2px;
+  font-weight: 600;
   background-color: #ac6947;
 
   position: absolute;
@@ -315,7 +287,7 @@ const AddToolBtn = styled.button`
   }
 `
 const Note = styled.p`
-  color: #5e7e68;
+  color: #f6ead6;
   font-size: 14px;
   margin-top: 12px;
 `
@@ -385,15 +357,14 @@ const DefaultMsg = styled.div`
     font-size: 14px;
   }
 `
-const BeALeader = styled.button`
-  display: block;
+const BeALeader = styled(Link)`
   background-color: transparent;
-  width: 250px;
+  width: 220px;
   padding-bottom: 3px;
   margin: 0 auto;
   margin-top: 20px;
-  color: #ac6947;
-  font-weight: 700;
+  color: #b99362;
+  font-weight: 500;
   font-size: 24px;
   text-align: center;
   letter-spacing: 2px;
@@ -401,12 +372,13 @@ const BeALeader = styled.button`
   transition: all 0.3s;
   &:hover {
     color: #b99362;
-    border-bottom: 1px solid #b99362;
+    border-bottom: 2px solid #b99362;
   }
   @media screen and (max-width: 1279px) {
     font-size: 20px;
   }
-  @media screen and (max-width: 576px) {
+  @media screen and (max-width: 767px) {
+    width: 150px;
     font-size: 16px;
   }
 `
@@ -455,9 +427,11 @@ const PreviewArea = styled.div`
   width: 400px;
   height: auto;
   border-radius: 24px;
-  ${'' /* @media */}
-  @media screen and (max-width:576px) {
-    width: 300px;
+  @media screen and (max-width: 576px) {
+    right: 10%;
+    transform: translateX(-10%);
+    width: 280px;
+    padding: 10px;
   }
 `
 const Lists = styled.ul`
@@ -476,9 +450,7 @@ const LoadingBackground = styled.div`
   width: 100vw;
   height: 100vh;
   top: 0;
-  ${'' /* left: 25%; */}
-  ${'' /* transform: translate(-25%, -50%); */}
-  display:${(props) => (props.loading ? 'block' : 'none')};
+  display: ${(props) => (props.loading ? 'block' : 'none')};
 `
 const move = keyframes`
   0%,
@@ -487,7 +459,7 @@ const move = keyframes`
     transform:rotate(0deg)
   }
   25%{
-    left:400px;
+    left:300px;
     transform:rotate(20deg)
   }
   50% {
@@ -513,19 +485,17 @@ const LoadingStyle = styled.span`
   text-transform: uppercase;
   letter-spacing: 5px;
   position: absolute;
-  top:50%;
-  left:25%;
-  color:#B99362;
+  top: 50%;
+  left: 25%;
+  color: #b99362;
   background-clip: text;
   &:before {
     content: '';
-    z-index:99;
+    z-index: 99;
     width: 80px;
     height: 80px;
-    ${'' /* background-color: rgba(34, 35, 34, 0.8); */}
-    background-image:url(${logo});
-    background-size:cover;
-    ${'' /* background-color: white; */}
+    background-image: url(${logo});
+    background-size: cover;
     border-radius: 50%;
     position: absolute;
     top: -30%;
@@ -537,9 +507,6 @@ const LoadingStyle = styled.span`
 
 function Profile() {
   const [getUserData, setGetUserData] = useState()
-  const [joinGroup, setJoinGroup] = useState([])
-  const [leadGroup, setLeadGroup] = useState([])
-  const [tools, setTools] = useState([])
   const [tabIndex, setTabIndex] = useState(0)
   const [currentPage, setCurrentPage] = useState(0)
   const [isPreview, setIsPreview] = useState(true)
@@ -555,27 +522,11 @@ function Profile() {
         navigate('/')
       } else {
         setLoading(true)
-        const docRef = doc(db, 'users', value.userUid)
-        try {
-          const docSnap = await getDoc(docRef)
-          if (docSnap.exists()) {
-            const userData = docSnap.data()
-            setGetUserData(userData)
-            setJoinGroup(userData.joinGroup)
-            setLeadGroup(userData.leadGroup)
-            setTools(userData.equipment)
-            const unsub = onSnapshot(docRef, (doc) => {
-              const data = doc.data()
-              const joinData = data.joinGroup
-              const leadData = data.leadGroup
-              setJoinGroup(joinData)
-              setLeadGroup(leadData)
-            })
-          }
-          setTimeout(() => setLoading(false), 3000)
-        } catch {
-          console.log('No such document!')
-        }
+        const unsub = onSnapshot(doc(db, 'users', value.userUid), (doc) => {
+          const data = doc.data()
+          setGetUserData(data)
+        })
+        setTimeout(() => setLoading(false), 2000)
       }
     }
     getDBInfo()
@@ -586,26 +537,27 @@ function Profile() {
       value.alertPopup()
       value.setAlertContent('請輸入登山裝備')
     } else {
-      tools.push(equipmentSearch.current.value)
-      setTools([...tools])
+      getUserData.equipment.push(equipmentSearch.current.value)
       equipmentSearch.current.value = ''
       try {
         const docRef = doc(db, 'users', value.userUid)
-        const updateEquipment = await updateDoc(docRef, { equipment: tools })
-      } catch (erroe) {
+        const updateEquipment = await updateDoc(docRef, {
+          equipment: getUserData.equipment,
+        })
+      } catch (error) {
         console.log('資料更新失敗')
       }
     }
   }
 
   async function deleteEquipment(key) {
-    let deleteTools = tools.filter((item, index) => index !== key)
+    let deleteTools = getUserData.equipment.filter(
+      (item, index) => index !== key,
+    )
     const newTools = deleteTools
-    setTools(deleteTools)
     try {
       const docRef = doc(db, 'users', value.userUid)
       const updateEquipment = await updateDoc(docRef, { equipment: newTools })
-      console.log(updateEquipment)
     } catch (error) {
       console.log('資料更新失敗')
     }
@@ -615,9 +567,6 @@ function Profile() {
     if (e.key === 'Enter') {
       addTool()
     }
-  }
-  function addActivity() {
-    navigate('/activity')
   }
 
   return (
@@ -629,8 +578,8 @@ function Profile() {
         {getUserData && (
           <>
             <ProfileWrapper>
-              <PersonName>{getUserData.name}</PersonName>
-              <PersonPhoto src={getUserData.photoURL} alt="userphoto" />
+              <PersonName>{getUserData?.name}</PersonName>
+              <PersonPhoto src={getUserData?.photoURL} alt="userphoto" />
             </ProfileWrapper>
           </>
         )}
@@ -640,40 +589,35 @@ function Profile() {
             onMouseLeave={() => setIsPreview(false)}
           >
             {isPreview && (
-              <>
-                <PreviewArea>
-                  <Lists>
-                    {currentPage == 0 && (
-                      <>
-                        <List>
-                          √ 按下發起活動成為主揪，邀請朋友一起來爬山吧
-                        </List>
-                        <List>
-                          √ 發起過的活動都會保存於此，可隨時修改相關資訊
-                        </List>
-                      </>
-                    )}
-                    {currentPage == 1 && (
-                      <>
-                        <List>√ 你曾經加入過的群組資訊皆會保留於此</List>
-                      </>
-                    )}
-                    {currentPage == 2 && (
-                      <>
-                        <List>√ 輸入你所有的裝備，讓夥伴知道</List>
-                        <List>√ 進入群組後也可查看夥伴所擁有的裝備</List>
-                      </>
-                    )}
-                    {currentPage == 3 && (
-                      <>
-                        <List>√ 創建自己的高山地圖</List>
-                        <List>√ 可於左側選擇縣市及爬過的路線後，按下加入</List>
-                        <List>√ 點選加入過的縣市查看你的登山清單</List>
-                      </>
-                    )}
-                  </Lists>
-                </PreviewArea>
-              </>
+              <PreviewArea>
+                <Lists>
+                  {currentPage == 0 && (
+                    <>
+                      <List>√ 按下發起活動成為主揪，邀請朋友一起來爬山吧</List>
+                      <List>
+                        √ 發起過的活動都會保存於此，可隨時修改相關資訊
+                      </List>
+                    </>
+                  )}
+                  {currentPage == 1 && (
+                    <>
+                      <List>√ 你曾經加入過的群組資訊皆會保留於此</List>
+                    </>
+                  )}
+                  {currentPage == 2 && (
+                    <>
+                      <List>√ 輸入你所有的裝備，讓夥伴知道</List>
+                      <List>√ 進入群組後也可查看夥伴所擁有的裝備</List>
+                    </>
+                  )}
+                  {currentPage == 3 && (
+                    <>
+                      <List>√ 點選縣市查看推薦登山清單</List>
+                      <List>√ 可點選山的名稱註記完登</List>
+                    </>
+                  )}
+                </Lists>
+              </PreviewArea>
             )}
           </NoteBtn>
           <Divide>
@@ -694,14 +638,14 @@ function Profile() {
           </Divide>
           {currentPage == 0 && (
             <>
-              <BeALeader onClick={addActivity}>點我發起活動吧!</BeALeader>
+              <BeALeader to="/activity">點我發起活動吧!</BeALeader>
               <CardDivide
                 justifyContent="center"
                 flexWrap="wrap"
                 maxHeight="600px"
               >
-                {leadGroup.length > 0 ? (
-                  Object.values(leadGroup).map((item, index) => {
+                {getUserData?.leadGroup.length > 0 ? (
+                  Object.values(getUserData.leadGroup).map((item, index) => {
                     return (
                       <ActivityCard
                         key={index}
@@ -737,11 +681,7 @@ function Profile() {
                 ) : (
                   <Flex>
                     <DefaultMsg>目前尚無發起群組</DefaultMsg>
-                    <DefaultImg
-                      style={{ cursor: 'pointer' }}
-                      src={hiking}
-                      onClick={addActivity}
-                    />
+                    <DefaultImg style={{ cursor: 'pointer' }} src={hiking} />
                   </Flex>
                 )}
               </CardDivide>
@@ -753,8 +693,8 @@ function Profile() {
               flexWrap="wrap"
               maxHeight="600px"
             >
-              {joinGroup.length > 0 ? (
-                Object.values(joinGroup).map((item, index) => {
+              {getUserData?.joinGroup.length > 0 ? (
+                Object.values(getUserData.joinGroup).map((item, index) => {
                   return (
                     <ActivityCard key={index} to={`/activity/${item.groupID}`}>
                       <ActivityTitle>{item.groupName}</ActivityTitle>
@@ -801,10 +741,10 @@ function Profile() {
                   onKeyDown={onKeyDown}
                 />
                 <AddToolBtn onClick={addTool}>加入清單</AddToolBtn>
-                <Note>請輸入你所擁有的裝備清單!</Note>
+                <Note>【請輸入你所擁有的裝備清單】</Note>
                 <ToolWrapper>
-                  {tools.length > 0 ? (
-                    tools.map((item, index) => {
+                  {getUserData?.equipment.length > 0 ? (
+                    getUserData.equipment.map((item, index) => {
                       return (
                         <ToolDivide key={index}>
                           <IconTitle>{item}</IconTitle>

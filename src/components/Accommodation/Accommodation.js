@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { UserContext } from '../../utils/userContext'
+import { useParams } from 'react-router-dom'
 import accommodationIcon from './accommodation.png'
+import cancel from './CancelNormal.png'
+import cancelHover from './Cancel.png'
 
 import {
   collection,
@@ -13,97 +16,35 @@ import {
 } from 'firebase/firestore'
 import { db } from '../../utils/firebase'
 
-const Wrapper = styled.div`
-  max-width: calc(1320px - 40px);
-  padding-left: 20px;
-  padding-right: 20px;
-  margin: 0 auto;
-  font-family: Poppins;
-`
-
-const AddOne = styled.div`
-  font-size: 18px;
-  border-radius: 50%;
-  border: 1px solid #f6ead6;
-  margin-left: 8px;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  @media screen and (max-width: 1279px) {
-    width: 20px;
-    height: 20px;
-    font-size: 14px;
-  }
-`
 const BedDivide = styled.div`
   width: 100%;
   border-radius: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
   margin-top: 30px;
-  margin-bottom: 70px;
-  ${'' /* max-height: 450px; */}
-  ${'' /* overflow-y: scroll; */}
-  &::-webkit-scrollbar {
-    display: none;
-    ${'' /* background: #f6ead6;
-    border-radius: 4px;
-    width: 1px; */}
-  }
-  &::-webkit-scrollbar-track-piece {
-    background: #f6ead6;
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid #f6ead6;
-  }
-  &::-webkit-scrollbar-track {
-    box-shadow: transparent;
-  }
-  @media screen and (max-width: 1279px) {
-  }
-  @media screen and (max-width: 767px) {
-    flex-wrap: nowrap;
-    flex-direction: row;
-  }
+  margin-bottom: 30px;
 `
 
 const BedContainer = styled.div`
   width: calc(100% / 3);
-  ${'' /* box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) inset; */}
   padding: 20px;
-  ${'' /* &:last-child {
-    margin-right: auto;
-  } */}
-  @media screen and (max-width: 1279px) {
-    width: 30%;
-    ${'' /* &:last-child {
-      margin-right: auto;
-    } */}
-  }
   @media screen and (max-width: 767px) {
     width: 100%;
+    padding: 0;
+    margin-bottom: 20px;
   }
 `
 
 const BedPillowContainer = styled.input`
   border-radius: 8px;
-  width: 50px;
+  width: 47%;
   height: 40px;
   margin: 8px 4px;
   text-align: center;
   color: #f6ead6;
   border: 1px dashed #f6ead6;
+  font-size: 16px;
+  color: #222322;
   @media screen and (max-width: 1279px) {
     width: 40%;
-    ${'' /* &:last-child {
-      margin-right: auto;
-    } */}
   }
 `
 const RoomDivide = styled.div`
@@ -111,46 +52,51 @@ const RoomDivide = styled.div`
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  ${'' /* max-height: 60px;
-  overflow-y: scroll; */}
-  &::-webkit-scrollbar {
-    display: none;
-    ${'' /* background: #f6ead6;
-    border-radius: 4px;
-    width: 1px; */}
+`
+const ScrollDivide = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  @media screen and (max-width: 767px) {
+    max-height: 500px;
+    overflow-y: scroll;
+    margin: 0 auto;
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: #f6ead6;
+    }
+    &::-webkit-scrollbar-track {
+      box-shadow: transparent;
+    }
   }
-  &::-webkit-scrollbar-track-piece {
-    background: #f6ead6;
+`
+const CancelBtn = styled.div`
+  cursor: pointer;
+  background-image: url(${cancel});
+  background-size: cover;
+  width: 30px;
+  height: 30px;
+  margin-left: 12px;
+  transition: all 0.3s;
+  &:hover {
+    background-image: url(${cancelHover});
   }
-  &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid #f6ead6;
-  }
-  &::-webkit-scrollbar-track {
-    box-shadow: transparent;
+  @media screen and (max-width: 1279px) {
+    width: 20px;
+    height: 20px;
   }
 `
 
-const Accommodation = ({
-  Text,
-  DivideBorder,
-  Divide,
-  Btn,
-  InfoInput,
-  BackColor,
-  SrcImage,
-}) => {
-  let url = window.location.href
-  const newUrl = url.split('/activity/')
-  const groupID = newUrl[1]
-  const [member, setMember] = useState()
+const Accommodation = ({ Text, Divide, Btn, InfoInput, SrcImage }) => {
+  const urlID = useParams()
   const [latest, setLatest] = useState()
   const [roommate, setRoommate] = useState([])
   const bedGroupName = useRef()
   const seatNum = useRef()
   const value = useContext(UserContext)
-  const docRef = doc(db, 'groupContents', groupID)
+  const docRef = doc(db, 'groupContents', urlID.id)
 
   useEffect(() => {
     const unsub = onSnapshot(docRef, (doc) => {
@@ -200,7 +146,7 @@ const Accommodation = ({
             mobile_height="30px"
             mobile_fontSize="14px"
             ref={seatNum}
-            placeholder="幾張床"
+            placeholder="幾個床位"
           />
           <Btn
             borderRadius="24px"
@@ -236,7 +182,7 @@ const Accommodation = ({
     })
     latest[bedIndex].bedArrange = newarr
     setRoommate(newarr)
-    updateRoommateList()
+    updateRoommateList(latest)
   }
 
   function deleteBed(bedIndex) {
@@ -246,14 +192,14 @@ const Accommodation = ({
   }
   async function updateBedList(latest) {
     const newArr = [...latest]
-    const updateBedsToData = await updateDoc(docRef, {
+    const updateBeds = await updateDoc(docRef, {
       bedLists: newArr,
     })
   }
 
-  async function updateRoommateList() {
+  async function updateRoommateList(latest) {
     const newArr = [...latest]
-    const updateCarsToData = await updateDoc(docRef, {
+    const updateBeds = await updateDoc(docRef, {
       bedLists: newArr,
     })
     value.alertPopup()
@@ -263,12 +209,15 @@ const Accommodation = ({
   return (
     <>
       <Divide
-        width="80%"
+        width="100%"
         minHeight="300px"
         flexDirection="column"
-        tablet_width="100%"
+        padding="20px 60px 20px 60px"
+        tablet_padding="20px 20px 20px 20px"
         style={{
           margin: '50px auto',
+          border: '1px solid white',
+          borderRadius: '24px',
         }}
       >
         <Divide flexDirection="column">
@@ -278,74 +227,74 @@ const Accommodation = ({
           <BedListForm addBed={addBed} />
         </Divide>
         <BedDivide>
-          {latest && latest.length > 0 ? (
-            latest.map((bed, bedIndex) => {
-              return (
-                <>
-                  <BedContainer key={bedIndex}>
-                    <Divide justifyContent="center" marginBottom="12px">
-                      <Text fontSize="20px" mobile_fontSize="14px">
-                        {bed.whoseBed}房間
-                      </Text>
-                      <Btn
-                        borderRadius="50%"
-                        margin="0px 0px 0px 12px"
-                        width="20px"
-                        height="20px"
-                        padding="0px"
-                        onClick={() => deleteBed(bedIndex)}
-                      >
-                        x
-                      </Btn>
-                    </Divide>
-                    <Divide flexDirection="column">
-                      <SrcImage
-                        width="70px"
-                        height="60px"
-                        src={accommodationIcon}
-                      />
-                      <Text marginTop="8px" mobile_fontSize="14px">
-                        目前還有{' '}
-                        {Number(
-                          bed.maxNum - latest[bedIndex].bedArrange.length,
-                        )}
-                        / {Number(bed.maxNum)}床位
-                      </Text>
-                    </Divide>
-                    <RoomDivide justifyContent="center" flexWrap="wrap">
-                      {Array(bed.maxNum)
-                        .fill(undefined)
-                        .map((_, index) => (
-                          <BedPillowContainer
-                            style={{
-                              backgroundColor: latest[bedIndex].bedArrange[
-                                index
-                              ]
-                                ? '#AC6947'
-                                : 'transparent',
-                              border: latest[bedIndex].bedArrange[index]
-                                ? '1px solid #AC6947 '
-                                : '1px dashed #F6EAD6',
-                            }}
-                            defaultValue={latest[bedIndex].bedArrange[index]}
-                            type="text"
-                            key={index}
-                            placeholder="室友"
-                            onChange={(e) => {
-                              findRoomate(bedIndex, index, e.target.value)
-                            }}
-                          />
-                        ))}
-                    </RoomDivide>
-                  </BedContainer>
-                </>
-              )
-            })
-          ) : (
-            <Divide width="100%" justifyContent="center">
-              <SrcImage width="150px" height="120px" src={accommodationIcon} />
-            </Divide>
-          )}
+          <ScrollDivide>
+            {latest && latest.length > 0 ? (
+              latest.map((bed, bedIndex) => {
+                return (
+                  <>
+                    <BedContainer key={bedIndex}>
+                      <Divide justifyContent="center" marginBottom="12px">
+                        <Text fontSize="20px" mobile_fontSize="14px">
+                          {bed.whoseBed}房間
+                        </Text>
+                        <CancelBtn
+                          onClick={() => deleteBed(bedIndex)}
+                        ></CancelBtn>
+                      </Divide>
+                      <Divide flexDirection="column">
+                        <SrcImage
+                          width="70px"
+                          height="60px"
+                          src={accommodationIcon}
+                        />
+                        <Text marginTop="8px" mobile_fontSize="14px">
+                          目前還有{' '}
+                          {Number(
+                            bed.maxNum - latest[bedIndex].bedArrange.length,
+                          )}
+                          / {Number(bed.maxNum)}床位
+                        </Text>
+                      </Divide>
+                      <RoomDivide>
+                        {Array(bed.maxNum)
+                          .fill(undefined)
+                          .map((_, index) => (
+                            <BedPillowContainer
+                              style={{
+                                backgroundColor: latest[bedIndex].bedArrange[
+                                  index
+                                ]
+                                  ? ' #B99362'
+                                  : 'transparent',
+                                border: latest[bedIndex].bedArrange[index]
+                                  ? '1px solid #B99362 '
+                                  : '1px dashed #F6EAD6',
+                              }}
+                              defaultValue={latest[bedIndex].bedArrange[index]}
+                              type="text"
+                              key={index}
+                              placeholder="室友"
+                              onChange={(e) => {
+                                findRoomate(bedIndex, index, e.target.value)
+                              }}
+                            />
+                          ))}
+                      </RoomDivide>
+                    </BedContainer>
+                  </>
+                )
+              })
+            ) : (
+              <>
+                <SrcImage
+                  width="150px"
+                  height="120px"
+                  style={{ margin: '0 auto' }}
+                  src={accommodationIcon}
+                />
+              </>
+            )}
+          </ScrollDivide>
         </BedDivide>
         {latest && latest.length > 0 && (
           <Btn

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
-import { uuidv4 } from '@firebase/util'
+import { useParams } from 'react-router-dom'
 import {
   collection,
   setDoc,
@@ -25,6 +25,13 @@ const BackgroundStyle = styled.div`
   margin: 50px auto;
   padding: 20px 60px;
   border-radius: 24px;
+  min-height: 300px;
+  @media screen and (max-width: 1279px) {
+    padding: 20px 30px;
+  }
+  @media screen and (max-width: 767px) {
+    padding: 20px;
+  }
 `
 const IconImage = styled.div`
   border-radius: 50%;
@@ -33,7 +40,7 @@ const IconImage = styled.div`
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  @media screen and (max-width: 767px) {
+  @media screen and (max-width: 1279px) {
     width: 30px;
     height: 30px;
   }
@@ -42,19 +49,14 @@ const DroppableContainer = styled.div`
   max-height: 400px;
   overflow-y: scroll;
   width: 80%;
+  @media screen and (max-width: 1279px) {
+    width: 100%;
+  }
   &::-webkit-scrollbar {
-    ${'' /* display: none; */}
-    background-color: transparent;
-    border-radius: 4px;
     width: 3px;
   }
-  &::-webkit-scrollbar-track-piece {
-    background: transparent;
-  }
   &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid #f6ead6;
+    background-color: #f6ead6;
   }
   &::-webkit-scrollbar-track {
     box-shadow: transparent;
@@ -98,26 +100,9 @@ const ChooseBtn = styled.button`
   }
 `
 
-const Itinerary = ({
-  ownerAuth,
-  setOwnerAuth,
-  memberAuth,
-  setMemberAuth,
-  Text,
-  DivideBorder,
-  Divide,
-  Btn,
-  InfoInput,
-  BackColor,
-  SrcImage,
-}) => {
-  const [latest, setLatest] = useState()
-  const [dayNum, setDayNum] = useState(0)
-
-  let url = window.location.href
-  const newUrl = url.split('/activity/')
-  const groupID = newUrl[1]
-  const docRef = doc(db, 'groupContents', groupID)
+const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
+  const urlID = useParams()
+  const docRef = doc(db, 'groupContents', urlID.id)
   const [personTake, setPersonTake] = useState()
   const [isActive, setIsActive] = useState()
   const [tabIndex, setTabIndex] = useState(undefined)
@@ -141,7 +126,7 @@ const Itinerary = ({
       const latestData = data.itineraryList
       setColumns(latestData) //監聽
     })
-  }, [groupID])
+  }, [urlID.id])
 
   function onKeyDown(e) {
     if (e.key === 'Enter') {
@@ -170,7 +155,12 @@ const Itinerary = ({
   }
 
   function addCardInfo(column) {
-    if (cardInfoRef.current.value !== '') {
+    if (cardInfoRef.current.value == '') {
+      value.alertPopup()
+      value.setWarning(true)
+      console.log(value.warning)
+      value.setAlertContent('格內不可為空')
+    } else if (cardInfoRef.current.value !== '') {
       let oldCardItems = column.items
       let newItems = []
       let newCardItem = {
@@ -242,12 +232,11 @@ const Itinerary = ({
 
   async function notTake(index, column, columnId) {
     try {
-      const docRef = doc(db, 'groupContents', groupID)
+      const docRef = doc(db, 'groupContents', urlID.id)
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
         const itineraryData = docSnap.data()
         const oldItinerary = itineraryData.itineraryList
-        console.log(oldItinerary)
         if (columnId == '事項清單') {
           const returnItem = oldItinerary.事項清單.items
           returnItem[index].takePerson = null
@@ -271,6 +260,31 @@ const Itinerary = ({
             ['已解決']: {
               name: '已解決',
               items: columns.已解決.items,
+            },
+          })
+        } else {
+          const returnItem = oldItinerary.已解決.items
+          returnItem[index].takePerson = null
+          returnItem[index].takePersonID = null
+          returnItem[index].takePersonPhoto = null
+          setColumns({
+            ['事項清單']: {
+              name: '事項清單',
+              items: columns.事項清單.items,
+            },
+            ['已解決']: {
+              name: '已解決',
+              items: returnItem,
+            },
+          })
+          updateItinerary({
+            ['事項清單']: {
+              name: '事項清單',
+              items: columns.事項清單.items,
+            },
+            ['已解決']: {
+              name: '已解決',
+              items: returnItem,
             },
           })
         }
@@ -310,34 +324,59 @@ const Itinerary = ({
       const destItems = [...destColumn.items]
       const [removed] = sourceItems.splice(source.index, 1)
       destItems.splice(destination.index, 0, removed)
-      columns['事項清單'].items.map((item, index) => {
-        if (item.takePerson == null) {
-          return
-        } else {
-          setColumns({
-            ...columns,
-            [source.droppableId]: {
-              ...sourceColumn,
-              items: sourceItems,
-            },
-            [destination.droppableId]: {
-              ...destColumn,
-              items: destItems,
-            },
-          })
-          updateItinerary({
-            ...columns,
-            [source.droppableId]: {
-              ...sourceColumn,
-              items: sourceItems,
-            },
-            [destination.droppableId]: {
-              ...destColumn,
-              items: destItems,
-            },
-          })
-        }
-      })
+      if (source.droppableId == '事項清單') {
+        columns['事項清單'].items.map((item, index) => {
+          if (item.takePerson == null) {
+            return
+          } else {
+            setColumns({
+              ...columns,
+              [source.droppableId]: {
+                ...sourceColumn,
+                items: sourceItems,
+              },
+              [destination.droppableId]: {
+                ...destColumn,
+                items: destItems,
+              },
+            })
+            updateItinerary({
+              ...columns,
+              [source.droppableId]: {
+                ...sourceColumn,
+                items: sourceItems,
+              },
+              [destination.droppableId]: {
+                ...destColumn,
+                items: destItems,
+              },
+            })
+          }
+        })
+      } else {
+        setColumns({
+          ...columns,
+          [source.droppableId]: {
+            ...sourceColumn,
+            items: sourceItems,
+          },
+          [destination.droppableId]: {
+            ...destColumn,
+            items: destItems,
+          },
+        })
+        updateItinerary({
+          ...columns,
+          [source.droppableId]: {
+            ...sourceColumn,
+            items: sourceItems,
+          },
+          [destination.droppableId]: {
+            ...destColumn,
+            items: destItems,
+          },
+        })
+      }
     } else {
       const column = columns[source.droppableId]
       const copiedItems = [...column.items]
@@ -363,7 +402,12 @@ const Itinerary = ({
   return (
     <>
       <BackgroundStyle>
-        <Divide alignItems="start" marginTop="20px">
+        <Divide
+          alignItems="start"
+          marginTop="20px"
+          mobile_flexDirection="column"
+          mobile_marginTop="0"
+        >
           <DragDropContext
             onDragEnd={(result) => onDragEnd(result, columns, setColumns)}
           >
@@ -381,7 +425,11 @@ const Itinerary = ({
                       }}
                       key={columnId}
                     >
-                      <Text fontSize="20px" color=" #F6EAD6">
+                      <Text
+                        fontSize="20px"
+                        color=" #F6EAD6"
+                        mobile_fontSize="16px"
+                      >
                         {column.name}
                       </Text>
                       {columnId == '事項清單' && (
@@ -412,7 +460,7 @@ const Itinerary = ({
                               onClick={() => addCardInfo(column)}
                             ></Icon>
                           </Divide>
-                          <Text fontSize="14px" color="#B99362">
+                          <Text fontSize="14px">
                             【若無人認領，則不可拖拉】
                           </Text>
                         </>
@@ -546,7 +594,10 @@ const Itinerary = ({
                                                 <Divide>
                                                   <Text
                                                     fontSize="14px"
-                                                    margin="0 12px 0 0"
+                                                    mobile_textAlign="left"
+                                                    style={{
+                                                      whiteSpace: 'nowrap',
+                                                    }}
                                                   >
                                                     認領人：
                                                   </Text>
@@ -599,9 +650,8 @@ const Itinerary = ({
                                                         index === tabIndex
                                                       }
                                                       fontSize="14px"
-                                                      style={{
-                                                        top: '50px',
-                                                      }}
+                                                      mobile_fontSize="12px"
+                                                      mobile_height="20px"
                                                       onClick={() =>
                                                         notTake(
                                                           index,

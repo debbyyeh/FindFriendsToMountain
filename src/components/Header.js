@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react'
 import Logo from './Mountain.png'
 import styled from 'styled-components'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { UserContext } from '../utils/userContext'
 import { getAuth, signOut } from 'firebase/auth'
 
@@ -19,8 +19,10 @@ const Divide = styled.div`
   position: absolute;
   top: 50px;
   z-index: 999;
+  @media screen and (max-width: 767px) {
+    top: 20px;
+  }
 `
-
 const IconCircle = styled.div`
   width: 70px;
   height: 70px;
@@ -39,14 +41,10 @@ const IconCircle = styled.div`
 const LogoIcon = styled(Link)`
   display: block;
   background-image: url(${Logo});
-  width: 60px;
-  height: 60px;
+  width: 30px;
+  height: 30px;
   background-repeat: no-repeat;
   background-size: contain;
-  @media screen and (max-width: 1279px) {
-    width: 30px;
-    height: 30px;
-  }
 `
 const LoginClick = styled(Link)`
   color: #f6ead6;
@@ -102,30 +100,13 @@ const Btn = styled.button`
     font-size: 14px;
   }
 `
-// const LogoText = styled.div`
-//   position: absolute;
-//   bottom: -31px;
-//   left: 74px;
-//   font-size: 24px;
-//   font-weight: 800;
-//   transform: rotate(-18deg);
-// `
-// const LogoSecond = styled(LogoText)`
-//   left: 100px;
-//   transform: rotate(-37deg);
-//   bottom: -16px;
-// `
-// const LogoThird = styled(LogoText)`
-//   left: 117px;
-//   bottom: 15px;
-//   transform: rotate(-67deg);
-// `
 
 function Header() {
   const navigate = useNavigate()
   const value = useContext(UserContext)
-  const [isLogged, setIsLogged] = useState()
+  const [isLogged, setIsLogged] = useState(false)
   const auth = getAuth()
+  const location = useLocation()
   useEffect(() => {
     if (value.userUid !== undefined) {
       setIsLogged(true)
@@ -136,7 +117,7 @@ function Header() {
       .then(() => {
         window.location.reload()
         value.alertPopup()
-        value.setAlertContent('登入成功，將重新整理一次頁面')
+        value.setAlertContent('登出成功，將重新整理一次頁面')
       })
       .catch((error) => {
         console.log('登出失敗')
@@ -152,13 +133,19 @@ function Header() {
             <LogoIcon to="/" />
             <Link to="LogIn" />
           </IconCircle>
-
-          {isLogged && (
-            <>
-              <LoginClick to="profile">回到個人頁面</LoginClick>
-              <Btn onClick={logOut}>登出</Btn>
-            </>
-          )}
+          {isLogged == true ? (
+            location.pathname == '/' || location.pathname == '/profile' ? (
+              <>
+                <LoginClick to="activity">發起活動</LoginClick>
+                <Btn onClick={logOut}>登出</Btn>
+              </>
+            ) : (
+              <>
+                <LoginClick to="profile">回到個人頁面</LoginClick>
+                <Btn onClick={logOut}>登出</Btn>
+              </>
+            )
+          ) : null}
         </Divide>
       </Wrapper>
     </>

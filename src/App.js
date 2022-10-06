@@ -121,8 +121,8 @@ const AlertBox = styled.div`
   cursor: pointer;
   border: 1px solid rgba(241, 142, 6, 0.81);
   background-color: rgba(220, 128, 1, 0.16);
-  width: 300px;
-  height: 80px;
+  width: 250px;
+  height: 60px;
   ${'' /* transition: 0.3s ease-in-out; */}
   padding: 0 12px;
   box-shadow: 10px 10px 12px rgba(0, 0, 0, 0.2);
@@ -133,10 +133,10 @@ const AlertBox = styled.div`
       left: 0px;
     }
     15% {
-      left: 350px;
+      left: 100px;
     }
     85% {
-      left: 150px;
+      left: 80px;
     }
     100% {
       left: 0px;
@@ -152,13 +152,14 @@ const AlertBox = styled.div`
   }
   
 `
-
+const AlertImg = styled.div`
+  background-size: cover;
+  width: 32px;
+  height: 32px;
+`
 const AlertIcon = styled.div`
   position: relative;
-  display: flex;
-  min-width: 100px;
-  align-items: center;
-  justify-content: center;
+  margin-right: 20px;
 `
 
 const App = () => {
@@ -166,6 +167,8 @@ const App = () => {
   const [userName, setUserName] = useState()
   const [userAuth, setUserAuth] = useState()
   const [alert, setAlert] = useState(false)
+  const [warning, setWarning] = useState(false)
+  const [success, setSuccess] = useState(false)
   const [alertContent, setAlertContent] = useState('')
   const navigate = useNavigate()
   const auth = getAuth()
@@ -210,6 +213,7 @@ const App = () => {
     userAuth,
     alert,
     setAlert,
+    setWarning,
     alertPopup,
     setAlertContent,
   }
@@ -218,10 +222,16 @@ const App = () => {
     <>
       <UserContext.Provider value={value}>
         <GlobalStyle />
-        <AlertBox $alert={alert}>
+        <AlertBox $alert={alert} $warning={warning}>
           <AlertContent>
             <AlertIcon>
-              <img src={error} width="32" height="32" />
+              <AlertImg
+                style={{
+                  backgroundImage: `url(${error})`,
+                  // `url(${(props) =>
+                  //   props.warning ? error : null})`,
+                }}
+              ></AlertImg>
             </AlertIcon>
             <AlertContentInfo>{alertContent}</AlertContentInfo>
           </AlertContent>

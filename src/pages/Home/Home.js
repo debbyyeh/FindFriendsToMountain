@@ -8,7 +8,6 @@ import 南湖A from './南湖大山.jpg'
 import 玉山 from './玉山.jpg'
 import 桃源谷 from './桃源谷.jpg'
 import 大同 from './大同大禮.jpg'
-import flag from './flag.png'
 
 const LoginClick = styled(Link)`
   display: block;
@@ -24,14 +23,6 @@ const LoginClick = styled(Link)`
     font-size: 14px;
   }
 `
-const Wrapper = styled.div`
-  max-width: calc(1320px - 40px);
-  padding-left: 20px;
-  padding-right: 20px;
-  margin: 0 auto;
-  font-family: Poppins;
-  overflow: hidee;
-`
 const Background = styled.div`
   font-family: Poppins;
   background-color: #222322;
@@ -43,52 +34,35 @@ const Background = styled.div`
   overflow: hidden;
 `
 const BackgroundPic = styled.div`
-  background-image: url(${background});
+  background-image: url(${玉山});
   position: absolute;
   top: 50%;
-  left: 40%;
-  transform: translate(-40%, -50%);
+  left: 30%;
+  border-radius: 50%;
+  transform: translate(-30%, -50%);
   background-size: cover;
   background-position: center;
-  width: 550px;
-  height: calc(100% - 40px);
+  width: 500px;
+  height: 500px;
   box-shadow: 0 4px 8px rgb(48, 61, 48, 0.8);
   z-index: 99;
   @media screen and (max-width: 1279px) {
-    width: 450px;
-    ${'' /* height: 450px; */}
+    width: 350px;
+    height: 350px;
     left: 30%;
     transform: translateX(-30%, -50%);
   }
   @media screen and (max-width: 767px) {
-    width: 350px;
-    left: 40%;
-    opacity: 0.5;
-  }
-`
-const BackgroundLine = styled.div`
-  position: absolute;
-  padding: 20px;
-  height: 25%;
-  width: 5%;
-  right: -50px;
-  top: 50%;
-  transform: translate(50%, -50px);
-  @media screen and (max-width: 1279px) {
-    right: -25px;
-    top: 60%;
-    transform: translate(25px, -60px);
-  }
-  @media screen and (max-width: 767px) {
-    z-index: 100;
-    left: 20%;
+    left: 30%;
+    width: 200px;
+    height: 200px;
   }
 `
 
 const BgBall = styled.div`
   border-radius: 50%;
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   position: absolute;
   display: flex;
   align-items: center;
@@ -104,22 +78,28 @@ const BgBall = styled.div`
   }
 `
 const BgBallA = styled(BgBall)`
-  top: -60px;
-  left: -330px;
-  width: 600px;
-  height: 600px;
+  top: 50%;
+  left: 60%;
+  width: 500px;
+  height: 500px;
+  transform: translate(-60%, -50%);
   @media screen and (max-width: 1279px) {
-    top: -75px;
-    left: 330px;
-    width: 400px;
-    height: 400px;
+    left: 200px;
+    width: 300px;
+    height: 300px;
   }
   @media screen and (max-width: 767px) {
-    display: none;
+    left: 250px;
+    width: 150px;
+    height: 150px;
   }
 `
-
 const HomeTitle = styled.div`
+  position: absolute;
+  height: 25%;
+  left: 90%;
+  top: 30%;
+  transform: translateY(-90%, -30%);
   font-size: 60px;
   color: white;
   letter-spacing: 2px;
@@ -131,7 +111,8 @@ const HomeTitle = styled.div`
   }
   @media screen and (max-width: 767px) {
     font-size: 24px;
-    ${'' /* line-height: 24px; */}
+    left: 10%;
+    top: -35%;
   }
 `
 const Typing = styled.div``
@@ -203,11 +184,11 @@ const TypingText = styled.div`
     height: 100%;
     width: 100%;
     border-left: 6px solid white;
-    background-color: #222322;
+    background-color: rgb(48, 61, 48);
     animation: ${typing} 3s steps(10) infinite;
-    ${'' /* @media screen and (max-width: 767px) {
-      background-image: url(${background});
-    } */}
+    @media screen and (max-width: 1279px) {
+      background-color: #222322;
+    }
   }
 `
 const TypingContent = styled.span``
@@ -220,7 +201,6 @@ function Home() {
   const value = useContext(UserContext)
   const [isLogged, setIsLogged] = useState(false)
   useEffect(() => {
-    console.log(value.userAuth)
     if (value.userAuth === null) {
       setIsLogged(false)
     } else {
@@ -240,52 +220,24 @@ function Home() {
         </BgBall>
         <BgBallA></BgBallA>
         <BackgroundPic>
-          <BackgroundLine>
-            <HomeTitle>
-              Find Friends
-              <Divide>
-                <TypingContent>To</TypingContent>
-                <TypeWrapper>
-                  <Typing>
-                    <TypingText>
-                      <TypingContent>mountains</TypingContent>
-                    </TypingText>
-                    <TypingText>
-                      <TypingContent>一起找山遊</TypingContent>
-                    </TypingText>
-                  </Typing>
-                </TypeWrapper>
-              </Divide>
-            </HomeTitle>
-          </BackgroundLine>
+          <HomeTitle>
+            Find Friends
+            <Divide>
+              <TypingContent>To</TypingContent>
+              <TypeWrapper>
+                <Typing>
+                  <TypingText>
+                    <TypingContent>mountains</TypingContent>
+                  </TypingText>
+                  <TypingText>
+                    <TypingContent>一起找山遊</TypingContent>
+                  </TypingText>
+                </Typing>
+              </TypeWrapper>
+            </Divide>
+          </HomeTitle>
         </BackgroundPic>
-
-        {/* <PhotoContent
-          position="absolute"
-          width="200px"
-          height="300px"
-          top="60%"
-          left="30%"
-          src={南湖}
-        />
-        <PhotoContent
-          position="absolute"
-          width="200px"
-          height="300px"
-          top="60%"
-          left="50%"
-          src={玉山}
-        /> */}
-        {/* <PhotoContent
-          position="absolute"
-          width="200px"
-          height="300px"
-          top="60%"
-          left="70%"
-          src={background}
-        /> */}
       </Background>
-      {/* </Wrapper> */}
     </>
   )
 }
