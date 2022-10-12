@@ -133,8 +133,8 @@ function Header() {
             <LogoIcon to="/" />
             <Link to="LogIn" />
           </IconCircle>
-          {isLogged == true ? (
-            location.pathname == '/' || location.pathname == '/profile' ? (
+          {isLogged === true ? (
+            location.pathname === '/' || location.pathname === '/profile' ? (
               <>
                 <LoginClick to="activity">發起活動</LoginClick>
                 <Btn onClick={logOut}>登出</Btn>

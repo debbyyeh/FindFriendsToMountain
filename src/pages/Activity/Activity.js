@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef, useContext } from 'react'
+import React, { useState, useRef, useContext } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { db, storage } from '../../utils/firebase'
 import { collection, setDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { UserContext } from '../../utils/userContext'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { HashLink } from 'react-router-hash-link'
 import { Btn, Divide } from '../../css/style'
 import Calendar from 'react-calendar'
@@ -17,7 +17,6 @@ import 'react-calendar/dist/Calendar.css'
 import top from './top.png'
 
 const Background = styled.div`
-  ${'' /* background-image: url(${background}); */}
   backdrop-filter: blur(5px);
   width: 400px;
   height: 300px;
@@ -79,6 +78,7 @@ const Text = styled.div`
   }
   @media screen and (max-width: 767px) {
     font-size: 16px;
+    margin-top: -10px;
   }
 `
 const SubText = styled.p`
@@ -218,7 +218,7 @@ const TextInput = styled.textarea`
 
 const Basic = styled.div`
   width: 100%;
-  margin-rigth: auto;
+  margin-right: auto;
   margin-left: auto;
   margin-top: 30px;
   @media screen and (max-width: 767px) {
@@ -384,7 +384,6 @@ const ActiveBackground = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-
   display: ${(props) => (props.isActive ? 'block' : 'none')};
 `
 const ActivePost = styled.div`
@@ -404,32 +403,32 @@ const LoadingBackground = styled.div`
   display: ${(props) => (props.loading ? 'block' : 'none')};
 `
 const move = keyframes`
-  0%,
+  0%
    {
     left: 0;
-    transform:rotate(0deg)
+    transform:rotate(0deg);
   }
   25%{
     left:400px;
-    transform:rotate(20deg)
+    transform:rotate(20deg);
   }
   50% {
-    transform:rotate(0deg)
-    left: 80%;
+    transform:rotate(0deg);
+    left:80%
   }
   55%{
-    transform:rotate(0deg)
+    transform:rotate(0deg);
     left: 90%;
   }
   70%{
-    transform:rotate(0deg)
+    transform:rotate(0deg);
     left: 75%;
   }
   100%{
     left: 0%;
-    transform:rotate(-360deg)
-  }
-`
+    transform:rotate(-360deg);
+  }`
+
 const LoadingStyle = styled.span`
   font-family: 'Rubik Moonrocks', cursive;
   font-size: 60px;
@@ -539,7 +538,7 @@ function Activity() {
   }
 
   const settingCard = async () => {
-    if (nameRef.current.value == '' || groupPassword.current.value == '') {
+    if (nameRef.current.value === '' || groupPassword.current.value === '') {
       value.alertPopup()
       value.setAlertContent('密碼及團名為必填資訊')
       setIsInfo(false)
@@ -550,7 +549,7 @@ function Activity() {
       const docRef = doc(collection(db, 'groupContents'))
       const docSnap = await getDoc(userdocRef)
       const id = docRef.id
-      if (images == undefined) {
+      if (images === undefined) {
         let newGroup = {
           groupName: nameRef.current.value ? nameRef.current.value : null,
           groupID: id,
@@ -745,6 +744,7 @@ function Activity() {
           flexDirection="column"
           justifyContent="space-evenly"
           marginTop="50px"
+          tablet_marginTop="70px"
           alignItems="start"
           border="1px solid #F6EAD6"
           padding="20px 12px 20px 12px"
@@ -805,7 +805,7 @@ function Activity() {
                 color: '#F6EAD6',
                 width: '100px',
                 border: '1px solid #F6EAD6',
-                margin: '12px auto 50px auto',
+                margin: '12px auto 30px auto',
               }}
               onClick={() => setStep(true)}
               smooth

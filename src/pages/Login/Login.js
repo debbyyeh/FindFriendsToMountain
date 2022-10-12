@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useContext } from 'react'
 import { UserContext } from '../../utils/userContext'
 import { db, storage, auth } from '../../utils/firebase'
 import {
@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { setDoc, doc } from 'firebase/firestore'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 import { useForm } from 'react-hook-form'
 import backgroundImage from './background.jpg'
@@ -41,6 +41,7 @@ const PhotoWrapper = styled.div`
   }
   @media screen and (max-width: 767px) {
     width: 100%;
+    margin-top: 50px;
     align-items: start;
   }
 `
@@ -177,14 +178,14 @@ const LoginForm = styled.form`
   z-index: 10;
   padding: 20px 30px;
   @media screen and (max-width: 1279px) {
-    padding: 15px;
+    padding: 20px;
   }
 `
 const SignUpForm = styled.form`
   width: 100%;
   padding: 20px 30px;
   @media screen and (max-width: 1279px) {
-    padding: 15px;
+    padding: 20px;
   }
 `
 
@@ -242,7 +243,6 @@ const FileInput = styled.input``
 const FileLabel = styled.label`
   display: inline-block;
   cursor: pointer;
-
   width: 180px;
   color: white;
   text-align: center;
@@ -269,30 +269,28 @@ const LoadingBackground = styled.div`
   width: 100vw;
   height: 100vh;
   top: 0;
-  ${'' /* left: 25%; */}
-  ${'' /* transform: translate(-25%, -50%); */}
-  display:${(props) => (props.loading ? 'block' : 'none')};
+  display: ${(props) => (props.loading ? 'block' : 'none')};
 `
 const move = keyframes`
-  0%,
+  0%
    {
     left: 0;
     transform:rotate(0deg)
   }
   25%{
     left:400px;
-    transform:rotate(20deg)
+    transform:rotate(20deg);
   }
   50% {
-    transform:rotate(0deg)
+    transform:rotate(0deg);
     left: 80%;
   }
   55%{
-    transform:rotate(0deg)
+    transform:rotate(0deg);
     left: 90%;
   }
   70%{
-    transform:rotate(0deg)
+    transform:rotate(0deg);
     left: 75%;
   }
   100%{
@@ -371,7 +369,7 @@ function Login() {
       })
       .catch((error) => {
         console.log(error.code)
-        if (error.code == 'auth/wrong-password') {
+        if (error.code === 'auth/wrong-password') {
           console.log(124)
           value.alertPopup()
           value.setAlertContent('帳號或密碼有誤')
@@ -381,7 +379,7 @@ function Login() {
   }
 
   const onSubmit = async (data) => {
-    if (images == undefined) {
+    if (images === undefined) {
       value.alertPopup()
       value.setAlertContent('照片不得為空')
     } else {
@@ -422,11 +420,11 @@ function Login() {
         .catch((error) => {
           const errorCode = error.code
           console.log(error.code)
-          if (errorCode == 'auth/email-already-in-use') {
+          if (errorCode === 'auth/email-already-in-use') {
             value.alertPopup()
             value.setAlertContent('帳號重複註冊')
             setLoading(false)
-          } else if (errorCode == 'auth/invalid-email') {
+          } else if (errorCode === 'auth/invalid-email') {
             value.alertPopup()
             value.setAlertContent('無效Email')
             setLoading(false)

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
+import { Text, Divide, Btn, InfoInput, SrcImage } from '../../css/style'
 import { UserContext } from '../../utils/userContext'
 import { useParams } from 'react-router-dom'
 import accommodationIcon from './accommodation.png'
@@ -89,12 +90,12 @@ const CancelBtn = styled.div`
   }
 `
 
-const Accommodation = ({ Text, Divide, Btn, InfoInput, SrcImage }) => {
+const Accommodation = () => {
   const urlID = useParams()
   const [latest, setLatest] = useState()
   const [roommate, setRoommate] = useState([])
   const bedGroupName = useRef()
-  const seatNum = useRef()
+  const bedNum = useRef()
   const value = useContext(UserContext)
   const docRef = doc(db, 'groupContents', urlID.id)
 
@@ -110,9 +111,9 @@ const Accommodation = ({ Text, Divide, Btn, InfoInput, SrcImage }) => {
     function bedSubmit(e) {
       e.preventDefault()
       bedGroupName.current.value &&
-        seatNum.current.value &&
-        addBed(bedGroupName.current.value, seatNum.current.value)
-      setRoommate(Array(Number(seatNum.current.value)).fill(undefined))
+        bedNum.current.value &&
+        addBed(bedGroupName.current.value, bedNum.current.value)
+      setRoommate(Array(Number(bedNum.current.value)).fill(undefined))
     }
 
     return (
@@ -145,7 +146,7 @@ const Accommodation = ({ Text, Divide, Btn, InfoInput, SrcImage }) => {
             mobile_width="80px"
             mobile_height="30px"
             mobile_fontSize="14px"
-            ref={seatNum}
+            ref={bedNum}
             placeholder="幾個床位"
           />
           <Btn
@@ -166,22 +167,20 @@ const Accommodation = ({ Text, Divide, Btn, InfoInput, SrcImage }) => {
     let newBed = []
     const addBedInfo = {
       whoseBed: bedGroupName.current.value,
-      maxNum: Number(seatNum.current.value),
-      bed: Number(seatNum.current.value),
-      bedArrange: [],
+      maxNum: Number(bedNum.current.value),
+      bed: Number(bedNum.current.value),
+      bedArrange: Array(Number(bedNum.current.value)).fill(null),
     }
     newBed.push(...latest, addBedInfo)
     updateBedList(newBed)
   }
 
   function findRoomate(bedIndex, index, text) {
-    let roommateLists = latest[bedIndex].bedArrange
-    roommateLists[index] = text
+    latest[bedIndex].bedArrange[index] = text
     const newarr = latest[bedIndex].bedArrange.filter((name) => {
-      return name !== ''
+      return name !== null && name !== ''
     })
-    latest[bedIndex].bedArrange = newarr
-    setRoommate(newarr)
+    latest[bedIndex].bed = newarr.length
     updateRoommateList(latest)
   }
 
@@ -198,9 +197,8 @@ const Accommodation = ({ Text, Divide, Btn, InfoInput, SrcImage }) => {
   }
 
   async function updateRoommateList(latest) {
-    const newArr = [...latest]
     const updateBeds = await updateDoc(docRef, {
-      bedLists: newArr,
+      bedLists: latest,
     })
     value.alertPopup()
     value.setAlertContent('更新成功')
@@ -249,10 +247,10 @@ const Accommodation = ({ Text, Divide, Btn, InfoInput, SrcImage }) => {
                         />
                         <Text marginTop="8px" mobile_fontSize="14px">
                           目前還有{' '}
-                          {Number(
-                            bed.maxNum - latest[bedIndex].bedArrange.length,
-                          )}
-                          / {Number(bed.maxNum)}床位
+                          {Number(latest[bedIndex].bed < bed.maxNum)
+                            ? Number(bed.maxNum - latest[bedIndex].bed)
+                            : Number(latest[bedIndex].bed)}
+                          /{Number(bed.maxNum)}床位
                         </Text>
                       </Divide>
                       <RoomDivide>

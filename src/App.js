@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './App.css'
-import styled, { keyframes, createGlobalStyle } from 'styled-components'
+import styled, { createGlobalStyle } from 'styled-components'
 import Header from './components/Header'
 import { UserContext } from './utils/userContext'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { db } from './utils/firebase'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import PoppinsRegular from './fonts/Poppins-Regular.ttf'
 import PoppinsBold from './fonts/Poppins-Bold.ttf'
 import PoppinsThin from './fonts/Poppins-Light.ttf'
 import error from './utils/Error.png'
-
-import { Link, Routes, Route, Outlet, BrowserRouter } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 
 const GlobalStyle = createGlobalStyle`
     @font-face {
@@ -44,8 +43,6 @@ const GlobalStyle = createGlobalStyle`
     letter-spacing:1px;
     &::-webkit-scrollbar-button {
       display: none;
-      /* background: transparent;
-      border-radius: 4px; */
     }
     &::-webkit-scrollbar-track-piece {
       background: transparent;
@@ -86,15 +83,6 @@ const GlobalStyle = createGlobalStyle`
   }
   #root{
     min-height:100vh;
-    ${
-      '' /* padding: 70px 0px 120px;
-    @media screen and (max-width: 1279px) {
-      padding: 40px 0px 60px;
-    }
-    @media screen and (max-width: 767px) {
-      padding: 20px 0px 40px;
-    } */
-    }
   }
 
 `
@@ -123,7 +111,6 @@ const AlertBox = styled.div`
   background-color: rgba(220, 128, 1, 0.16);
   width: 250px;
   height: 60px;
-  ${'' /* transition: 0.3s ease-in-out; */}
   padding: 0 12px;
   box-shadow: 10px 10px 12px rgba(0, 0, 0, 0.2);
   animation-name: ${(props) => (props.$alert ? 'slideIn' : 'null')}; 
@@ -168,7 +155,6 @@ const App = () => {
   const [userAuth, setUserAuth] = useState()
   const [alert, setAlert] = useState(false)
   const [warning, setWarning] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [alertContent, setAlertContent] = useState('')
   const navigate = useNavigate()
   const auth = getAuth()
@@ -228,8 +214,6 @@ const App = () => {
               <AlertImg
                 style={{
                   backgroundImage: `url(${error})`,
-                  // `url(${(props) =>
-                  //   props.warning ? error : null})`,
                 }}
               ></AlertImg>
             </AlertIcon>

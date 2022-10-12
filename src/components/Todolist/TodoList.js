@@ -3,14 +3,8 @@ import styled from 'styled-components'
 import { UserContext } from '../../utils/userContext'
 import { useParams } from 'react-router-dom'
 
-import {
-  collection,
-  setDoc,
-  doc,
-  getDoc,
-  updateDoc,
-  onSnapshot,
-} from 'firebase/firestore'
+import { doc, updateDoc, onSnapshot } from 'firebase/firestore'
+import { Text, Divide, Btn } from '../../css/style'
 import { db } from '../../utils/firebase'
 import send from './send.png'
 
@@ -28,7 +22,6 @@ const ListInput = styled.input`
 
 const ToDoContainer = styled.div`
   min-height: 300px;
-  ${'' /* min-height: 500px; */}
   min-width: 250px;
   max-width: 300px;
   background: #f1f5f8;
@@ -43,19 +36,10 @@ const CommentContainer = styled.div`
   max-height: 300px;
   overflow-y: scroll;
   &::-webkit-scrollbar {
-    ${'' /* display: none; */}
-    background: transparent;
-    border-radius: 4px;
     width: 3px;
   }
-  &::-webkit-scrollbar-track-piece {
-    background: transparent;
-  }
   &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    padding-left: 2px;
-    background-color: #b99362;
-    border: 1px solid #f6ead6;
+    background-color: #f6ead6;
   }
   &::-webkit-scrollbar-track {
     box-shadow: transparent;
@@ -71,7 +55,7 @@ const Comment = styled.div`
   }
 `
 
-const TodoList = ({ Text, Divide, Btn, ownerAuth, memberAuth }) => {
+const TodoList = ({ ownerAuth, memberAuth }) => {
   useEffect(() => {
     const unsub = onSnapshot(docRef, (doc) => {
       const data = doc.data()
@@ -80,7 +64,6 @@ const TodoList = ({ Text, Divide, Btn, ownerAuth, memberAuth }) => {
     })
   }, [])
 
-  const [todoList, setTodoList] = useState([])
   const [latest, setLatest] = useState()
   const urlID = useParams()
   const value = useContext(UserContext)
@@ -89,14 +72,14 @@ const TodoList = ({ Text, Divide, Btn, ownerAuth, memberAuth }) => {
   const docRef = doc(db, 'groupContents', urlID.id)
 
   function onKeyDown(e) {
-    if (e.key == 'Enter') {
+    if (e.key === 'Enter') {
       addTodo()
     }
   }
   const ToDoListForm = ({ addTodo }) => {
     function handleSubmit(e) {
       e.preventDefault()
-      if (listRef.current.value == '') {
+      if (listRef.current.value === '') {
         value.alertPopup()
         value.setAlertContent('格內不可為空')
       } else {
@@ -146,14 +129,12 @@ const TodoList = ({ Text, Divide, Btn, ownerAuth, memberAuth }) => {
       postID: memberAuth ? memberAuth : ownerAuth,
     }
     newArr.push(newAdd, ...latest)
-    setTodoList(newArr)
     updateToDoList(newArr)
   }
 
   const removeTodo = (index) => {
     const newTodo = [...latest]
     newTodo.splice(index, 1)
-    setTodoList(newTodo)
     updateToDoList(newTodo)
   }
 
@@ -163,18 +144,8 @@ const TodoList = ({ Text, Divide, Btn, ownerAuth, memberAuth }) => {
       todoList: newArr,
     })
   }
-
-  function deleteCompletedItems(event) {
-    event.preventDefault()
-    // setTodoList(latest.filter((item) => item.checked == false))
-    // const leftTodo = latest.filter((item) => item.checked == false)
-    setTodoList([])
-    // updateToDoList(leftTodo)
-    updateToDoList([])
-  }
   return (
     <>
-      <div class="container"></div>
       <ToDoContainer>
         <ToDoListForm addTodo={addTodo} />
         <CommentContainer>
@@ -199,8 +170,8 @@ const TodoList = ({ Text, Divide, Btn, ownerAuth, memberAuth }) => {
                         {list.text}
                       </Text>
                     </Divide>
-                    {(value.userUid == ownerAuth ||
-                      value.userUid == latest[index].postID) && (
+                    {(value.userUid === ownerAuth ||
+                      value.userUid === latest[index].postID) && (
                       <Btn
                         margin="0 2px 0 0"
                         color="#222322"
@@ -221,26 +192,6 @@ const TodoList = ({ Text, Divide, Btn, ownerAuth, memberAuth }) => {
               )
             })}
         </CommentContainer>
-        {/* <Btn
-            marginLeft="auto"
-            color="#222322"
-            width="200px"
-            height="40px"
-            border="1px solid #222322"
-            position="absolute"
-            bottom="30px"
-            left="90%"
-            top="calc(100% - 50px)"
-            tablet_width="140px"
-            tablet_fontSize="12px"
-            tablet_height="30px"
-            style={{
-              transform: 'translateX(-90%)',
-            }}
-            onClick={deleteCompletedItems}
-          >
-            清除所有留言
-          </Btn> */}
       </ToDoContainer>
     </>
   )

@@ -134,3 +134,21 @@ export const Btn = styled.button`
     font-size: ${(props) => props.mobile_fontSize || props.tablet_fontSize};
   }
 `
+
+export const FileLabel = styled.label`
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -10%);
+  display: inline-block;
+  cursor: pointer;
+  color: #f6ead6;
+  text-align: center;
+  font-size: 20px;
+  margin: 12px auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  @media screen and (max-width: 767px) {
+    top: 15%;
+    font-size: 14px;
+  }
+`

@@ -1,26 +1,20 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
+import { Text, Divide, Btn, InfoInput } from '../../css/style'
 import { useParams } from 'react-router-dom'
-import {
-  collection,
-  setDoc,
-  doc,
-  getDoc,
-  updateDoc,
-  onSnapshot,
-} from 'firebase/firestore'
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore'
 import { db } from '../../utils/firebase'
-import itineraryIcon from './itinerary.png'
 import { UserContext } from '../../utils/userContext'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import done from './Done.png'
 import edit from './Edit.png'
+import ReactTooltip from 'react-tooltip'
+import remove from './Remove.png'
+import removeHover from './Remove_hover.png'
 import add from './Add.png'
-import dot from './dot.png'
 
 const BackgroundStyle = styled.div`
-  ${'' /* box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) inset; */}
-  position:relative;
+  position: relative;
   border: 1px solid white;
   margin: 50px auto;
   padding: 20px 60px;
@@ -72,42 +66,22 @@ const Icon = styled.div`
   &:hover {
     border: 1px solid #b99362;
   }
-  &:active {
-    border: 1px solid #b99362;
-  }
 `
 const Dot = styled(Icon)`
-  background-image: url(${dot});
+  background-image: url(${remove});
   width: 20px;
   height: 20px;
-`
-const ChooseBtn = styled.button`
-  display: ${(props) => (props.$isActive ? 'block' : 'none')};
-  transition: all 0.3s;
-  color: #f6ead6;
-  fontsize: 14px;
-  border: 1px solid #f6ead6;
-  cursor: pointer;
-  position: absolute;
-  top: 30px;
-  right: 0;
-  width: 100px;
-  height: 30px;
-  font-weight: 900;
+  transition: all 0.2s;
   &:hover {
-    background-color: #f6ead6;
-    color: #222322;
+    border: none;
+    background-image: url(${removeHover});
   }
 `
 
-const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
+const Itinerary = () => {
   const urlID = useParams()
   const docRef = doc(db, 'groupContents', urlID.id)
-  const [personTake, setPersonTake] = useState()
-  const [isActive, setIsActive] = useState()
-  const [tabIndex, setTabIndex] = useState(undefined)
   const cardInfoRef = useRef()
-  const [personTakePhoto, setPersonTakePhoto] = useState()
   const value = useContext(UserContext)
   const [columns, setColumns] = useState({
     ['事項清單']: {
@@ -155,7 +129,7 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
   }
 
   function addCardInfo(column) {
-    if (cardInfoRef.current.value == '') {
+    if (cardInfoRef.current.value === '') {
       value.alertPopup()
       value.setWarning(true)
       console.log(value.warning)
@@ -192,13 +166,17 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
   }
 
   async function personWhoTake(index, column, columnId) {
+    if (value.userUid === columns.事項清單.items[index].personID) {
+      value.alertPopup()
+      value.setAlertContent('不可認領自己的清單')
+      return
+    }
     try {
       const docRef = doc(db, 'users', value.userUid)
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
         const userData = docSnap.data()
-        setPersonTakePhoto(userData.photoURL)
-        if (columnId == '事項清單') {
+        if (columnId === '事項清單') {
           const clickItem = columns.事項清單.items
           clickItem[index].takePerson = value.userName
           clickItem[index].takePersonID = value.userUid
@@ -237,7 +215,7 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
       if (docSnap.exists()) {
         const itineraryData = docSnap.data()
         const oldItinerary = itineraryData.itineraryList
-        if (columnId == '事項清單') {
+        if (columnId === '事項清單') {
           const returnItem = oldItinerary.事項清單.items
           returnItem[index].takePerson = null
           returnItem[index].takePersonID = null
@@ -324,9 +302,9 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
       const destItems = [...destColumn.items]
       const [removed] = sourceItems.splice(source.index, 1)
       destItems.splice(destination.index, 0, removed)
-      if (source.droppableId == '事項清單') {
+      if (source.droppableId === '事項清單') {
         columns['事項清單'].items.map((item, index) => {
-          if (item.takePerson == null) {
+          if (item.takePerson === null) {
             return
           } else {
             setColumns({
@@ -432,7 +410,7 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                       >
                         {column.name}
                       </Text>
-                      {columnId == '事項清單' && (
+                      {columnId === '事項清單' && (
                         <>
                           <Divide
                             marginBottom="12px"
@@ -449,7 +427,7 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                               onKeyDown={onKeyDown}
                               boxShadow="none"
                               borderBottom="1px solid #f6ead6"
-                              placeholder="新增認領內容，可左右拖拉"
+                              placeholder="新增認領內容，卡片可左右拖移"
                             />
                             <Icon
                               style={{
@@ -499,20 +477,19 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                                               padding: '16px',
                                               margin: '12px 0',
                                               minHeight: '20px',
-                                              // border: '1px solid white',
                                               borderRadius: '12px',
                                               backgroundColor: snapshot.isDragging
                                                 ? '#222322'
                                                 : '#AC6947',
                                               backgroundColor:
-                                                columnId == '已解決'
+                                                columnId === '已解決'
                                                   ? 'rgba(34,35,34,0.2)'
                                                   : ' rgba(34,35,34,0.5)',
                                               color: snapshot.isDragging
                                                 ? '#222322'
                                                 : '#F6EAD6',
                                               opacity:
-                                                columnId == '已解決' ? 0.6 : 1,
+                                                columnId === '已解決' ? 0.6 : 1,
                                               ...provided.draggableProps.style,
                                             }}
                                           >
@@ -529,7 +506,7 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                                                     tablet_fontSize="14px"
                                                     style={{
                                                       color:
-                                                        columnId == '事項清單'
+                                                        columnId === '事項清單'
                                                           ? '#B99362'
                                                           : '#F6EAD6',
                                                     }}
@@ -540,11 +517,11 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                                                     tablet_fontSize="14px"
                                                     style={{
                                                       textDecoration:
-                                                        columnId == '已解決'
+                                                        columnId === '已解決'
                                                           ? 'line-through'
                                                           : 'none',
                                                       color:
-                                                        columnId == '事項清單'
+                                                        columnId === '事項清單'
                                                           ? '#B99362'
                                                           : ' #F6EAD6',
                                                     }}
@@ -552,26 +529,20 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                                                     {item.content}
                                                   </Text>
                                                 </Divide>
-                                                <Divide
-                                                  flexDirection="column"
-                                                  position="relative"
-                                                >
-                                                  {value.userUid ==
+                                                <Divide flexDirection="column">
+                                                  {value.userUid ===
                                                     item.personID && (
-                                                    <Dot
-                                                      onClick={() => {
-                                                        setTabIndex(
-                                                          (index) => undefined,
-                                                        )
-                                                        setTabIndex(
-                                                          (undefined) => index,
-                                                        )
-                                                      }}
-                                                    >
-                                                      <ChooseBtn
-                                                        $isActive={
-                                                          index === tabIndex
-                                                        }
+                                                    <>
+                                                      <ReactTooltip
+                                                        id="cardDelete"
+                                                        place="bottom"
+                                                        effect="solid"
+                                                      >
+                                                        刪除卡片
+                                                      </ReactTooltip>
+                                                      <Dot
+                                                        data-tip
+                                                        data-for="cardDelete"
                                                         onClick={() =>
                                                           handleDelete(
                                                             item,
@@ -580,10 +551,8 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                                                             columnId,
                                                           )
                                                         }
-                                                      >
-                                                        刪除卡片
-                                                      </ChooseBtn>
-                                                    </Dot>
+                                                      ></Dot>
+                                                    </>
                                                   )}
                                                 </Divide>
                                               </Divide>
@@ -606,7 +575,7 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                                                       style={{
                                                         backgroundImage: `url(${item.takePersonPhoto})`,
                                                         display:
-                                                          item.takePersonPhoto ==
+                                                          item.takePersonPhoto ===
                                                           null
                                                             ? 'none'
                                                             : 'block',
@@ -641,14 +610,11 @@ const Itinerary = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                                                   </Btn>
                                                 </Divide>
                                                 {item.takePerson &&
-                                                  item.takePersonID ==
+                                                  item.takePersonID ===
                                                     value.userUid && (
                                                     <Btn
                                                       width="80px"
                                                       height="30px"
-                                                      $isActive={
-                                                        index === tabIndex
-                                                      }
                                                       fontSize="14px"
                                                       mobile_fontSize="12px"
                                                       mobile_height="20px"

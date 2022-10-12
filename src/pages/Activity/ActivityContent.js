@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { db, storage } from '../../utils/firebase'
-import { Divide, Text, InfoInput, SrcImage, Btn } from '../../css/style'
 import {
-  doc,
-  getDoc,
-  updateDoc,
-  onSnapshot,
-  setDoc,
-  getDocs,
-} from 'firebase/firestore'
+  Divide,
+  Text,
+  InfoInput,
+  FileLabel,
+  SrcImage,
+  Btn,
+} from '../../css/style'
+import { doc, getDoc, updateDoc, onSnapshot, setDoc } from 'firebase/firestore'
 import ReactTooltip from 'react-tooltip'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -19,13 +19,11 @@ import lock from './Lock.png'
 import edit from './Edit.png'
 import done from './done.png'
 import close from './Close.png'
-import calendar from './calendar.png'
 import message from './Messaging.png'
 import equipments from '../../equipments/equipments'
 import TodoList from '../../components/Todolist/TodoList'
 import Itinerary from '../../components/Itinerary/Itinerary'
 import Cars from '../../components/Car/Cars'
-import alert from './alert.png'
 import Accommodation from '../../components/Accommodation/Accommodation'
 import { UserContext } from '../../utils/userContext'
 
@@ -61,26 +59,7 @@ const MainInfo = styled.div`
     padding: 8;
   }
 `
-const BackColor = styled.div`
-  background-color: ${(props) => props.backgroundColor || '#ac6947'};
-  width: ${(props) => props.width || '0px'};
-  height: ${(props) => props.height || '0px'};
-  z-index: ${(props) => props.zIndex || '-1'};
-  position: ${(props) => props.position || 'absolute'};
-  top: ${(props) => props.top || '0px'};
-  left: ${(props) => props.left || '0px'};
-  right: ${(props) => props.right || '0px'};
-  @media screen and (max-width: 1279px) {
-    background-color: ${(props) => props.tablet_backgroundColor || '#ac6947'};
-    width: ${(props) => props.tablet_width || props.width};
-    height: ${(props) => props.tablet_height || props.height};
-    z-index: ${(props) => props.tablet_zIndex || '-1'};
-    position: ${(props) => props.tablet_position || props.position};
-    top: ${(props) => props.tablet_top || props.top};
-    left: ${(props) => props.tablet_left || props.left};
-    right: ${(props) => props.tablet_right || props.right};
-  }
-`
+
 const Wrapper = styled.div`
   max-width: calc(1320px - 40px);
   margin: 0 auto;
@@ -94,10 +73,7 @@ const Wrapper = styled.div`
   }
 `
 const NewWrapper = styled.div`
-  ${'' /* position: absolute;
-  top: 0;
-  left: 0; */}
-  position:relative;
+  position: relative;
   width: 100%;
   height: 560px;
   @media screen and (max-width: 1279px) {
@@ -161,29 +137,6 @@ const Icon = styled.div`
     border: 1px solid #b99362;
   }
 `
-const AlertIcon = styled(Icon)`
-  position: absolute;
-  background-image: url(${alert});
-  width: 30px;
-  height: 30px;
-  top: -35px;
-  animation: ${(props) => (props.$todoAlert ? 'shake' : 'null')} 150ms
-    ease-in-out infinite;
-  @keyframes shake {
-    0% {
-      transform: translate(3px, 0);
-    }
-    50% {
-      transform: translate(-3px, 0);
-    }
-    100% {
-      transform: translate(0, 0);
-    }
-  }
-  &:hover {
-    border: none;
-  }
-`
 const EditBtn = styled.button`
   border-radius: 0;
   font-size: ${(props) => props.fontSize || '14px'};
@@ -236,35 +189,9 @@ const DateInput = styled.input`
     width: 100px;
   }
 `
-const DateLabel = styled.label`
-  display: block;
-  cursor: pointer;
-  background-image: url(${calendar});
-  background-size: contain;
-  width: 40px;
-  height: 40px;
-`
 const FileInput = styled.input``
-const FileLabel = styled.label`
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translate(-50%, -10%);
-  display: inline-block;
-  cursor: pointer;
-  color: #f6ead6;
-  text-align: center;
-  font-size: 20px;
-  margin: 12px auto;
-  background-color: rgba(0, 0, 0, 0.5);
-  @media screen and (max-width: 767px) {
-    top: 15%;
-    font-size: 14px;
-  }
-`
 const PopupWrapper = styled.div`
   background-color: rgba(0, 0, 0, 0.9);
-
   position: fixed;
   width: 100vw;
   height: 100vh;
@@ -293,13 +220,12 @@ const PopImage = styled.div`
     height: 70px;
   }
 `
-
 const NewIntroWrapper = styled.textarea`
   font-size: 16px;
   line-height: 25px;
   letter-spacing: 1px;
   width: 100%;
-  height: 200px;
+  min-height: 200px;
   resize: none;
   text-align: left;
   color: #f6ead6;
@@ -349,30 +275,30 @@ const LoadingBackground = styled.div`
   display: ${(props) => (props.loading ? 'block' : 'none')};
 `
 const move = keyframes`
-  0%,
+  0%
    {
     left: 0;
-    transform:rotate(0deg)
+    transform:rotate(0deg);
   }
   25%{
     left:400px;
-    transform:rotate(20deg)
+    transform:rotate(20deg);
   }
   50% {
-    transform:rotate(0deg)
+    transform:rotate(0deg);
     left: 80%;
   }
   55%{
-    transform:rotate(0deg)
+    transform:rotate(0deg);
     left: 90%;
   }
   70%{
-    transform:rotate(0deg)
+    transform:rotate(0deg);
     left: 75%;
   }
   100%{
     left: 0%;
-    transform:rotate(-360deg)
+    transform:rotate(-360deg);
   }
 `
 const LoadingStyle = styled.span`
@@ -381,19 +307,17 @@ const LoadingStyle = styled.span`
   text-transform: uppercase;
   letter-spacing: 5px;
   position: absolute;
-  top:50%;
-  left:25%;
-  color:#B99362;
+  top: 50%;
+  left: 25%;
+  color: #b99362;
   background-clip: text;
   &:before {
     content: '';
-    z-index:99;
+    z-index: 99;
     width: 80px;
     height: 80px;
-    ${'' /* background-color: rgba(34, 35, 34, 0.8); */}
-    background-image:url(${logo});
-    background-size:cover;
-    ${'' /* background-color: white; */}
+    background-image: url(${logo});
+    background-size: cover;
     border-radius: 50%;
     position: absolute;
     top: -30%;
@@ -545,6 +469,8 @@ const ActivityContent = () => {
   const navigate = useNavigate()
   const value = useContext(UserContext)
 
+  const groupContentRef = doc(db, 'groupContents', urlID.id)
+
   useEffect(() => {
     if (value.userAuth === null) {
       value.alertPopup()
@@ -553,11 +479,9 @@ const ActivityContent = () => {
     } else {
       testAuth()
     }
-
     async function getContentInfo() {
       try {
-        const docRef = doc(db, 'groupContents', urlID.id)
-        const docSnap = await getDoc(docRef)
+        const docSnap = await getDoc(groupContentRef)
         if (docSnap.exists()) {
           const data = docSnap.data()
           setContentData(data)
@@ -568,68 +492,57 @@ const ActivityContent = () => {
     }
     getContentInfo()
     getOwnerProfile()
-    const unsub = onSnapshot(doc(db, 'groupContents', urlID.id), (doc) => {
+    editFunction()
+      .then((res) => {
+        setLoading(true)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+    const unsub = onSnapshot(groupContentRef, (doc) => {
       const data = doc.data()
-      if (data == undefined) {
+      if (data === undefined) {
         value.alertPopup()
         value.setAlertContent('網址頁面不存在，將導回首頁')
         setTimeout(() => navigate('/'), 1500)
       } else {
         setLatestContentsData(data)
         setIntroData(data.groupIntro)
-        // if (data?.memberList.length - contentData?.memberList.length > 0) {
-        //   value.alertPopup()
-        //   value.setAlertContent('新成員加入')
-        // }
+        console.log(data.todoList.length, contentData?.todoList.length)
+        if (data?.todoList.length - contentData?.todoList.length > 0) {
+          setTodoAlert(true)
+          value.alertPopup()
+          value.setAlertContent('新訊息')
+          console.log(online)
+          if (online) {
+            setTodoAlert(false)
+          }
+        }
       }
     })
-    // if (latestContentsData !== undefined) {
-    //   newMemberAlert()
-    //   newMessageAlert()
-    // }
   }, [value.userAuth, urlID.id])
 
-  // function newMemberAlert() {
-  //   console.log(
-  //     'newmember',
-  //     latestContentsData.memberList,
-  //     contentData.memberList,
-  //   )
-  //   if (
-  //     latestContentsData.memberList.length - contentData.memberList.length >
-  //     0
-  //   ) {
-
-  //   }
-  // }
-  function newMessageAlert() {
-    if (latestContentsData.todoList.length - contentData.todoList.length > 0) {
-      value.alertPopup()
-      value.setAlertContent('有新訊息尚未閱讀')
-    }
-  }
   async function testAuth() {
-    const groupContent = doc(db, 'groupContents', urlID.id)
-    const groupDoc = await getDoc(groupContent)
+    const groupDoc = await getDoc(groupContentRef)
     if (groupDoc.exists()) {
       const groupOwnerInfo = groupDoc.data()
       const currgroupOwner = groupOwnerInfo.groupOwner
       const currMember = groupOwnerInfo.memberList
-      if (value.userUid == currgroupOwner) {
+      if (value.userUid === currgroupOwner) {
         setAuth(false)
         setContent(true)
         setOwnerAuth(value.userUid)
         getOwnerProfile(currgroupOwner)
       } else if (value.userUid !== currgroupOwner) {
         setOwnerAuth(null)
-        if (currMember.length == 0) {
+        if (currMember.length === 0) {
           setAuth(true)
           setContent(false)
           setMemberAuth(value.userUid)
           getOwnerProfile(currgroupOwner)
         } else if (currMember.length !== 0) {
           function isSecondTime(person) {
-            return person.joinID == value.userUid
+            return person.joinID === value.userUid
           }
           if (currMember.find(isSecondTime) !== undefined) {
             setAuth(false)
@@ -702,8 +615,7 @@ const ActivityContent = () => {
   async function updateMemberList() {
     const joinData = doc(db, 'users', value.userUid)
     const joinSnap = await getDoc(joinData)
-    const groupContent = doc(db, 'groupContents', urlID.id)
-    const memberSnap = await getDoc(groupContent)
+    const memberSnap = await getDoc(groupContentRef)
     if (memberSnap.exists() && joinSnap.exists()) {
       const joinPic = joinSnap.data()
       const joinPicURL = joinPic.photoURL
@@ -715,12 +627,11 @@ const ActivityContent = () => {
         isLogged: true,
       }
       newMember.push(newMemberInfo, ...contentData.memberList)
-      const updateMember = await updateDoc(groupContent, {
+      const updateMember = await updateDoc(groupContentRef, {
         memberList: newMember,
       })
     }
   }
-
   async function updateTheGroup() {
     const newPromise = [getJoinerData(), updateMemberList()]
     await Promise.all(newPromise)
@@ -746,12 +657,12 @@ const ActivityContent = () => {
   async function editFunction() {
     const newPromise = [sendUpdateInfo(), editGroupInfo(), findMemberData()]
     await Promise.all(newPromise)
+
     setIsEditable(false)
     setImages(undefined)
   }
   async function sendUpdateInfo() {
-    const docRef = doc(db, 'groupContents', urlID.id)
-    const docSnap = await getDoc(docRef)
+    const docSnap = await getDoc(groupContentRef)
     if (images !== undefined) {
       const imageRef = ref(storage, `images/${urlID.id}_登山團封面照`)
       await uploadBytes(imageRef, images[0])
@@ -759,14 +670,15 @@ const ActivityContent = () => {
       setDownloadUrl(url)
       if (docSnap.exists()) {
         const updateLeadGroup = setDoc(
-          docRef,
+          groupContentRef,
           {
             groupPhoto: url,
             groupName: newNameRef.current.value,
             groupPassword: newPassword.current.value,
             groupCity: newCityRef.current.value,
-            startDate: newStart == undefined ? contentData.startDate : newStart,
-            endDate: newEnd == undefined ? contentData.endDate : newEnd,
+            startDate:
+              newStart === undefined ? contentData.startDate : newStart,
+            endDate: newEnd === undefined ? contentData.endDate : newEnd,
             groupMountain: newMountainRef.current.value,
           },
           { merge: true },
@@ -777,13 +689,13 @@ const ActivityContent = () => {
       try {
         if (docSnap.exists()) {
           const updateLeadGroup = setDoc(
-            docRef,
+            groupContentRef,
             {
               groupName: newNameRef.current.value,
               groupCity: newCityRef.current.value,
               startDate:
-                newStart == undefined ? contentData.startDate : newStart,
-              endDate: newEnd == undefined ? contentData.endDate : newEnd,
+                newStart === undefined ? contentData.startDate : newStart,
+              endDate: newEnd === undefined ? contentData.endDate : newEnd,
               groupMountain: newMountainRef.current.value,
               groupPassword: newPassword.current.value,
             },
@@ -822,11 +734,11 @@ const ActivityContent = () => {
     }
   }
   async function findMemberData() {
-    if (latestContentsData.memberList.length == 0) {
+    if (latestContentsData?.memberList.length === 0) {
       return
     } else {
       let thisID
-      latestContentsData.memberList.map((list, index) => {
+      latestContentsData?.memberList.map((list, index) => {
         thisID = latestContentsData.memberList[index].joinID
       })
       const thisIDRef = doc(db, 'users', thisID)
@@ -854,14 +766,12 @@ const ActivityContent = () => {
       }
     }
   }
-
   async function checkNote() {
     try {
-      const docRef = doc(db, 'groupContents', urlID.id)
-      const docSnap = await getDoc(docRef)
+      const docSnap = await getDoc(groupContentRef)
       if (docSnap.exists()) {
         const updateLeadGroup = setDoc(
-          docRef,
+          groupContentRef,
           {
             groupIntro: newIntro.current.value,
           },
@@ -874,7 +784,6 @@ const ActivityContent = () => {
       console.log('No such document!')
     }
   }
-  console.log(introData)
   return (
     <>
       {auth && (
@@ -1226,7 +1135,6 @@ const ActivityContent = () => {
           </NewWrapper>
           <Wrapper>
             <ScrollDivide>
-              <AlertIcon $todoAlert={todoAlert}></AlertIcon>
               <ReactTooltip id="contact" place="top" effect="solid">
                 留言版
               </ReactTooltip>
@@ -1240,19 +1148,10 @@ const ActivityContent = () => {
                   style={{
                     position: 'absolute',
                     right: '20px',
-                    bottom: '80px',
+                    bottom: '60px',
                   }}
                 >
-                  <TodoList
-                    Text={Text}
-                    Divide={Divide}
-                    InfoInput={InfoInput}
-                    Btn={Btn}
-                    BackColor={BackColor}
-                    SrcImage={SrcImage}
-                    memberAuth={memberAuth}
-                    ownerAuth={ownerAuth}
-                  />
+                  <TodoList memberAuth={memberAuth} ownerAuth={ownerAuth} />
                 </Divide>
               )}
             </ScrollDivide>
@@ -1262,14 +1161,18 @@ const ActivityContent = () => {
               mobile_flexDirection="column"
             >
               <Divide
-                marginBottom="12px"
                 width="20%"
                 tablet_width="30%"
                 flexDirection="column"
                 mobile_width="100%"
+                mobile_marginBottom="20px"
               >
                 <NoteBox>
-                  <Divide width="100%" marginBottom="24px">
+                  <Divide
+                    width="100%"
+                    marginBottom="24px"
+                    mobile_marginBottom="16px"
+                  >
                     <Text
                       textAlign="left"
                       mobile_fontSize="14px"
@@ -1307,17 +1210,16 @@ const ActivityContent = () => {
                       </>
                     )}
                   </Divide>
-                  {introData && (
-                    <>
-                      {isNote ? (
-                        <NewIntroWrapper
-                          ref={newIntro}
-                          defaultValue={introData}
-                        ></NewIntroWrapper>
-                      ) : (
-                        <NewIntroWrapper disabled>{introData}</NewIntroWrapper>
-                      )}
-                    </>
+                  {isNote ? (
+                    <NewIntroWrapper
+                      ref={newIntro}
+                      defaultValue={introData ? introData : '目前尚無填寫事項'}
+                    />
+                  ) : (
+                    <NewIntroWrapper
+                      disabled
+                      value={introData ? introData : '目前尚無填寫事項'}
+                    />
                   )}
                 </NoteBox>
               </Divide>
@@ -1366,7 +1268,6 @@ const ActivityContent = () => {
                     >
                       團員
                     </Text>
-                    {/* <BarDivide> */}
                     <Bar>
                       {latestContentsData?.memberList &&
                       latestContentsData?.memberList.length > 0 ? (
@@ -1404,7 +1305,6 @@ const ActivityContent = () => {
                         <MemberDefault />
                       )}
                     </Bar>
-                    {/* </BarDivide> */}
                   </Divide>
                 </Divide>
                 <Divide
@@ -1431,7 +1331,7 @@ const ActivityContent = () => {
                       >
                         團長清單
                       </Text>
-                      <Divide width="100%" mobile_justifyContent="flex-start">
+                      <BarDivide mobile_justifyContent="flex-start">
                         {ownerProfile?.equipment.length > 0 ? (
                           ownerProfile.equipment.map((item, index) => {
                             return (
@@ -1440,7 +1340,7 @@ const ActivityContent = () => {
                                 flexDirection="column"
                                 marginRight="12px"
                                 style={{
-                                  width: `calc(100% /${ownerProfile.equipment.length} )`,
+                                  width: `calc(100% /${ownerProfile.equipment.length} + 10px )`,
                                 }}
                               >
                                 <Text tablet_fontSize="14px">{item}</Text>
@@ -1461,7 +1361,7 @@ const ActivityContent = () => {
                         ) : (
                           <Text>團主目前尚無清單</Text>
                         )}
-                      </Divide>
+                      </BarDivide>
                     </>
                   )}
                   {profile && (
@@ -1483,7 +1383,7 @@ const ActivityContent = () => {
                                   flexDirection="column"
                                   marginRight="12px"
                                   style={{
-                                    width: `calc(100% /${profile.equipment.length} )`,
+                                    width: `calc(100% /${profile.equipment.length} + 10px )`,
                                   }}
                                 >
                                   <Text tablet_fontSize="14px">{item}</Text>
@@ -1527,36 +1427,9 @@ const ActivityContent = () => {
                 </Category>
               ))}
             </Divide>
-            {currentPage == 0 && (
-              <Itinerary
-                Text={Text}
-                Divide={Divide}
-                InfoInput={InfoInput}
-                Btn={Btn}
-                BackColor={BackColor}
-                SrcImage={SrcImage}
-              />
-            )}
-            {currentPage == 1 && (
-              <Accommodation
-                Text={Text}
-                Divide={Divide}
-                InfoInput={InfoInput}
-                Btn={Btn}
-                BackColor={BackColor}
-                SrcImage={SrcImage}
-              />
-            )}
-            {currentPage == 2 && (
-              <Cars
-                Text={Text}
-                Divide={Divide}
-                InfoInput={InfoInput}
-                Btn={Btn}
-                BackColor={BackColor}
-                SrcImage={SrcImage}
-              />
-            )}
+            {currentPage === 0 && <Itinerary />}
+            {currentPage === 1 && <Accommodation SrcImage={SrcImage} />}
+            {currentPage === 2 && <Cars SrcImage={SrcImage} />}
           </Wrapper>
         </>
       )}

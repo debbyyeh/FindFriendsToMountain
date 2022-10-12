@@ -36,7 +36,6 @@ const ProfileWrapper = styled.div`
     margin: 80px auto 40px auto;
   }
 `
-
 const PersonPhoto = styled.img`
   width: 100px;
   height: 100px;
@@ -61,11 +60,10 @@ const PersonName = styled.div`
     font-size: 16px;
   }
 `
-
 const CardDivide = styled(Divide)`
   overflow-y: scroll;
   &::-webkit-scrollbar {
-    width: 4px;
+    width: 3px;
   }
   &::-webkit-scrollbar-thumb {
     background-color: #f6ead6;
@@ -86,20 +84,12 @@ const ToolWrapper = styled(Divide)`
   margin: 0 auto;
   flex-wrap: wrap;
   max-height: 300px;
-  overflow: scroll;
+  overflow-y: scroll;
   &::-webkit-scrollbar {
-    display: none;
-    ${'' /* background: transparent;
-    border-radius: 4px;
-    width: 3px; */}
-  }
-  &::-webkit-scrollbar-track-piece {
-    background: transparent;
+    width: 3px;
   }
   &::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: transparent;
-    border: 1px solid transparent;
+    background-color: #f6ead6;
   }
   &::-webkit-scrollbar-track {
     box-shadow: transparent;
@@ -126,7 +116,7 @@ const ActivityCard = styled(Link)`
   border-radius: 8px;
   width: 31%;
   margin: 20px 1%;
-  aspect-ratio: 1/1;
+  aspect-ratio: 1/0.75;
   padding: 16px 20px;
   background-color: rgba(246, 234, 214, 0.2);
   &:last-child {
@@ -229,7 +219,6 @@ const ToolDivide = styled(Divide)`
     width: calc(100% / 2);
   }
 `
-
 const Category = styled.div`
   width: calc(100% / 4);
   text-align: center;
@@ -315,7 +304,6 @@ const IconImage = styled.div`
     height: 40px;
   }
 `
-
 const IconWrapper = styled.div`
   position: relative;
   width: 60px;
@@ -342,7 +330,6 @@ const Delete = styled.div`
     animation-iteration-count: infinite;
   }
 `
-
 const DefaultMsg = styled.div`
   font-size: 20px;
   text-align: center;
@@ -504,7 +491,6 @@ const LoadingStyle = styled.span`
     animation: ${move} 3s ease-in-out infinite;
   }
 `
-
 function Profile() {
   const [getUserData, setGetUserData] = useState()
   const [tabIndex, setTabIndex] = useState(0)
@@ -533,7 +519,7 @@ function Profile() {
   }, [value.userAuth, value.userUid])
 
   async function addTool() {
-    if (equipmentSearch.current.value == '') {
+    if (equipmentSearch.current.value === '') {
       value.alertPopup()
       value.setAlertContent('請輸入登山裝備')
     } else {
@@ -591,7 +577,7 @@ function Profile() {
             {isPreview && (
               <PreviewArea>
                 <Lists>
-                  {currentPage == 0 && (
+                  {currentPage === 0 && (
                     <>
                       <List>√ 按下發起活動成為主揪，邀請朋友一起來爬山吧</List>
                       <List>
@@ -599,18 +585,18 @@ function Profile() {
                       </List>
                     </>
                   )}
-                  {currentPage == 1 && (
+                  {currentPage === 1 && (
                     <>
                       <List>√ 你曾經加入過的群組資訊皆會保留於此</List>
                     </>
                   )}
-                  {currentPage == 2 && (
+                  {currentPage === 2 && (
                     <>
                       <List>√ 輸入你所有的裝備，讓夥伴知道</List>
                       <List>√ 進入群組後也可查看夥伴所擁有的裝備</List>
                     </>
                   )}
-                  {currentPage == 3 && (
+                  {currentPage === 3 && (
                     <>
                       <List>√ 點選縣市查看推薦登山清單</List>
                       <List>√ 可點選山的名稱註記完登</List>
@@ -636,7 +622,7 @@ function Profile() {
               ),
             )}
           </Divide>
-          {currentPage == 0 && (
+          {currentPage === 0 && (
             <>
               <BeALeader to="/activity">點我發起活動吧!</BeALeader>
               <CardDivide
@@ -662,7 +648,7 @@ function Profile() {
                           <ActivityImage
                             style={{
                               backgroundImage: `url(${
-                                item.groupPhoto != undefined
+                                item.groupPhoto !== undefined
                                   ? item.groupPhoto
                                   : mountain
                               })`,
@@ -687,7 +673,7 @@ function Profile() {
               </CardDivide>
             </>
           )}
-          {currentPage == 1 && (
+          {currentPage === 1 && (
             <CardDivide
               justifyContent="center"
               flexWrap="wrap"
@@ -708,7 +694,7 @@ function Profile() {
                         <ActivityImage
                           style={{
                             backgroundImage: `url(${
-                              item.groupPhoto != undefined
+                              item.groupPhoto !== undefined
                                 ? item.groupPhoto
                                 : mountain
                             })`,
@@ -732,7 +718,7 @@ function Profile() {
               )}
             </CardDivide>
           )}
-          {currentPage == 2 && (
+          {currentPage === 2 && (
             <>
               <Tools>
                 <ToolInput
@@ -768,7 +754,7 @@ function Profile() {
               </Tools>
             </>
           )}
-          {currentPage == 3 && (
+          {currentPage === 3 && (
             <>
               <Map />
             </>

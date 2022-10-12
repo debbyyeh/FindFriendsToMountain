@@ -1,18 +1,12 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { UserContext } from '../../utils/userContext'
+import { Text, Divide, Btn, InfoInput, SrcImage } from '../../css/style'
 import { useParams } from 'react-router-dom'
 import carIcon from './Car.png'
 import cancel from './CancelNormal.png'
 import cancelHover from './Cancel.png'
-import {
-  collection,
-  setDoc,
-  doc,
-  getDoc,
-  updateDoc,
-  onSnapshot,
-} from 'firebase/firestore'
+import { doc, updateDoc, onSnapshot } from 'firebase/firestore'
 import { db } from '../../utils/firebase'
 
 const CarContainer = styled.div`
@@ -95,15 +89,13 @@ const CancelBtn = styled.div`
   }
 `
 
-const Cars = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
+const Cars = () => {
   const urlID = useParams()
   const [latest, setLatest] = useState()
-  const [leftNum, setLeftNum] = useState(0)
   const carGroupName = useRef()
   const seatNum = useRef()
   const value = useContext(UserContext)
   const docRef = doc(db, 'groupContents', urlID.id)
-  const [passengerNames, setPassengerNames] = useState([])
 
   useEffect(() => {
     const unsub = onSnapshot(docRef, (doc) => {
@@ -112,60 +104,57 @@ const Cars = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
       setLatest(latestData)
     })
   }, [])
-
+  console.log(latest)
   const CarListForm = ({ addCar }) => {
     function handleSubmit(e) {
       e.preventDefault()
       carGroupName.current.value &&
         seatNum.current.value &&
         addCar(carGroupName.current.value, seatNum.current.value)
-      setPassengerNames(Array(Number(seatNum.current.value)).fill(undefined))
     }
 
     return (
-      <>
-        <Divide
-          justifyContent="center"
-          mobile_justifyContent="flex-start"
-          marginTop="30px"
+      <Divide
+        justifyContent="center"
+        mobile_justifyContent="flex-start"
+        marginTop="30px"
+      >
+        <InfoInput
+          width="120px"
+          color="#f6ead6"
+          backgroundColor="transparent"
+          boxShadow="none"
+          borderBottom="1px solid #f6ead6"
+          ref={carGroupName}
+          mobile_height="30px"
+          mobile_width="100px"
+          mobile_fontSize="14px"
+          placeholder="誰的車"
+        />
+        <InfoInput
+          width="120px"
+          color="#f6ead6"
+          backgroundColor="transparent"
+          boxShadow="none"
+          borderBottom="1px solid #f6ead6"
+          mobile_width="80px"
+          mobile_height="30px"
+          mobile_fontSize="14px"
+          type="number"
+          min="1"
+          ref={seatNum}
+          placeholder="幾個座位"
+        />
+        <Btn
+          borderRadius="24px"
+          width="60px"
+          mobile_height="30px"
+          tablet_fontSize="14px"
+          onClick={handleSubmit}
         >
-          <InfoInput
-            width="120px"
-            color="#f6ead6"
-            backgroundColor="transparent"
-            boxShadow="none"
-            borderBottom="1px solid #f6ead6"
-            ref={carGroupName}
-            mobile_height="30px"
-            mobile_width="100px"
-            mobile_fontSize="14px"
-            placeholder="誰的車"
-          />
-          <InfoInput
-            width="120px"
-            color="#f6ead6"
-            backgroundColor="transparent"
-            boxShadow="none"
-            borderBottom="1px solid #f6ead6"
-            mobile_width="80px"
-            mobile_height="30px"
-            mobile_fontSize="14px"
-            type="number"
-            min="1"
-            ref={seatNum}
-            placeholder="幾個座位"
-          />
-          <Btn
-            borderRadius="24px"
-            width="60px"
-            mobile_height="30px"
-            tablet_fontSize="14px"
-            onClick={handleSubmit}
-          >
-            安排
-          </Btn>
-        </Divide>
-      </>
+          安排
+        </Btn>
+      </Divide>
     )
   }
 
@@ -175,27 +164,25 @@ const Cars = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
       whoseCar: carGroupName.current.value,
       maxNum: Number(seatNum.current.value),
       seat: Number(seatNum.current.value),
-      passengerArrange: [],
+      passengerArrange: Array(Number(seatNum.current.value)).fill(null),
     }
     newCar.push(...latest, addCarInfo)
     updateCarList(newCar)
   }
 
   function findPassenger(carIndex, index, text) {
-    let passengerLists = latest[carIndex].passengerArrange
-    passengerLists[index] = text
+    latest[carIndex].passengerArrange[index] = text
+
     const newarr = latest[carIndex].passengerArrange.filter((name) => {
-      return name !== ''
+      return name !== null && name !== ''
     })
-    latest[carIndex].passengerArrange = newarr
-    setPassengerNames(newarr)
+    latest[carIndex].seat = newarr.length
     updateCarSeatList(latest)
   }
 
   async function updateCarSeatList(latest) {
-    const newArr = [...latest]
     const updateCarsToData = await updateDoc(docRef, {
-      carLists: newArr,
+      carLists: latest,
     })
     value.alertPopup()
     value.setAlertContent('更新成功')
@@ -256,12 +243,12 @@ const Cars = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                           objectFit="contain"
                         />
                         <Text marginTop="8px" mobile_fontSize="14px">
-                          目前還有{' '}
-                          {Number(
-                            car.maxNum -
-                              latest[carIndex].passengerArrange.length,
-                          )}
-                          / {Number(car.maxNum)}位置
+                          目前還有
+                          {Number(latest[carIndex].seat < car.maxNum)
+                            ? Number(car.maxNum - latest[carIndex].seat)
+                            : Number(latest[carIndex].seat)}
+                          /{Number(car.maxNum)}
+                          位置
                         </Text>
                       </Divide>
                       <SeatDivide>
@@ -270,6 +257,7 @@ const Cars = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                           .map((_, index) => {
                             return (
                               <CarseatContainer
+                                key={index}
                                 style={{
                                   backgroundColor: latest[carIndex]
                                     .passengerArrange[index]
@@ -282,10 +270,12 @@ const Cars = ({ Text, Divide, Btn, InfoInput, BackColor, SrcImage }) => {
                                     : '1px dashed #F6EAD6',
                                 }}
                                 defaultValue={
-                                  latest[carIndex].passengerArrange[index]
+                                  latest[carIndex].passengerArrange[index] ===
+                                  undefined
+                                    ? ''
+                                    : latest[carIndex].passengerArrange[index]
                                 }
                                 type="text"
-                                key={index}
                                 placeholder="乘客"
                                 onChange={(e) => {
                                   findPassenger(carIndex, index, e.target.value)
