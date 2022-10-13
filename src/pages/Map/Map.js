@@ -16,10 +16,9 @@ const Wrapper = styled.div`
 `
 const CityWrap = styled.div`
   position: absolute;
-  top: ${(props) => props.top || '0px'};
-  left: ${(props) => props.left || '0px'};
-  right: ${(props) => props.right || '0px'};
-  width: 150px;
+  top: ${(props) => props.top || 'none'};
+  left: ${(props) => props.left || 'none'};
+  right: ${(props) => props.right || 'none'};
   height: 300px;
   z-index: 10;
 
