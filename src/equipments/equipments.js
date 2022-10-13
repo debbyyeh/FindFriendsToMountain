@@ -1,31 +1,51 @@
-import 帳篷 from './帳篷.png'
-import 鍋子 from './鍋子.png'
-import 爐頭 from './爐頭.png'
-import 睡袋 from './睡袋.png'
-import 衛生紙 from './衛生紙.png'
-import 刀子 from './刀子.png'
-import 手電筒 from './手電筒.png'
-import 行動電源 from './行動電源.png'
-import 罐頭 from './罐頭.png'
-import 鉤環 from './鉤環.png'
-import 快煮爐 from './快煮爐.png'
-import 睡墊 from './睡墊.png'
-import 醫藥箱 from './醫藥箱.png'
+import tent from './tent.png'
+import pot from './pot.png'
+import stove from './stove.png'
+import sleepingBag from './sleepingBag.png'
+import tissue from './tissue.png'
+import knife from './knife.png'
+import flashLight from './flashLight.png'
+import powerBank from './powerBank.png'
+import can from './can.png'
+import connector from './connector.png'
+import cooker from './cooker.png'
+import pad from './pad.png'
+import hikingShoe from './hikingShoe.png'
+import wirelessRadio from './wirelessRadio.png'
+import hat from './hat.png'
+import compass from './compass.png'
+import thermos from './thermos.png'
+import cup from './cup.png'
+import tableWare from './tableWare.png'
+import medicine from './medicine.png'
+import GPS from './GPS.png'
+import bag from './bag.png'
+import chair from './chair.png'
 const equipments = {
-  鍋子: 鍋子,
-  爐頭: 爐頭,
-  睡袋: 睡袋,
-  帳篷: 帳篷,
-  衛生紙: 衛生紙,
-  刀子: 刀子,
-  手電筒: 手電筒,
-  行動電源: 行動電源,
-  罐頭: 罐頭,
-  鉤環: 鉤環,
-  快煮爐: 快煮爐,
-  醫藥箱: 醫藥箱,
-  快煮爐: 快煮爐,
-  睡墊: 睡墊,
+  鍋子: pot,
+  爐頭: stove,
+  睡袋: sleepingBag,
+  帳篷: tent,
+  衛生紙: tissue,
+  刀子: knife,
+  手電筒: flashLight,
+  行動電源: powerBank,
+  罐頭: can,
+  鉤環: connector,
+  快煮爐: cooker,
+  醫藥箱: medicine,
+  睡墊: pad,
+  餐具: tableWare,
+  登山鞋: hikingShoe,
+  無線電: wirelessRadio,
+  帽子: hat,
+  指南針: compass,
+  保溫瓶: thermos,
+  杯子: cup,
+  GPS: GPS,
+  背包: bag,
+  登山包: bag,
+  椅子: chair,
 }
 
 export default equipments

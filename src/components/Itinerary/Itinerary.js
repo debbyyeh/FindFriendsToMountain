@@ -1,125 +1,110 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
-import { uuidv4 } from '@firebase/util'
-import {
-  collection,
-  setDoc,
-  doc,
-  getDoc,
-  updateDoc,
-  onSnapshot,
-} from 'firebase/firestore'
+import { Text, Divide, Btn, InfoInput } from '../../css/style'
+import { useParams } from 'react-router-dom'
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore'
 import { db } from '../../utils/firebase'
-import itineraryIcon from './itinerary.png'
-// import ContentEditable from 'react-contenteditable'
+import { UserContext } from '../../utils/userContext'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import done from './Done.png'
 import edit from './Edit.png'
+import ReactTooltip from 'react-tooltip'
+import remove from './Remove.png'
+import removeHover from './Remove_hover.png'
+import add from './Add.png'
 
-const EditBtn = styled.div`
-  background-image: url(${edit});
-  background-size: cover;
-  width: 20px;
-  height: 20px;
-
-  cursor: pointer;
-`
-
-const CheckBtn = styled.div`
-  background-size: cover;
-  width: 20px;
-  height: 20px;
-
-  cursor: pointer;
-  background-image: url(${done});
-`
-
-const Kanban = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  min-height: 400px;
-`
-const Board = styled.div`
-  background: transparent;
+const BackgroundStyle = styled.div`
+  position: relative;
   border: 1px solid white;
-  width: 300px;
-  min-height: 400px;
-  margin: 8px 20px;
+  margin: 50px auto;
+  padding: 20px 60px;
+  border-radius: 24px;
+  min-height: 300px;
+  @media screen and (max-width: 1279px) {
+    padding: 20px 30px;
+  }
+  @media screen and (max-width: 767px) {
+    padding: 20px;
+  }
 `
-const SetDate = styled.div`
-  color: black;
-  font-size: 24px;
-  text-align: center;
-`
-const DeleteBoard = styled.button`
-  color: black;
-  border: 1px solid black;
-`
-
-const StepBorder = styled.div`
-  border: 1px solid #f6ead6;
+const IconImage = styled.div`
   border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  @media screen and (max-width: 1279px) {
+    width: 30px;
+    height: 30px;
+  }
+`
+const DroppableContainer = styled.div`
+  max-height: 400px;
+  overflow-y: scroll;
+  width: 80%;
+  @media screen and (max-width: 1279px) {
+    width: 100%;
+  }
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #f6ead6;
+  }
+  &::-webkit-scrollbar-track {
+    box-shadow: transparent;
+  }
+`
+const Icon = styled.div`
+  cursor: pointer;
   width: 30px;
   height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background-size: contain;
+  border-radius: 50%;
+  transition: all 0.3s;
+  &:hover {
+    border: 1px solid #b99362;
+  }
+`
+const Dot = styled(Icon)`
+  background-image: url(${remove});
+  width: 20px;
+  height: 20px;
+  transition: all 0.2s;
+  &:hover {
+    border: none;
+    background-image: url(${removeHover});
+  }
 `
 
-const Itinerary = ({
-  Text,
-  DivideBorder,
-  Divide,
-  Btn,
-  InfoInput,
-  BackColor,
-  SrcImage,
-}) => {
-  const [latest, setLatest] = useState()
-  const [labelText, setLabelText] = useState()
-  const [dayNum, setDayNum] = useState(0)
-
-  let url = window.location.href
-  const newUrl = url.split('/activity/')
-  const groupID = newUrl[1]
-  const docRef = doc(db, 'groupContents', groupID)
-  const [visibleInput, setVisibleInput] = useState(false)
-  const itineraryRef = useRef()
-  const dayChoose = useRef()
-  const addColumnRef = useRef()
+const Itinerary = () => {
+  const urlID = useParams()
+  const docRef = doc(db, 'groupContents', urlID.id)
   const cardInfoRef = useRef()
-  const changeTextRef = useRef()
-
+  const value = useContext(UserContext)
+  const [columns, setColumns] = useState({
+    ['事項清單']: {
+      name: '事項清單',
+      items: [],
+    },
+    ['已解決']: {
+      name: '已解決',
+      items: [],
+    },
+  })
   useEffect(() => {
     getItineraryList()
-    // updateItinerary()
     const unsub = onSnapshot(docRef, (doc) => {
       const data = doc.data()
       const latestData = data.itineraryList
-      setLatest(latestData) //監聽
+      setColumns(latestData) //監聽
     })
-  }, [])
+  }, [urlID.id])
 
-  console.log(latest)
-
-  async function getItineraryList() {
-    try {
-      const docSnap = await getDoc(docRef)
-      if (docSnap.exists()) {
-        const itineraryData = docSnap.data()
-        const oldItinerary = itineraryData.itineraryList
-      }
-    } catch {
-      console.log('No such document!')
-    }
-  }
   function onKeyDown(e) {
     if (e.key === 'Enter') {
-      const dayCard = Number(dayChoose.current.value)
-      setDayNum(dayCard)
-      console.log(dayCard)
-      dayChoose.current.value = ''
+      addCardInfo()
     }
   }
 
@@ -128,79 +113,162 @@ const Itinerary = ({
     const updateitinerary = await updateDoc(docRef, {
       itineraryList: columns,
     })
-    console.log('update')
   }
 
-  const itemsFromBackend = []
-  const itineraryData = {
-    [123456]: {
-      name: '欲安排行程',
-      items: itemsFromBackend,
-    },
-  }
-
-  const [columns, setColumns] = useState(itineraryData)
-
-  const [columnCounter, setColumnCounter] = useState(0)
-
-  function addColumns(columns) {
-    if (addColumnRef.current.value == '') {
-      alert('請輸入日期')
-    } else {
-      setColumnCounter(columnCounter + 1)
-      let currColumn = {
-        name: `第${columnCounter + 1}天`,
-        date: `日期${addColumnRef.current.value}`,
-        items: [],
+  async function getItineraryList() {
+    try {
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        const itineraryData = docSnap.data()
+        const oldItinerary = itineraryData.itineraryList
+        setColumns(oldItinerary)
       }
-      setColumns({
-        ...columns,
-        [uuidv4()]: currColumn,
-      })
-      updateItinerary({
-        ...columns,
-        [uuidv4()]: currColumn,
-      })
-      addColumnRef.current.value = ''
+    } catch {
+      console.log('No such document!')
     }
-  }
-  function deleteBoard(columns, columnId) {
-    console.log(columns, columnId)
-    // setColumns({
-    //   ...columns,
-    //   [uuidv4()]: currColumn,
-    // })
-    // updateItinerary({
-    //   ...columns,
-    //   [uuidv4()]: currColumn,
-    // })
   }
 
   function addCardInfo(column) {
-    if (cardInfoRef.current.value !== '') {
+    if (cardInfoRef.current.value === '') {
+      value.alertPopup()
+      value.setWarning(true)
+      console.log(value.warning)
+      value.setAlertContent('格內不可為空')
+    } else if (cardInfoRef.current.value !== '') {
       let oldCardItems = column.items
       let newItems = []
       let newCardItem = {
-        id: uuidv4(),
+        id: `${cardInfoRef.current.value}`,
+        person: value.userName,
+        personID: value.userUid,
         content: `${cardInfoRef.current.value}`,
+        takePersonPhoto: null,
+        takePerson: null,
+        takePersonID: null,
       }
       newItems.push(...oldCardItems, newCardItem)
       setColumns({
         ...columns,
-        [123456]: {
-          name: '欲安排行程',
+        ['事項清單']: {
+          name: '事項清單',
           items: newItems,
         },
       })
-      console.log(newItems)
       updateItinerary({
         ...columns,
-        [123456]: {
-          name: '欲安排行程',
+        ['事項清單']: {
+          name: '事項清單',
           items: newItems,
         },
       })
       cardInfoRef.current.value = ''
+    }
+  }
+
+  async function personWhoTake(index, column, columnId) {
+    if (value.userUid === columns.事項清單.items[index].personID) {
+      value.alertPopup()
+      value.setAlertContent('不可認領自己的清單')
+      return
+    }
+    try {
+      const docRef = doc(db, 'users', value.userUid)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        const userData = docSnap.data()
+        if (columnId === '事項清單') {
+          const clickItem = columns.事項清單.items
+          clickItem[index].takePerson = value.userName
+          clickItem[index].takePersonID = value.userUid
+          clickItem[index].takePersonPhoto = userData.photoURL
+        }
+      }
+    } catch {
+      console.log('No such document!')
+    }
+    setColumns({
+      ['事項清單']: {
+        name: '事項清單',
+        items: columns.事項清單.items,
+      },
+      ['已解決']: {
+        name: '已解決',
+        items: columns.已解決.items,
+      },
+    })
+    updateItinerary({
+      ['事項清單']: {
+        name: '事項清單',
+        items: columns.事項清單.items,
+      },
+      ['已解決']: {
+        name: '已解決',
+        items: columns.已解決.items,
+      },
+    })
+  }
+
+  async function notTake(index, column, columnId) {
+    try {
+      const docRef = doc(db, 'groupContents', urlID.id)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        const itineraryData = docSnap.data()
+        const oldItinerary = itineraryData.itineraryList
+        if (columnId === '事項清單') {
+          const returnItem = oldItinerary.事項清單.items
+          returnItem[index].takePerson = null
+          returnItem[index].takePersonID = null
+          returnItem[index].takePersonPhoto = null
+          setColumns({
+            ['事項清單']: {
+              name: '事項清單',
+              items: returnItem,
+            },
+            ['已解決']: {
+              name: '已解決',
+              items: columns.已解決.items,
+            },
+          })
+          updateItinerary({
+            ['事項清單']: {
+              name: '事項清單',
+              items: returnItem,
+            },
+            ['已解決']: {
+              name: '已解決',
+              items: columns.已解決.items,
+            },
+          })
+        } else {
+          const returnItem = oldItinerary.已解決.items
+          returnItem[index].takePerson = null
+          returnItem[index].takePersonID = null
+          returnItem[index].takePersonPhoto = null
+          setColumns({
+            ['事項清單']: {
+              name: '事項清單',
+              items: columns.事項清單.items,
+            },
+            ['已解決']: {
+              name: '已解決',
+              items: returnItem,
+            },
+          })
+          updateItinerary({
+            ['事項清單']: {
+              name: '事項清單',
+              items: columns.事項清單.items,
+            },
+            ['已解決']: {
+              name: '已解決',
+              items: returnItem,
+            },
+          })
+        }
+      }
+    } catch {
+      console.log('No such document!')
     }
   }
 
@@ -211,55 +279,82 @@ const Itinerary = ({
     setColumns({
       ...columns,
       [columnId]: {
-        name: column.name,
+        name: columnId,
         items: newItems,
       },
     })
     updateItinerary({
       ...columns,
       [columnId]: {
-        name: column.name,
+        name: columnId,
         items: newItems,
       },
     })
   }
 
   const onDragEnd = (result, columns, setColumns) => {
-    console.log(columns)
+    if (!result.destination) return
     const { source, destination } = result
-    if (!result.destination) {
-      return
-    }
     if (source.droppableId !== destination.droppableId) {
       const sourceColumn = columns[source.droppableId]
       const destColumn = columns[destination.droppableId]
       const sourceItems = [...sourceColumn.items]
-      console.log(columns)
       const destItems = [...destColumn.items]
       const [removed] = sourceItems.splice(source.index, 1)
       destItems.splice(destination.index, 0, removed)
-      setColumns({
-        ...columns,
-        [source.droppableId]: {
-          ...sourceColumn,
-          items: sourceItems,
-        },
-        [destination.droppableId]: {
-          ...destColumn,
-          items: destItems,
-        },
-      })
-      updateItinerary({
-        ...columns,
-        [source.droppableId]: {
-          ...sourceColumn,
-          items: sourceItems,
-        },
-        [destination.droppableId]: {
-          ...destColumn,
-          items: destItems,
-        },
-      })
+      if (source.droppableId === '事項清單') {
+        columns['事項清單'].items.map((item, index) => {
+          if (item.takePerson === null) {
+            return
+          } else {
+            setColumns({
+              ...columns,
+              [source.droppableId]: {
+                ...sourceColumn,
+                items: sourceItems,
+              },
+              [destination.droppableId]: {
+                ...destColumn,
+                items: destItems,
+              },
+            })
+            updateItinerary({
+              ...columns,
+              [source.droppableId]: {
+                ...sourceColumn,
+                items: sourceItems,
+              },
+              [destination.droppableId]: {
+                ...destColumn,
+                items: destItems,
+              },
+            })
+          }
+        })
+      } else {
+        setColumns({
+          ...columns,
+          [source.droppableId]: {
+            ...sourceColumn,
+            items: sourceItems,
+          },
+          [destination.droppableId]: {
+            ...destColumn,
+            items: destItems,
+          },
+        })
+        updateItinerary({
+          ...columns,
+          [source.droppableId]: {
+            ...sourceColumn,
+            items: sourceItems,
+          },
+          [destination.droppableId]: {
+            ...destColumn,
+            items: destItems,
+          },
+        })
+      }
     } else {
       const column = columns[source.droppableId]
       const copiedItems = [...column.items]
@@ -282,214 +377,280 @@ const Itinerary = ({
     }
   }
 
-  const handleShowInput = (item) => {
-    console.log(item.id, 'click')
-    setVisibleInput((current) => !current)
-  }
-
-  const handleChangeText = (e) => {
-    setLabelText(e.target.value)
-  }
-
-  const handleSubmit = (item, id, index) => {
-    let changeText = labelText
-    // item.id.content = changeText
-  }
-
-  const DivideBack = styled(DivideBorder)`
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) inset;
-  `
-
   return (
     <>
-      <DivideBack width="100%" height="auto" border="none" marginTop="50px">
-        <Text fontSize="32px" textAlign="left">
-          行程安排
-        </Text>
-        <Divide justifyContent="flex-start" marginBottom="30px">
-          <StepBorder>1</StepBorder>
-          <InfoInput
-            width="100px"
-            marginLeft="12px"
-            backgroundColor="transparent"
-            boxShadow="none"
-            color="#f6ead6"
-            borderBottom="1px solid #f6ead6"
-            placeholder="請輸入日期"
-            ref={addColumnRef}
-          />
-          <Btn width="50px" onClick={() => addColumns(columns)}>
-            加入
-          </Btn>
-        </Divide>
-
-        <Kanban>
-          {/* <Divide justifyContent="flex-start"> */}
+      <BackgroundStyle>
+        <Divide
+          alignItems="start"
+          marginTop="20px"
+          mobile_flexDirection="column"
+          mobile_marginTop="0"
+        >
           <DragDropContext
             onDragEnd={(result) => onDragEnd(result, columns, setColumns)}
           >
-            {latest &&
-              Object.entries(latest).map(([columnId, column], index) => {
-                return (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}
-                    key={columnId}
-                  >
-                    <Divide>
-                      <Text fontSize="20px">{column.name}</Text>
-                      <Btn
-                        width="20px"
-                        height="20px"
-                        padding="12px"
-                        border="none"
-                        onClick={deleteBoard(columns, columnId)}
-                      >
-                        x
-                      </Btn>
-                    </Divide>
-                    {columnId == 123456 && (
-                      <>
-                        <Divide marginBottom="12px">
-                          <InfoInput
-                            width="200px"
-                            marginTop="12px"
-                            color="#f6ead6"
-                            backgroundColor="transparent"
-                            ref={cardInfoRef}
-                            placeholder="行程內容"
-                          />
-                          <Btn
-                            width="50px"
-                            margin="12px auto 0"
-                            lineHeight="4px"
-                            fontSize="20px"
-                            onClick={() => addCardInfo(column)}
-                          >
-                            ＋
-                          </Btn>
-                        </Divide>
-                      </>
-                    )}
-
-                    <Droppable droppableId={columnId} key={columnId}>
-                      {(provided, snapshot) => {
-                        return (
-                          <Board
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                            style={{
-                              background: snapshot.isDraggingOver
-                                ? 'rgba(34,35,34,0.2)'
-                                : 'transparent',
-                            }}
-                          >
-                            <Text
-                              fontSize="20px"
-                              marginTop="12px"
-                              marginBottom="12px"
-                              textAlign="start"
-                              marginLeft="12px"
-                            >
-                              {column.date}
-                            </Text>
-                            {column.items.map((item, index) => {
-                              return (
-                                <Draggable
-                                  key={item.id}
-                                  draggableId={item.id}
-                                  index={index}
-                                >
-                                  {(provided, snapshot) => {
-                                    return (
-                                      <>
-                                        <Divide
-                                          flexDirection="column"
-                                          ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                          style={{
-                                            userSelect: 'none',
-                                            minHeight: '80px',
-                                            padding: '8px 12px',
-                                            margin: '12px',
-                                            backgroundColor: snapshot.isDragging
-                                              ? '#222322'
-                                              : ' #AC6947',
-                                            color: snapshot.isDragging
-                                              ? ' #222322'
-                                              : '#F6EAD6',
-                                            ...provided.draggableProps.style,
-                                          }}
-                                        >
-                                          <Text
-                                            fontSize="20px"
-                                            defaultValue={item.content}
-                                            textAlign="start"
-                                            onClick={handleSubmit(item, index)}
-                                            ref={changeTextRef}
-                                            onInput={(e) =>
-                                              setLabelText(
-                                                e.currentTarget.textContent,
-                                              )
-                                            }
-                                          >
-                                            {item.content}
-                                          </Text>
-                                          <Divide>
-                                            <EditBtn></EditBtn>
-                                            <Btn
-                                              width="50px"
-                                              margin="8px"
-                                              border="none"
-                                              fontSize="20px"
-                                              onClick={() =>
-                                                handleDelete(
-                                                  item,
-                                                  index,
-                                                  column,
-                                                  columnId,
-                                                )
-                                              }
-                                            >
-                                              delete
-                                            </Btn>
-                                          </Divide>
-
-                                          {/* {item.id.labelText ==
-                                                undefined ? (
-                                                  <div
-                                                    onClick={handleSubmit(
-                                                      item,
-                                                      index,
-                                                    )}
-                                                  >
-                                                    完成設定
-                                                  </div>
-                                                ) : null} */}
-                                        </Divide>
-                                        {/* </Divide> */}
-                                      </>
-                                    )
-                                  }}
-                                </Draggable>
-                              )
-                            })}
-                            {provided.placeholder}
-                          </Board>
-                        )
+            {columns && (
+              <>
+                {['事項清單', '已解決'].map((columnId, index) => {
+                  const column = columns[columnId]
+                  return (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        width: '100%',
                       }}
-                    </Droppable>
-                    {/* </Divide> */}
-                    {/* </Divide> */}
-                  </div>
-                )
-              })}
+                      key={columnId}
+                    >
+                      <Text
+                        fontSize="20px"
+                        color=" #F6EAD6"
+                        mobile_fontSize="16px"
+                      >
+                        {column.name}
+                      </Text>
+                      {columnId === '事項清單' && (
+                        <>
+                          <Divide
+                            marginBottom="12px"
+                            marginTop="12px"
+                            position="relative"
+                            width="80%"
+                          >
+                            <InfoInput
+                              width="100%"
+                              color="#f6ead6"
+                              backgroundColor="transparent"
+                              ref={cardInfoRef}
+                              tablet_fontSize="14px"
+                              onKeyDown={onKeyDown}
+                              boxShadow="none"
+                              borderBottom="1px solid #f6ead6"
+                              placeholder="新增認領內容，卡片可左右拖移"
+                            />
+                            <Icon
+                              style={{
+                                position: 'absolute',
+                                right: '0',
+                                backgroundImage: `url(${add})`,
+                              }}
+                              onClick={() => addCardInfo(column)}
+                            ></Icon>
+                          </Divide>
+                          <Text fontSize="14px">
+                            【若無人認領，則不可拖拉】
+                          </Text>
+                        </>
+                      )}
+                      <DroppableContainer>
+                        <Droppable droppableId={columnId} key={columnId}>
+                          {(provided, snapshot) => {
+                            return (
+                              <div
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                                style={{
+                                  background: snapshot.isDraggingOver
+                                    ? 'rgba(34,35,34,0.2)'
+                                    : 'transparent',
+                                  padding: 4,
+                                  width: '100%',
+                                  height: 300,
+                                }}
+                              >
+                                {column.items.map((item, index) => {
+                                  return (
+                                    <Draggable
+                                      key={item.id}
+                                      draggableId={item.id}
+                                      index={index}
+                                    >
+                                      {(provided, snapshot) => {
+                                        return (
+                                          <div
+                                            ref={provided.innerRef}
+                                            {...provided.draggableProps}
+                                            {...provided.dragHandleProps}
+                                            style={{
+                                              userSelect: 'none',
+                                              padding: '16px',
+                                              margin: '12px 0',
+                                              minHeight: '20px',
+                                              borderRadius: '12px',
+                                              backgroundColor: snapshot.isDragging
+                                                ? '#222322'
+                                                : '#AC6947',
+                                              backgroundColor:
+                                                columnId === '已解決'
+                                                  ? 'rgba(34,35,34,0.2)'
+                                                  : ' rgba(34,35,34,0.5)',
+                                              color: snapshot.isDragging
+                                                ? '#222322'
+                                                : '#F6EAD6',
+                                              opacity:
+                                                columnId === '已解決' ? 0.6 : 1,
+                                              ...provided.draggableProps.style,
+                                            }}
+                                          >
+                                            <Divide
+                                              flexDirection="column"
+                                              alignItems="start"
+                                            >
+                                              <Divide
+                                                width="100%"
+                                                marginBottom="12px"
+                                              >
+                                                <Divide alignItems="start">
+                                                  <Text
+                                                    tablet_fontSize="14px"
+                                                    style={{
+                                                      color:
+                                                        columnId === '事項清單'
+                                                          ? '#B99362'
+                                                          : '#F6EAD6',
+                                                    }}
+                                                  >
+                                                    {item.person}：
+                                                  </Text>
+                                                  <Text
+                                                    tablet_fontSize="14px"
+                                                    style={{
+                                                      textDecoration:
+                                                        columnId === '已解決'
+                                                          ? 'line-through'
+                                                          : 'none',
+                                                      color:
+                                                        columnId === '事項清單'
+                                                          ? '#B99362'
+                                                          : ' #F6EAD6',
+                                                    }}
+                                                  >
+                                                    {item.content}
+                                                  </Text>
+                                                </Divide>
+                                                <Divide flexDirection="column">
+                                                  {value.userUid ===
+                                                    item.personID && (
+                                                    <>
+                                                      <ReactTooltip
+                                                        id="cardDelete"
+                                                        place="bottom"
+                                                        effect="solid"
+                                                      >
+                                                        刪除卡片
+                                                      </ReactTooltip>
+                                                      <Dot
+                                                        data-tip
+                                                        data-for="cardDelete"
+                                                        onClick={() =>
+                                                          handleDelete(
+                                                            item,
+                                                            index,
+                                                            column,
+                                                            columnId,
+                                                          )
+                                                        }
+                                                      ></Dot>
+                                                    </>
+                                                  )}
+                                                </Divide>
+                                              </Divide>
+                                              <Divide
+                                                alignItems="center"
+                                                width="100%"
+                                              >
+                                                <Divide>
+                                                  <Text
+                                                    fontSize="14px"
+                                                    mobile_textAlign="left"
+                                                    style={{
+                                                      whiteSpace: 'nowrap',
+                                                    }}
+                                                  >
+                                                    認領人：
+                                                  </Text>
+                                                  <Divide>
+                                                    <IconImage
+                                                      style={{
+                                                        backgroundImage: `url(${item.takePersonPhoto})`,
+                                                        display:
+                                                          item.takePersonPhoto ===
+                                                          null
+                                                            ? 'none'
+                                                            : 'block',
+                                                      }}
+                                                    ></IconImage>
+                                                    <Text
+                                                      fontSize="14px"
+                                                      tablet_fontSize="12px"
+                                                      margin="0 0 0 8px"
+                                                    >
+                                                      {item.takePerson}
+                                                    </Text>
+                                                  </Divide>
+                                                  <Btn
+                                                    borderRadius="50%"
+                                                    width="30px"
+                                                    height="30px"
+                                                    onClick={() =>
+                                                      personWhoTake(
+                                                        index,
+                                                        column,
+                                                        columnId,
+                                                      )
+                                                    }
+                                                    style={{
+                                                      display: item.takePerson
+                                                        ? 'none'
+                                                        : 'block',
+                                                    }}
+                                                  >
+                                                    +
+                                                  </Btn>
+                                                </Divide>
+                                                {item.takePerson &&
+                                                  item.takePersonID ===
+                                                    value.userUid && (
+                                                    <Btn
+                                                      width="80px"
+                                                      height="30px"
+                                                      fontSize="14px"
+                                                      mobile_fontSize="12px"
+                                                      mobile_height="20px"
+                                                      onClick={() =>
+                                                        notTake(
+                                                          index,
+                                                          column,
+                                                          columnId,
+                                                        )
+                                                      }
+                                                    >
+                                                      取消認領
+                                                    </Btn>
+                                                  )}
+                                              </Divide>
+                                            </Divide>
+                                          </div>
+                                        )
+                                      }}
+                                    </Draggable>
+                                  )
+                                })}
+                                {provided.placeholder}
+                              </div>
+                            )
+                          }}
+                        </Droppable>
+                      </DroppableContainer>
+                    </div>
+                  )
+                })}
+              </>
+            )}
           </DragDropContext>
-        </Kanban>
-      </DivideBack>
+        </Divide>
+      </BackgroundStyle>
     </>
   )
 }

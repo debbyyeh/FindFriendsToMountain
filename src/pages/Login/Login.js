@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useContext } from 'react'
 import { UserContext } from '../../utils/userContext'
 import { db, storage, auth } from '../../utils/firebase'
 import {
@@ -7,43 +7,42 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import {
-  getDocs,
-  collection,
-  query,
-  where,
-  addDoc,
-  setDoc,
-  doc,
-  getDoc,
-} from 'firebase/firestore'
-import { useNavigate, Link } from 'react-router-dom'
+import { setDoc, doc } from 'firebase/firestore'
+import { useNavigate } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 import { useForm } from 'react-hook-form'
 import backgroundImage from './background.jpg'
+import logo from './Mountain.png'
+import mountainMapLists from '../Map/mountainMapLists'
 
 const Wrapper = styled.div`
-  max-width: calc(1280px - 30px);
+  max-width: calc(1320px - 40px);
+  min-height: 100vh;
+  padding-left: 20px;
+  padding-right: 20px;
+  font-family: Poppins;
   margin: 0 auto;
+  position: relative;
 `
 const PhotoWrapper = styled.div`
   background-image: url(${backgroundImage});
   background-size: cover;
-  width: 40%;
-  height: 80vh;
+  width: 50%;
+  height: 100vh;
   position: absolute;
-  top: 55%;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, -55%);
+  transform: translate(-50%, -50%);
 
   display: flex;
 
   @media screen and (max-width: 1280px) {
-    width: calc(100% - 30px);
-    height: 80vh;
+    width: calc(80% - 30px);
   }
-  @media screen and (max-width: 576px) {
+  @media screen and (max-width: 767px) {
     width: 100%;
+    margin-top: 50px;
+    align-items: start;
   }
 `
 
@@ -60,47 +59,53 @@ const InfoWrapper = styled.div`
 `
 const ChangeModeDiv = styled.div`
   cursor: pointer;
-  color: #f6ead6;
+  color: #b99362;
   font-weight: 700;
-  z-index: 100;
-  height: 60px;
-
+  height: 40px;
+  padding: 12px;
+  width: 155px;
   text-align: center;
-
-  background-color: #222322;
-  position: absolute;
-  left: 58%;
-  transform: ${(props) => {
-    return props.toggle ? 'translateX(-57%) ' : 'translateX(-157%)'
-  }};
-  transition: 0.5s;
+  margin: 10px auto;
+  opacity: 0.6;
+  transition: all 0.3s;
+  &:hover {
+    opacity: 1;
+    border-bottom: 2px solid #b99362;
+  }
 `
 const Divide = styled.div`
   display: flex;
-  align-items: center;
-  margin-bottom: 100px;
-`
-const MainTitle = styled.h2`
-  font-size: 36px;
-  color: #f6ead6;
-  margin-bottom: 150px;
-
-  @media screen and (max-width: 1280px) {
-    font-size: 28px;
-    margin-bottom: 80px;
-  }
-  @media screen and (max-width: 767px) {
-    font-size: 20px;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin-bottom: 60px;
+  @media screen and (max-width: 1279px) {
     margin-bottom: 40px;
   }
 `
-const Title = styled.div`
-  font-size: 32px;
-  color: #f6ead6;
-  margin-top: -40px;
 
-  @media screen and (max-width: 1280px) {
+const MainTitle = styled.div`
+  font-size: 28px;
+  color: #b99362;
+
+  @media screen and (max-width: 1279px) {
     font-size: 24px;
+    margin-top: 0;
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 18px;
+  }
+`
+
+const Title = styled.div`
+  font-size: 24px;
+  color: #f6ead6;
+  margin-top: -20px;
+
+  @media screen and (max-width: 1279px) {
+    font-size: 20px;
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
   }
 `
 const Label = styled.label`
@@ -109,10 +114,13 @@ const Label = styled.label`
   left: 0;
   transition: all 0.3s ease;
   color: #f6ead6;
-  font-size: 32px;
-  @media screen and (max-width: 1280px) {
-    font-size: 24px;
-    bottom: 10px;
+  font-size: 20px;
+  @media screen and (max-width: 1279px) {
+    font-size: 16px;
+    bottom: 30px;
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
   }
 `
 const Underline = styled.div`
@@ -125,9 +133,9 @@ const InputData = styled.div`
   width: 100%;
   height: 40px;
   position: relative;
-  margin-bottom: 100px;
+  margin-bottom: 60px;
   @media screen and (max-width: 1280px) {
-    margin-bottom: 80px;
+    margin-bottom: 40px;
   }
 `
 const InfoInput = styled.input`
@@ -135,20 +143,26 @@ const InfoInput = styled.input`
   height: 100%;
   border: none;
   border-bottom: 1px solid #f6ead6;
-  font-size: 28px;
+  font-size: 20px;
 
-  padding: 8px 12px;
-  color: #875839;
+  padding: 8px;
+  color: #b99362;
 
   &:focus ~ label {
-    transform: translateY(-30px);
-    font-size: 32px;
+    transform: translateY(-15px);
+    font-size: 24px;
     color: #ac6947;
     font-weight: bold;
   }
   @media screen and (max-width: 1280px) {
     &:focus ~ label {
-      font-size: 28px;
+      font-size: 20px;
+    }
+  }
+  @media screen and (max-width: 767px) {
+    font-size: 16px;
+    &:focus ~ label {
+      font-size: 16px;
     }
   }
 `
@@ -162,49 +176,65 @@ const SignUp = styled.div`
 const LoginForm = styled.form`
   width: 50%;
   z-index: 10;
-  padding: 20px 50px;
+  padding: 20px 30px;
+  @media screen and (max-width: 1279px) {
+    padding: 20px;
+  }
 `
 const SignUpForm = styled.form`
   width: 100%;
-  padding: 20px 50px;
+  padding: 20px 30px;
+  @media screen and (max-width: 1279px) {
+    padding: 20px;
+  }
 `
 
 const Btn = styled.button`
   color: #f6ead6;
   border: 1px solid #f6ead6;
   width: 50%;
-  margin: 0 auto;
-  padding: 30px;
-  font-size: 24px;
+  margin: 20px auto 0;
+  padding: 8px 12px;
+  font-size: 20px;
   display: inherit;
+  border-radius: 8px;
 
   &:active {
     transform: translateY(0.2rem);
   }
+  &:hover {
+    background-color: #b99362;
+  }
 
-  @media screen and (max-width: 1280px) {
-    padding: 18px;
+  @media screen and (max-width: 1279px) {
+    padding: 12px;
+    font-size: 16px;
+  }
+  @media screen and (max-width: 767px) {
+    padding: 8px;
+    font-size: 14px;
+    width: 100%;
   }
 `
 const UploadPic = styled.div`
-  margin: 20px auto 100px auto;
-  width: 180px;
-  height: 180px;
+  margin: 20px auto 40px auto;
+  width: 80px;
+  height: 80px;
   background-color: #d9d9d9;
   border-radius: 8px;
   @media screen and (max-width: 1280px) {
-    margin-bottom: 60px;
+    margin-bottom: 40px;
   }
 `
 const UploadPhoto = styled.img`
-  width: 180px;
+  width: 80px;
   aspect-ratio: 1/1;
   background-color: #d9d9d9;
   border-radius: 8px;
   object-fit: cover;
 `
 const AfterUpload = styled.div`
-  width: 120px;
+  width: 80px;
   aspect-ratio: 1/1;
   background-color: #d9d9d9;
   border-radius: 8px;
@@ -213,27 +243,86 @@ const FileInput = styled.input``
 const FileLabel = styled.label`
   display: inline-block;
   cursor: pointer;
-
   width: 180px;
-  height: 50px;
-  margin-top: 16px;
   color: white;
   text-align: center;
-  font-size: 24px;
+  font-size: 14px;
+  @media screen and (max-width: 1279px) {
+    width: 100px;
+  }
 `
 const Note = styled.p`
-  margin-left: 0;
-  color: #5e7e68;
-  font-size: 20px;
-  margin-top: 0;
+  width: 80px;
+  margin-left: auto;
+  color: #b99362;
+  font-size: 14px;
+  margin-top: 8px;
 `
 const Text = styled.div`
   color: #f6ead6;
-  font-size: 24px;
-  padding: 16px;
-  @media screen and (max-width: 1280px) {
-    font-size: 20px;
-    padding: 12px 0;
+  font-size: 14px;
+`
+const LoadingBackground = styled.div`
+  position: fixed;
+  z-index: 99;
+  background-color: rgba(34, 35, 34, 0.8);
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  display: ${(props) => (props.loading ? 'block' : 'none')};
+`
+const move = keyframes`
+  0%
+   {
+    left: 0;
+    transform:rotate(0deg)
+  }
+  25%{
+    left:400px;
+    transform:rotate(20deg);
+  }
+  50% {
+    transform:rotate(0deg);
+    left: 80%;
+  }
+  55%{
+    transform:rotate(0deg);
+    left: 90%;
+  }
+  70%{
+    transform:rotate(0deg);
+    left: 75%;
+  }
+  100%{
+    left: 0%;
+    transform:rotate(-360deg)
+  }
+`
+const LoadingStyle = styled.span`
+  font-family: 'Rubik Moonrocks', cursive;
+  font-size: 60px;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  position: absolute;
+  top:50%;
+  left:25%;
+  color:#B99362;
+  background-clip: text;
+  &:before {
+    content: '';
+    z-index:99;
+    width: 80px;
+    height: 80px;
+    ${'' /* background-color: rgba(34, 35, 34, 0.8); */}
+    background-image:url(${logo});
+    background-size:cover;
+    ${'' /* background-color: white; */}
+    border-radius: 50%;
+    position: absolute;
+    top: -30%;
+    left: 0;
+    mix-blend-mode: difference;
+    animation: ${move} 3s ease-in-out infinite;
   }
 `
 
@@ -243,21 +332,17 @@ function Login() {
   const [images, setImages] = useState()
   const [imageURLs, setImageURLs] = useState()
   const [downloadUrl, setDownloadUrl] = useState([])
-  // const [jwtUid, setjwtUid] = useState()
-  const userName = useContext(UserContext)
-  const [photoNote, setPhotoNote] = useState(true)
+  const [jwtUid, setjwtUid] = useState()
+  const [loading, setLoading] = useState(false)
+  const value = useContext(UserContext)
   const [mode, setMode] = useState(true)
   const navigate = useNavigate()
 
-  const makeLogin = JSON.parse(window.localStorage.getItem('token'))
-  useEffect(() => {
-    if (makeLogin !== null) {
-      navigate('/profile')
-    }
-  }, [])
-  function signUpUse() {
-    setSignUp(true)
-  }
+  // useEffect(() => {
+  //   if (value.userAuth !== null) {
+  //     navigate('/profile')
+  //   }
+  // }, [value.userAuth])
   function getPhotoInfo(e) {
     setImages([...e.target.files])
     console.log(e.target.files[0])
@@ -274,72 +359,58 @@ function Login() {
     JSON.stringify(data)
     signInWithEmailAndPassword(auth, data.email, data.password)
       .then((userCredential) => {
-        console.log(userCredential)
-        let userInfo = {
-          accessToken: userCredential.user.accessToken,
-          uid: userCredential.user.uid,
+        const user = userCredential.user
+        if (user) {
+          setjwtUid(user.uid)
+          value.alertPopup()
+          value.setAlertContent('登入成功')
+          navigate('/profile')
         }
-        console.log(userCredential.user.accessToken, userCredential.user.uid)
-        window.localStorage.setItem('token', JSON.stringify(userInfo))
-        alert('登入成功')
-        navigate('/profile')
       })
       .catch((error) => {
         console.log(error.code)
-        if (error.code == 'auth/wrong-password') {
-          alert('帳號或密碼有誤')
+        if (error.code === 'auth/wrong-password') {
+          console.log(124)
+          value.alertPopup()
+          value.setAlertContent('帳號或密碼有誤')
           const errorMessage = error.message
         }
       })
   }
-  let categoryContent = {
-    trail: [],
-    highMountain: [],
-  }
 
   const onSubmit = async (data) => {
-    if (images.length < 1) {
-      alert('照片不得為空')
+    if (images === undefined) {
+      value.alertPopup()
+      value.setAlertContent('照片不得為空')
     } else {
+      setLoading(true)
       JSON.stringify(data)
       createUserWithEmailAndPassword(auth, data.email, data.password)
         .then((userCredential) => {
           onAuthStateChanged(auth, (currentUser) => {
+            // const user = userCredential.user;
             const getjwtToken = currentUser.accessToken
             const jwtUid = currentUser.uid
             if (jwtUid !== undefined) {
               const imageRef = ref(storage, `images/${jwtUid}`)
               uploadBytes(imageRef, images[0]).then(() => {
-                console.log('檔案上傳成功')
                 getDownloadURL(imageRef).then((url) => {
                   setDownloadUrl(url)
                   const newDocRef = setDoc(doc(db, 'users', jwtUid), {
                     id: jwtUid,
                     name: data.nickname,
                     photoURL: url,
-                    mountainLists: [],
+                    mountainLists: mountainMapLists,
                     joinGroup: [],
                     leadGroup: [],
                     equipment: [],
                   })
                   console.log(newDocRef)
                   if (downloadUrl !== undefined) {
-                    let userInfo = {
-                      accessToken: getjwtToken,
-                      uid: jwtUid,
-                      name: userName,
-                    }
-                    window.localStorage.setItem(
-                      'token',
-                      JSON.stringify(userInfo),
-                    )
-                    const makeLogin = JSON.parse(
-                      window.localStorage.getItem('token'),
-                    )
-                    alert('註冊成功')
-                    if (makeLogin !== null) {
-                      navigate('/profile')
-                    }
+                    setLoading(false)
+                    value.alertPopup()
+                    value.setAlertContent('註冊成功')
+                    navigate('/profile')
                   }
                 })
               })
@@ -349,10 +420,14 @@ function Login() {
         .catch((error) => {
           const errorCode = error.code
           console.log(error.code)
-          if (errorCode == 'auth/email-already-in-use') {
-            alert('帳號重複註冊')
-          } else if (errorCode == 'auth/invalid-email') {
-            alert('無效Email')
+          if (errorCode === 'auth/email-already-in-use') {
+            value.alertPopup()
+            value.setAlertContent('帳號重複註冊')
+            setLoading(false)
+          } else if (errorCode === 'auth/invalid-email') {
+            value.alertPopup()
+            value.setAlertContent('無效Email')
+            setLoading(false)
           }
         })
     }
@@ -360,23 +435,18 @@ function Login() {
 
   return (
     <>
+      <LoadingBackground loading={loading}>
+        <LoadingStyle></LoadingStyle>
+      </LoadingBackground>
       <Wrapper>
         <PhotoWrapper>
           <InfoWrapper toggle={mode}></InfoWrapper>
-          <ChangeModeDiv
-            toggle={mode}
-            onClick={() => {
-              setMode(!mode)
-              setSignUp((current) => !current)
-              setLogin((current) => !current)
-            }}
-          >
-            {signUp ? <Text>我要登入</Text> : <Text>沒有帳號，註冊去!</Text>}
-          </ChangeModeDiv>
           {login && (
             <>
               <LoginForm onSubmit={handleSubmit(signInCheck)}>
-                <MainTitle>登入帳號</MainTitle>
+                <Divide>
+                  <MainTitle>登入帳號</MainTitle>
+                </Divide>
                 <InputData>
                   <InfoInput
                     name="email"
@@ -417,13 +487,25 @@ function Login() {
                 <Btn type="submit" value="登入">
                   登入
                 </Btn>
+                <ChangeModeDiv
+                  toggle={mode}
+                  onClick={() => {
+                    setMode(!mode)
+                    setSignUp(true)
+                    setLogin(false)
+                  }}
+                >
+                  <Text>沒有帳號，註冊去!</Text>
+                </ChangeModeDiv>
               </LoginForm>
             </>
           )}
           {signUp && (
             <SignUp>
               <SignUpForm onSubmit={handleSubmit(onSubmit)}>
-                <MainTitle>註冊帳號</MainTitle>
+                <Divide>
+                  <MainTitle>註冊帳號</MainTitle>
+                </Divide>
                 <InputData>
                   <InfoInput
                     name="email"
@@ -477,7 +559,6 @@ function Login() {
                   <Note>{errors.password?.message}</Note>
                 </InputData>
                 <Title>照片</Title>
-                {/* <Divide> */}
                 <UploadPic>
                   {imageURLs ? (
                     <UploadPhoto src={imageURLs} alt="uploadImage" />
@@ -495,10 +576,19 @@ function Login() {
                     />
                   </FileLabel>
                 </UploadPic>
-                {/* </Divide> */}
                 <Btn type="submit" value="註冊帳號">
                   註冊帳號
                 </Btn>
+                <ChangeModeDiv
+                  toggle={mode}
+                  onClick={() => {
+                    setMode(!mode)
+                    setSignUp(false)
+                    setLogin(true)
+                  }}
+                >
+                  <Text>有帳號了，登入去</Text>
+                </ChangeModeDiv>
               </SignUpForm>
             </SignUp>
           )}
