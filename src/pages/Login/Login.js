@@ -27,8 +27,8 @@ const Wrapper = styled.div`
 const PhotoWrapper = styled.div`
   background-image: url(${backgroundImage});
   background-size: cover;
-  width: 50%;
-  height: 100vh;
+  width: 80%;
+  min-height: 600px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -77,9 +77,9 @@ const Divide = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  margin-bottom: 60px;
+  margin-bottom: 50px;
   @media screen and (max-width: 1279px) {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
   }
 `
 
@@ -114,9 +114,9 @@ const Label = styled.label`
   left: 0;
   transition: all 0.3s ease;
   color: #f6ead6;
-  font-size: 20px;
+  font-size: 24px;
   @media screen and (max-width: 1279px) {
-    font-size: 16px;
+    font-size: 20px;
     bottom: 30px;
   }
   @media screen and (max-width: 767px) {
@@ -497,6 +497,11 @@ function Login() {
                 >
                   <Text>沒有帳號，註冊去!</Text>
                 </ChangeModeDiv>
+                <Text>測試帳號:AppWorks@gmail.com</Text>
+                <Text>測試密碼:appworks</Text>
+                <Text>另一個測試帳號:frontend@gmail.com</Text>
+                <Text>另一個測試密碼:frontend</Text>
+                <Text>可以任選一組密碼當團主，開啟團後再邀請另一位加入</Text>
               </LoginForm>
             </>
           )}
