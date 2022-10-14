@@ -21,11 +21,9 @@ Hoping to reorganize the disordered information in a concise way, the website us
 
 ## Tech Stack
 
-**Front-End:** HTML, CSS, RWD, Reacr, React Router, React Hook Form, Styled Components, React Beautiful DnD, React Big Calendar
+**Front-End:** <span>HTML, CSS, RWD, Reacr, React Router, React Hook Form, Styled Components, React Beautiful DnD, React Big Calendar</span>
 
-**Cloud Services:** 
-
-Firebase (Cloud Firestore), Firebase Hosting, Firebase Storage, Firebase Authenication
+**Cloud Services:** <span>Firebase (Cloud Firestore), Firebase Hosting, Firebase Storage, Firebase Authenication</span>
 <div>
   <img src="https://github.com/devicons/devicon/blob/master/icons/react/react-original-wordmark.svg" title="React" alt="React" width="40" height="40"/>&nbsp;
   <img src="https://github.com/devicons/devicon/blob/master/icons/css3/css3-plain-wordmark.svg"  title="CSS3" alt="CSS" width="40" height="40"/>&nbsp;
