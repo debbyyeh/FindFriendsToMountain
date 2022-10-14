@@ -6,7 +6,7 @@
 
 <h3 align="center">Project Name：Find Friends To Mountains</h3>
 <div align="center">
-  <a href="# Website Intro"> Website Intro </a> | <a href="# Tech Stack"> Tech Stack </a> | <a id="Tech Stack"> User Flow Chart </a>| <a id="Tech Stack"> User Flow Chart </a>
+  <a href="# Website Intro"> Website Intro </a> | <a href="# Tech Stack">🛠 Tech Stack </a> | <a id="Tech Stack"> User Flow Chart </a>| <a id="Tech Stack"> User Flow Chart </a>
 </div>
 
 ## Website Intro
@@ -18,7 +18,7 @@ Hoping to reorganize the disordered information in a concise way, the website us
 
 
 
-## 🛠 Tech Stack
+## Tech Stack
 
 **Front-End:** HTML, CSS, RWD, Reacr, React Router, React Hook Form, Styled Components, React Beautiful DnD, React Big Calendar
 
