@@ -6,7 +6,7 @@
 
 <h3 align="center">Project Name：Find Friends To Mountains / 找山遊 </h3>
 <div align="center">
-  <a href="#website-intro"> :triangular_flag_on_post:Website Intro </a> | <a href="#tech-stack">🛠 Tech Stack </a> | <a href="#user-flow-chart"> User Flow Chart </a>| <a id="Tech Stack">:clapper: Quick Demo </a>
+  <a href="#website-intro"> :triangular_flag_on_post:Website Intro </a> | <a href="#tech-stack">🛠 Tech Stack </a> | <a href="#user-flow-chart"> :speech_balloon:User Flow Chart </a>| <a id="Tech Stack">:clapper: Quick Demo </a>
 </div>
 
 
