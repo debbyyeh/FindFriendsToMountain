@@ -6,7 +6,7 @@
 
 <h3 align="center">Find Friends To Mountains / 找山遊 </h3>
 <div align="center">
-  <a href="#website-intro"> :triangular_flag_on_post:Website Intro </a> | <a href="#tech-stack">🛠 Tech Stack </a> | <a href="#user-flow-chart"> :speech_balloon:User Flow Chart </a>| <a id="Tech Stack">:clapper: Quick Demo </a>
+  <a href="#website-intro"> :triangular_flag_on_post:Website Intro </a> | <a href="#tech-stack">🛠 Tech Stack </a> | <a href="#user-flow-chart"> :speech_balloon:User Flow Chart </a>| <a href="demo-video">:clapper: Demo Video </a>
 </div>
 
 
@@ -36,4 +36,6 @@ Hoping to reorganize the disordered information in a concise way, the website us
 ## User Flow Chart
 <div align="center"><img src="https://upload.cc/i1/2022/10/13/zybxWN.jpg" width="600"/></div>
 
+## Demo Video
+<div align="center"><img src="https://github.com/debbyyeh/FindFriendsToMountain/blob/main/gif/%E5%85%B1%E7%B7%A8.gif" width="800"/></div>
 
