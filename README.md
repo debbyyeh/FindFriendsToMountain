@@ -37,5 +37,7 @@ Hoping to reorganize the disordered information in a concise way, the website us
 <div align="center"><img src="https://upload.cc/i1/2022/10/13/zybxWN.jpg" width="600"/></div>
 
 ## Demo Video
+- Used Firestore onSnapshot API to achieve the real-time collaborative editing function in each group so the information can be updated correspondingly.
+<div align="center"><img src="https://github.com/debbyyeh/FindFriendsToMountain/blob/main/gif/%E5%85%B1%E7%B7%A8.gif" width="800"/></div>
 <div align="center"><img src="https://github.com/debbyyeh/FindFriendsToMountain/blob/main/gif/%E5%85%B1%E7%B7%A8.gif" width="800"/></div>
 
