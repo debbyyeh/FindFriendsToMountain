@@ -5,9 +5,9 @@
 
 
 <h3 align="center">Project Name：Find Friends To Mountains</h3>
-<div id="badges"　align="center">
-  <a href="your-youtube-URL"> Website Intro </a>
-  <a href="your-twitter-URL"> Tech Stack </a>
+<div align="center">
+  <a id="Website Intro"> Website Intro </a>
+  <a id="Tech Stack"> Tech Stack </a>
 </div>
 
 ## Website Intro
