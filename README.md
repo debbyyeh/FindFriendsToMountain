@@ -6,7 +6,7 @@
 
 <h3 align="center">Project Name：Find Friends To Mountains</h3>
 <div align="center">
-  <a id="## Website Intro"> Website Intro </a> | <a id="## Tech Stack"> Tech Stack </a> | <a id="Tech Stack"> User Flow Chart </a>| <a id="Tech Stack"> User Flow Chart </a>
+  <a href="# Website Intro"> Website Intro </a> | <a id="## Tech Stack"> Tech Stack </a> | <a id="Tech Stack"> User Flow Chart </a>| <a id="Tech Stack"> User Flow Chart </a>
 </div>
 
 ## Website Intro
