@@ -275,30 +275,57 @@ const LoadingBackground = styled.div`
   display: ${(props) => (props.loading ? 'block' : 'none')};
 `
 const move = keyframes`
-  0%
+  0%,
    {
     left: 0;
-    transform:rotate(0deg);
+    transform:rotate(0deg)
   }
   25%{
-    left:400px;
-    transform:rotate(20deg);
+    left:600px;
+    transform:rotate(20deg)
   }
   50% {
-    transform:rotate(0deg);
+    transform:rotate(0deg)
     left: 80%;
   }
   55%{
-    transform:rotate(0deg);
+    transform:rotate(0deg)
     left: 90%;
   }
   70%{
-    transform:rotate(0deg);
+    transform:rotate(0deg)
     left: 75%;
   }
   100%{
     left: 0%;
-    transform:rotate(-360deg);
+    transform:rotate(-360deg)
+  }
+`
+const MBmove = keyframes`
+  0%,
+   {
+    left: 0;
+    transform:rotate(0deg)
+  }
+  25%{
+    left:300px;
+    transform:rotate(20deg)
+  }
+  50% {
+    transform:rotate(0deg)
+    left: 80%;
+  }
+  55%{
+    transform:rotate(0deg)
+    left: 90%;
+  }
+  70%{
+    transform:rotate(0deg)
+    left: 75%;
+  }
+  100%{
+    left: 0%;
+    transform:rotate(-360deg)
   }
 `
 const LoadingStyle = styled.span`
@@ -324,6 +351,9 @@ const LoadingStyle = styled.span`
     left: 0;
     mix-blend-mode: difference;
     animation: ${move} 3s ease-in-out infinite;
+    @media screen and (max-width: 767px) {
+      animation: ${MBmove} 3s ease-in-out infinite;
+    }
   }
 `
 const Bar = styled.div`
@@ -655,9 +685,10 @@ const ActivityContent = () => {
     setImageURLs(newImageUrls)
   }
   async function editFunction() {
+    setLoading(true)
     const newPromise = [sendUpdateInfo(), editGroupInfo(), findMemberData()]
     await Promise.all(newPromise)
-
+    setLoading(false)
     setIsEditable(false)
     setImages(undefined)
   }
@@ -669,7 +700,7 @@ const ActivityContent = () => {
       let url = await getDownloadURL(imageRef)
       setDownloadUrl(url)
       if (docSnap.exists()) {
-        const updateLeadGroup = setDoc(
+        const updateLeadGroup = await setDoc(
           groupContentRef,
           {
             groupPhoto: url,
@@ -688,7 +719,7 @@ const ActivityContent = () => {
     } else {
       try {
         if (docSnap.exists()) {
-          const updateLeadGroup = setDoc(
+          const updateLeadGroup = await setDoc(
             groupContentRef,
             {
               groupName: newNameRef.current.value,
@@ -725,7 +756,7 @@ const ActivityContent = () => {
           endDate: newEnd ? newEnd : latestContentsData.endDate,
         }
         oldLeadGroup.splice(index, 1, leadGroupInfo)
-        const updateLeadGroup = updateDoc(docRef, {
+        const updateLeadGroup = await updateDoc(docRef, {
           leadGroup: oldLeadGroup,
         })
       }
@@ -760,7 +791,7 @@ const ActivityContent = () => {
           endDate: newEnd ? newEnd : latestContentsData.endDate,
         }
         getJoinData.splice(eachIndex, 1, joinGroupInfo)
-        const updatejoinGroup = updateDoc(thisIDRef, {
+        const updatejoinGroup = await updateDoc(thisIDRef, {
           joinGroup: getJoinData,
         })
       }
@@ -859,7 +890,8 @@ const ActivityContent = () => {
                         </Text>
                         <InfoInput
                           backgroundColor="transparent"
-                          width="150px"
+                          width="300px"
+                          mobile_width="200px"
                           fontSize="20px"
                           tablet_fontSize="20px"
                           mobile_fontSize="16px"
@@ -889,7 +921,8 @@ const ActivityContent = () => {
                         <Divide>
                           <InfoInput
                             backgroundColor="transparent"
-                            width="80px"
+                            width="150px"
+                            mobile_width="100px"
                             fontSize="20px"
                             tablet_fontSize="20px"
                             mobile_fontSize="16px"
