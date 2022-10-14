@@ -34,6 +34,6 @@ Hoping to reorganize the disordered information in a concise way, the website us
 </div>
 
 ## User Flow Chart
-<div align="center"><img src="https://upload.cc/i1/2022/10/13/zybxWN.jpg" width="600"/></div>
+<div align="center"><img src="https://github.com/debbyyeh/FindFriendsToMountain/blob/main/gif/%E5%85%B1%E7%B7%A8.gif" width="600"/></div>
 
 
