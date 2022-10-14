@@ -3,11 +3,11 @@
 
 Find Friends To Mountains
 
-
 ## Website Intro
 
 Hoping to reorganize the disordered information in a concise way, the website uses the graphic layout to visualize the information. By distinguishing between owner and members the website monitors repeated works and develops the planning before trips.
-## 🔗 Website Link
+
+## 🔗 Website Link ![App Screenshot](https://upload.cc/i1/2022/10/14/w4dT6D.png)
 
 https://find-friends-to-mountain.web.app/
 ## 🛠 Tech Stack
