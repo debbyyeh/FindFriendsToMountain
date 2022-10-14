@@ -4,9 +4,7 @@
 </div>
 
 
-# Project Name
-
-Find Friends To Mountains
+<h3 align="center">Project Name：Find Friends To Mountains</h3>
 
 ## Website Intro
 
