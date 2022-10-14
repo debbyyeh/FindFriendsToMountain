@@ -403,32 +403,59 @@ const LoadingBackground = styled.div`
   display: ${(props) => (props.loading ? 'block' : 'none')};
 `
 const move = keyframes`
-  0%
+  0%,
    {
     left: 0;
-    transform:rotate(0deg);
+    transform:rotate(0deg)
   }
   25%{
-    left:400px;
-    transform:rotate(20deg);
+    left:600px;
+    transform:rotate(20deg)
   }
   50% {
-    transform:rotate(0deg);
-    left:80%
+    transform:rotate(0deg)
+    left: 80%;
   }
   55%{
-    transform:rotate(0deg);
+    transform:rotate(0deg)
     left: 90%;
   }
   70%{
-    transform:rotate(0deg);
+    transform:rotate(0deg)
     left: 75%;
   }
   100%{
     left: 0%;
-    transform:rotate(-360deg);
-  }`
-
+    transform:rotate(-360deg)
+  }
+`
+const MBmove = keyframes`
+  0%,
+   {
+    left: 0;
+    transform:rotate(0deg)
+  }
+  25%{
+    left:300px;
+    transform:rotate(20deg)
+  }
+  50% {
+    transform:rotate(0deg)
+    left: 80%;
+  }
+  55%{
+    transform:rotate(0deg)
+    left: 90%;
+  }
+  70%{
+    transform:rotate(0deg)
+    left: 75%;
+  }
+  100%{
+    left: 0%;
+    transform:rotate(-360deg)
+  }
+`
 const LoadingStyle = styled.span`
   font-family: 'Rubik Moonrocks', cursive;
   font-size: 60px;
@@ -452,6 +479,9 @@ const LoadingStyle = styled.span`
     left: 0;
     mix-blend-mode: difference;
     animation: ${move} 3s ease-in-out infinite;
+    @media screen and (max-width: 767px) {
+      animation: ${MBmove} 3s ease-in-out infinite;
+    }
   }
 `
 const Icon = styled.img`
