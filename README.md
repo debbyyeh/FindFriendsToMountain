@@ -45,4 +45,5 @@ Hoping to reorganize the disordered information in a concise way, the website us
 <div align="center"><img src="https://github.com/debbyyeh/FindFriendsToMountain/blob/develop/gif/%E7%99%BB%E5%85%A5%E8%A3%9D%E5%82%99%E8%B7%9F%E9%AB%98%E5%B1%B1%E5%9C%B0%E5%9C%96.gif" width="800"/></div>
 
 - Implemented role-based authentication for the owner to set group privacy. In addition, the owner can simply share the link to invite the members and manage the group.
+- Safety is the first priority while arranging hiking activities. Users can fill in the equipment list within the profile page, so the owner and other members can simply click the profile photo in the group to double check before departure.
 <div align="center"><img src="https://github.com/debbyyeh/FindFriendsToMountain/blob/develop/gif/%E5%BB%BA%E7%AB%8B%E7%BE%A4%E7%B5%84.gif" width="800"/></div>
