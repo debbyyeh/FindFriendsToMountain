@@ -6,7 +6,7 @@
 
 <h3 align="center">Project Name：Find Friends To Mountains / 找山遊 </h3>
 <div align="center">
-  <a href="#website-intro"> Website Intro </a> | <a href="#tech-stack">🛠 Tech Stack </a> | <a href="#screenshots"> User Flow Chart </a>| <a id="Tech Stack"> User Flow Chart </a>
+  <a href="#website-intro"> Website Intro </a> | <a href="#tech-stack">🛠 Tech Stack </a> | <a href="#user-flow-chart"> User Flow Chart </a>| <a id="Tech Stack"> User Flow Chart </a>
 </div>
 
 
@@ -33,7 +33,7 @@ Hoping to reorganize the disordered information in a concise way, the website us
   <img src="https://github.com/devicons/devicon/blob/master/icons/eslint/eslint-original-wordmark.svg" title="Eslint" alt="Eslint" width="40" height="40"/>&nbsp;
 </div>
 
-## Screenshots
+## User Flow Chart
 
 ![App Screenshot](https://upload.cc/i1/2022/10/13/zybxWN.jpg)
 
