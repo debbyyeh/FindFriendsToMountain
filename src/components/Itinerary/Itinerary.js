@@ -108,7 +108,6 @@ const Itinerary = () => {
     }
   }
 
-  //updateDoc
   const updateItinerary = async (columns) => {
     const updateitinerary = await updateDoc(docRef, {
       itineraryList: columns,
