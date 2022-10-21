@@ -105,7 +105,7 @@ const AlertBox = styled.div`
   position: fixed;
   left:-350px;
   top: 70%;
-  z-index: 999; !important
+  z-index: 999; 
   cursor: pointer;
   border: 1px solid rgba(241, 142, 6, 0.81);
   background-color: rgba(220, 128, 1, 0.16);

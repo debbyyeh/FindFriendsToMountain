@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { UserContext } from '../../utils/userContext'
 import { useParams } from 'react-router-dom'
-
+import ReactTooltip from 'react-tooltip'
 import { doc, updateDoc, onSnapshot } from 'firebase/firestore'
 import { Text, Divide, Btn } from '../../css/style'
 import { db } from '../../utils/firebase'
+import message from './Messaging.png'
 import send from './send.png'
 
 const ListInput = styled.input`
@@ -54,6 +55,45 @@ const Comment = styled.div`
     margin: 6px auto;
   }
 `
+const ScrollDivide = styled.div`
+  position: fixed;
+  right: 20px;
+  top: calc(90% - 40px);
+  z-index: 3;
+  border: 1px solid #f6ead6;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    background-color: #875839;
+  }
+  &:active {
+    background-color: #875839;
+  }
+  @media screen and (max-width: 767px) {
+    width: 50px;
+    height: 50px;
+  }
+`
+const Scroll = styled.div`
+  background-image: url(${message});
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 50px;
+  height: 50px;
+  margin: 0 auto;
+  cursor: pointer;
+  position: relative;
+  @media screen and (max-width: 767px) {
+    width: 30px;
+    height: 30px;
+  }
+`
 
 const TodoList = ({ ownerAuth, memberAuth }) => {
   useEffect(() => {
@@ -63,7 +103,7 @@ const TodoList = ({ ownerAuth, memberAuth }) => {
       setLatest(todotData)
     })
   }, [])
-
+  const [online, setOnline] = useState(false)
   const [latest, setLatest] = useState()
   const urlID = useParams()
   const value = useContext(UserContext)
@@ -145,55 +185,75 @@ const TodoList = ({ ownerAuth, memberAuth }) => {
     })
   }
   return (
-    <>
-      <ToDoContainer>
-        <ToDoListForm addTodo={addTodo} />
-        <CommentContainer>
-          {latest &&
-            latest.map((list, index) => {
-              return (
-                <>
-                  <Comment key={index}>
-                    <Divide
-                      justifyContent="flex-start"
-                      flexDirection="column"
-                      alignItems="start"
-                    >
-                      <Text
-                        fontSize="14px"
-                        mobile_fontSize="14px"
-                        color="#222322"
-                      >
-                        {list.post}:
-                      </Text>
-                      <Text fontSize="12px" color="#222322">
-                        {list.text}
-                      </Text>
-                    </Divide>
-                    {(value.userUid === ownerAuth ||
-                      value.userUid === latest[index].postID) && (
-                      <Btn
-                        margin="0 2px 0 0"
-                        color="#222322"
-                        width="20px"
-                        height="20px"
-                        border="1px solid #222322"
-                        borderRadius="50%"
-                        padding="0px"
-                        tablet_width="20px"
-                        tablet_border="none"
-                        onClick={() => removeTodo(index)}
-                      >
-                        x
-                      </Btn>
-                    )}
-                  </Comment>
-                </>
-              )
-            })}
-        </CommentContainer>
-      </ToDoContainer>
-    </>
+    <ScrollDivide>
+      <ReactTooltip id="contact" place="top" effect="solid">
+        留言版
+      </ReactTooltip>
+      <Scroll
+        data-tip
+        data-for="contact"
+        onClick={() => setOnline((current) => !current)}
+      ></Scroll>
+      {online && (
+        <>
+          <Divide
+            style={{
+              position: 'absolute',
+              right: '20px',
+              bottom: '70px',
+            }}
+          >
+            <ToDoContainer>
+              <ToDoListForm addTodo={addTodo} />
+              <CommentContainer>
+                {latest &&
+                  latest.map((list, index) => {
+                    return (
+                      <>
+                        <Comment key={index}>
+                          <Divide
+                            justifyContent="flex-start"
+                            flexDirection="column"
+                            alignItems="start"
+                          >
+                            <Text
+                              fontSize="14px"
+                              mobile_fontSize="14px"
+                              color="#222322"
+                            >
+                              {list.post}:
+                            </Text>
+                            <Text fontSize="12px" color="#222322">
+                              {list.text}
+                            </Text>
+                          </Divide>
+                          {(value.userUid === ownerAuth ||
+                            value.userUid === latest[index].postID) && (
+                            <Btn
+                              margin="0 2px 0 0"
+                              color="#222322"
+                              width="20px"
+                              height="20px"
+                              border="1px solid #222322"
+                              borderRadius="50%"
+                              padding="0px"
+                              tablet_width="20px"
+                              tablet_border="none"
+                              onClick={() => removeTodo(index)}
+                            >
+                              x
+                            </Btn>
+                          )}
+                        </Comment>
+                      </>
+                    )
+                  })}
+              </CommentContainer>
+            </ToDoContainer>
+          </Divide>
+        </>
+      )}
+    </ScrollDivide>
   )
 }
 

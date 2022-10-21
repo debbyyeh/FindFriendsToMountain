@@ -41,7 +41,6 @@ export const Divide = styled.div`
       props.mobile_marginBottom || props.tablet_marginBottom};
   }
 `
-
 export const Text = styled.div`
   color: ${(props) => props.color || '#f6ead6'};
   font-size: ${(props) => props.fontSize || '16px'};
@@ -66,7 +65,6 @@ export const Text = styled.div`
     text-align: ${(props) => props.mobile_textAlign || props.tablet_textAlign};
   }
 `
-
 export const InfoInput = styled.input`
   width: ${(props) => props.width || '0px'};
   height: ${(props) => props.height || '40px'};
@@ -90,7 +88,6 @@ export const InfoInput = styled.input`
     height: ${(props) => props.mobile_height || props.tablet_height};
   }
 `
-
 export const SrcImage = styled.img`
   width: ${(props) => props.width || '0px'};
   height: ${(props) => props.height || '0px'};
@@ -134,7 +131,6 @@ export const Btn = styled.button`
     font-size: ${(props) => props.mobile_fontSize || props.tablet_fontSize};
   }
 `
-
 export const FileLabel = styled.label`
   position: absolute;
   top: 10%;
@@ -150,5 +146,43 @@ export const FileLabel = styled.label`
   @media screen and (max-width: 767px) {
     top: 15%;
     font-size: 14px;
+  }
+`
+export const EditBtn = styled.button`
+  border-radius: 0;
+  font-size: ${(props) => props.fontSize || '14px'};
+  width: ${(props) => props.width || '120px'};
+  color: ${(props) => props.color || '#F6EAD6'};
+  border: ${(props) => props.border || 'none'};
+  border-radius: ${(props) => props.borderRadius || 'none'};
+  padding: ${(props) => props.padding || 'none'};
+  margin-top: ${(props) => props.marginTop || 'none'};
+  margin-bottom: ${(props) => props.marginBottom || 'none'};
+  margin-left: ${(props) => props.marginLeft || 'none'};
+  opacity: 0.5;
+  &:after {
+    content: '';
+    border-bottom: 2px solid #b99362;
+    margin: auto;
+    position: relative;
+    top: 5px;
+    width: 0%;
+    display: block;
+    transition: all 0.3s;
+  }
+  &:hover {
+    opacity: 1;
+    &:after {
+      width: 100%;
+    }
+  }
+  @media screen and (max-width: 767px) {
+    width: ${(props) => props.mobile_width || props.width};
+    font-size: ${(props) => props.mobile_fontSize || props.fontSize};
+    padding: ${(props) => props.mobile_padding || props.padding};
+    margin-top: ${(props) => props.mobile_marginTop || props.marginTop};
+    margin-bottom: ${(props) =>
+      props.mobile_marginBottom || props.marginBottom};
+    margin-left: ${(props) => props.mobile_marginLeft || 'none'};
   }
 `

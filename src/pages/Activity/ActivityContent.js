@@ -1,17 +1,9 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
-import styled, { keyframes } from 'styled-components'
-import { db, storage } from '../../utils/firebase'
-import {
-  Divide,
-  Text,
-  InfoInput,
-  FileLabel,
-  SrcImage,
-  Btn,
-} from '../../css/style'
+import styled from 'styled-components'
+import { db } from '../../utils/firebase'
+import { Divide, Text, InfoInput, SrcImage, Btn } from '../../css/style'
 import { doc, getDoc, updateDoc, onSnapshot, setDoc } from 'firebase/firestore'
 import ReactTooltip from 'react-tooltip'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { useNavigate, useParams } from 'react-router-dom'
 import memberDefault from './memberDefault.png'
 import logo from './Mountain.png'
@@ -19,46 +11,13 @@ import lock from './Lock.png'
 import edit from './Edit.png'
 import done from './done.png'
 import close from './Close.png'
-import message from './Messaging.png'
+import BannerInfo from './BannerInfo'
 import equipments from '../../equipments/equipments'
 import TodoList from '../../components/Todolist/TodoList'
 import Itinerary from '../../components/Itinerary/Itinerary'
 import Cars from '../../components/Car/Cars'
 import Accommodation from '../../components/Accommodation/Accommodation'
 import { UserContext } from '../../utils/userContext'
-
-const BackCover = styled.div`
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  opacity: 0.5;
-  @media screen and (max-width: 1279px) {
-    height: 480px;
-  }
-  @media screen and (max-width: 767px) {
-    height: 360px;
-  }
-`
-const MainInfo = styled.div`
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 24px;
-  padding: 14px;
-  position: absolute;
-  left: 50%;
-  top: 90%;
-  transform: translate(-50%, -90%);
-  width: auto;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  @media screen and (max-width: 576px) {
-    width: 90%;
-    padding: 8;
-  }
-`
 
 const Wrapper = styled.div`
   max-width: calc(1320px - 40px);
@@ -70,17 +29,6 @@ const Wrapper = styled.div`
   }
   @media screen and (max-width: 767px) {
     padding: 20px 20px 40px;
-  }
-`
-const NewWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  height: 560px;
-  @media screen and (max-width: 1279px) {
-    height: 480px;
-  }
-  @media screen and (max-width: 767px) {
-    height: 360px;
   }
 `
 const MemberDefault = styled.div`
@@ -137,59 +85,6 @@ const Icon = styled.div`
     border: 1px solid #b99362;
   }
 `
-const EditBtn = styled.button`
-  border-radius: 0;
-  font-size: ${(props) => props.fontSize || '14px'};
-  width: ${(props) => props.width || '120px'};
-  color: ${(props) => props.color || '#F6EAD6'};
-  border: ${(props) => props.border || 'none'};
-  border-radius: ${(props) => props.borderRadius || 'none'};
-  padding: ${(props) => props.padding || 'none'};
-  margin-top: ${(props) => props.marginTop || 'none'};
-  margin-bottom: ${(props) => props.marginBottom || 'none'};
-  margin-left: ${(props) => props.marginLeft || 'none'};
-  opacity: 0.5;
-  &:after {
-    content: '';
-    border-bottom: 2px solid #b99362;
-    margin: auto;
-    position: relative;
-    top: 5px;
-    width: 0%;
-    display: block;
-    transition: all 0.3s;
-  }
-  &:hover {
-    opacity: 1;
-    &:after {
-      width: 100%;
-    }
-  }
-  @media screen and (max-width: 767px) {
-    width: ${(props) => props.mobile_width || props.width};
-    font-size: ${(props) => props.mobile_fontSize || props.fontSize};
-    padding: ${(props) => props.mobile_padding || props.padding};
-    margin-top: ${(props) => props.mobile_marginTop || props.marginTop};
-    margin-bottom: ${(props) =>
-      props.mobile_marginBottom || props.marginBottom};
-    margin-left: ${(props) => props.mobile_marginLeft || 'none'};
-  }
-`
-const DateInput = styled.input`
-  width: 150px;
-  height: 40px;
-  font-size: 20px;
-  color: #f6ead6;
-  border-bottom: 1px solid #f6ead6;
-  @media screen and (max-width: 1279px) {
-    font-size: 20px;
-  }
-  @media screen and (max-width: 767px) {
-    font-size: 14px;
-    width: 100px;
-  }
-`
-const FileInput = styled.input``
 const PopupWrapper = styled.div`
   background-color: rgba(0, 0, 0, 0.9);
   position: fixed;
@@ -265,97 +160,6 @@ const NoteBox = styled.div`
     right: -20px;
   }
 `
-const LoadingBackground = styled.div`
-  position: fixed;
-  z-index: 999;
-  background-color: rgba(34, 35, 34, 0.8);
-  width: 100vw;
-  height: 100vh;
-  top: 0;
-  display: ${(props) => (props.loading ? 'block' : 'none')};
-`
-const move = keyframes`
-  0%,
-   {
-    left: 0;
-    transform:rotate(0deg)
-  }
-  25%{
-    left:600px;
-    transform:rotate(20deg)
-  }
-  50% {
-    transform:rotate(0deg)
-    left: 80%;
-  }
-  55%{
-    transform:rotate(0deg)
-    left: 90%;
-  }
-  70%{
-    transform:rotate(0deg)
-    left: 75%;
-  }
-  100%{
-    left: 0%;
-    transform:rotate(-360deg)
-  }
-`
-const MBmove = keyframes`
-  0%,
-   {
-    left: 0;
-    transform:rotate(0deg)
-  }
-  25%{
-    left:300px;
-    transform:rotate(20deg)
-  }
-  50% {
-    transform:rotate(0deg)
-    left: 80%;
-  }
-  55%{
-    transform:rotate(0deg)
-    left: 90%;
-  }
-  70%{
-    transform:rotate(0deg)
-    left: 75%;
-  }
-  100%{
-    left: 0%;
-    transform:rotate(-360deg)
-  }
-`
-const LoadingStyle = styled.span`
-  font-family: 'Rubik Moonrocks', cursive;
-  font-size: 60px;
-  text-transform: uppercase;
-  letter-spacing: 5px;
-  position: absolute;
-  top: 50%;
-  left: 25%;
-  color: #b99362;
-  background-clip: text;
-  &:before {
-    content: '';
-    z-index: 99;
-    width: 80px;
-    height: 80px;
-    background-image: url(${logo});
-    background-size: cover;
-    border-radius: 50%;
-    position: absolute;
-    top: -30%;
-    left: 0;
-    mix-blend-mode: difference;
-    animation: ${move} 3s ease-in-out infinite;
-    @media screen and (max-width: 767px) {
-      animation: ${MBmove} 3s ease-in-out infinite;
-    }
-  }
-`
 const Bar = styled.div`
   display: flex;
   justify-content: flex-start;
@@ -427,46 +231,6 @@ const Category = styled.div`
     padding: 12px 0;
   }
 `
-const ScrollDivide = styled.a`
-  display: block;
-  position: fixed;
-  right: 20px;
-  top: calc(90% - 40px);
-  z-index: 3;
-  border: 1px solid #f6ead6;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  &:hover {
-    background-color: #875839;
-  }
-  &:active {
-    background-color: #875839;
-  }
-  @media screen and (max-width: 767px) {
-    width: 50px;
-    height: 50px;
-  }
-`
-const Scroll = styled.div`
-  background-image: url(${message});
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 50px;
-  height: 50px;
-  margin: 0 auto;
-  cursor: pointer;
-  position: relative;
-  @media screen and (max-width: 767px) {
-    width: 30px;
-    height: 30px;
-  }
-`
 const ActivityContent = () => {
   const urlID = useParams()
   const [contentData, setContentData] = useState()
@@ -477,28 +241,13 @@ const ActivityContent = () => {
   const [profile, setProfile] = useState()
   const [ownerAuth, setOwnerAuth] = useState()
   const [memberAuth, setMemberAuth] = useState()
-  const [online, setOnline] = useState(false)
-  const [todoAlert, setTodoAlert] = useState(false)
   const [ownerProfile, setOwnerProfile] = useState()
-  const [isEditable, setIsEditable] = useState(false)
   const [isNote, setIsNote] = useState(false)
-  const newNameRef = useRef()
-  const newCityRef = useRef()
-  const newMountainRef = useRef()
   const newIntro = useRef()
-  const newPassword = useRef()
-  const [newStart, setNewStart] = useState()
-  const [newEnd, setNewEnd] = useState()
-  const [images, setImages] = useState()
-  const [imageURLs, setImageURLs] = useState()
-  const [downloadUrl, setDownloadUrl] = useState()
-  const [loading, setLoading] = useState(false)
-  const [introData, setIntroData] = useState('')
   const [tabIndex, setTabIndex] = useState(0)
   const [currentPage, setCurrentPage] = useState(0)
   const navigate = useNavigate()
   const value = useContext(UserContext)
-
   const groupContentRef = doc(db, 'groupContents', urlID.id)
 
   useEffect(() => {
@@ -522,13 +271,6 @@ const ActivityContent = () => {
     }
     getContentInfo()
     getOwnerProfile()
-    editFunction()
-      .then((res) => {
-        setLoading(true)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
     const unsub = onSnapshot(groupContentRef, (doc) => {
       const data = doc.data()
       if (data === undefined) {
@@ -537,17 +279,6 @@ const ActivityContent = () => {
         setTimeout(() => navigate('/'), 1500)
       } else {
         setLatestContentsData(data)
-        setIntroData(data.groupIntro)
-        console.log(data.todoList.length, contentData?.todoList.length)
-        if (data?.todoList.length - contentData?.todoList.length > 0) {
-          setTodoAlert(true)
-          value.alertPopup()
-          value.setAlertContent('新訊息')
-          console.log(online)
-          if (online) {
-            setTodoAlert(false)
-          }
-        }
       }
     })
   }, [value.userAuth, urlID.id])
@@ -630,8 +361,12 @@ const ActivityContent = () => {
           groupID: urlID.id,
           groupName: contentData.groupName,
           groupPhoto: contentData.groupPhoto,
-          startDate: newStart ? newStart : contentData.startDate,
-          endDate: newEnd ? newEnd : contentData.endDate,
+          startDate: latestContentsData
+            ? latestContentsData.startDate
+            : contentData.startDate,
+          endDate: latestContentsData
+            ? latestContentsData.newEnd
+            : contentData.endDate,
         }
         newjoinList.push(joinInfo, ...oldjoinList)
         const updatejoinGroup = await updateDoc(joinData, {
@@ -679,124 +414,6 @@ const ActivityContent = () => {
       console.log('No such document!')
     }
   }
-  function getPhotoInfo(e) {
-    setImages([...e.target.files])
-    const newImageUrls = URL.createObjectURL(e.target.files[0])
-    setImageURLs(newImageUrls)
-  }
-  async function editFunction() {
-    setLoading(true)
-    const newPromise = [sendUpdateInfo(), editGroupInfo(), findMemberData()]
-    await Promise.all(newPromise)
-    setLoading(false)
-    setIsEditable(false)
-    setImages(undefined)
-  }
-  async function sendUpdateInfo() {
-    const docSnap = await getDoc(groupContentRef)
-    if (images !== undefined) {
-      const imageRef = ref(storage, `images/${urlID.id}_登山團封面照`)
-      await uploadBytes(imageRef, images[0])
-      let url = await getDownloadURL(imageRef)
-      setDownloadUrl(url)
-      if (docSnap.exists()) {
-        const updateLeadGroup = await setDoc(
-          groupContentRef,
-          {
-            groupPhoto: url,
-            groupName: newNameRef.current.value,
-            groupPassword: newPassword.current.value,
-            groupCity: newCityRef.current.value,
-            startDate:
-              newStart === undefined ? contentData.startDate : newStart,
-            endDate: newEnd === undefined ? contentData.endDate : newEnd,
-            groupMountain: newMountainRef.current.value,
-          },
-          { merge: true },
-        )
-        setIsEditable(false)
-      }
-    } else {
-      try {
-        if (docSnap.exists()) {
-          const updateLeadGroup = await setDoc(
-            groupContentRef,
-            {
-              groupName: newNameRef.current.value,
-              groupCity: newCityRef.current.value,
-              startDate:
-                newStart === undefined ? contentData.startDate : newStart,
-              endDate: newEnd === undefined ? contentData.endDate : newEnd,
-              groupMountain: newMountainRef.current.value,
-              groupPassword: newPassword.current.value,
-            },
-            { merge: true },
-          )
-        }
-      } catch {
-        console.log('No such document!')
-      }
-    }
-  }
-  async function editGroupInfo() {
-    try {
-      const docRef = doc(db, 'users', ownerAuth)
-      const docSnap = await getDoc(docRef)
-      if (docSnap.exists()) {
-        const userData = docSnap.data()
-        const oldLeadGroup = userData.leadGroup
-        let index = oldLeadGroup.findIndex((c) => c.groupID === urlID.id)
-        const leadGroupInfo = {
-          groupID: urlID.id,
-          groupName: newNameRef.current.value
-            ? newNameRef.current.value
-            : latestContentsData.groupName,
-          groupPhoto: downloadUrl ? downloadUrl : latestContentsData.groupPhoto,
-          startDate: newStart ? newStart : latestContentsData.startDate,
-          endDate: newEnd ? newEnd : latestContentsData.endDate,
-        }
-        oldLeadGroup.splice(index, 1, leadGroupInfo)
-        const updateLeadGroup = await updateDoc(docRef, {
-          leadGroup: oldLeadGroup,
-        })
-      }
-    } catch {
-      console.log('No such document!')
-    }
-  }
-  async function findMemberData() {
-    if (latestContentsData?.memberList.length === 0) {
-      return
-    } else {
-      let thisID
-      latestContentsData?.memberList.map((list, index) => {
-        thisID = latestContentsData.memberList[index].joinID
-      })
-      const thisIDRef = doc(db, 'users', thisID)
-      const getRef = await getDoc(thisIDRef)
-      if (getRef.exists()) {
-        const getRefData = getRef.data()
-        const getJoinData = getRefData.joinGroup
-        let eachIndex = getJoinData.findIndex((c) => c.groupID === urlID.id)
-        const joinGroupInfo = {
-          groupID: urlID.id,
-          groupName: newNameRef.current.value
-            ? newNameRef.current.value
-            : latestContentsData.groupName,
-          groupPhoto:
-            downloadUrl !== undefined
-              ? downloadUrl
-              : latestContentsData.groupPhoto,
-          startDate: newStart ? newStart : latestContentsData.startDate,
-          endDate: newEnd ? newEnd : latestContentsData.endDate,
-        }
-        getJoinData.splice(eachIndex, 1, joinGroupInfo)
-        const updatejoinGroup = await updateDoc(thisIDRef, {
-          joinGroup: getJoinData,
-        })
-      }
-    }
-  }
   async function checkNote() {
     try {
       const docSnap = await getDoc(groupContentRef)
@@ -809,7 +426,6 @@ const ActivityContent = () => {
           { merge: true },
         )
       }
-      setIntroData(newIntro.current.value)
       setIsNote(false)
     } catch {
       console.log('No such document!')
@@ -845,349 +461,18 @@ const ActivityContent = () => {
           </PopupWrapper>
         </>
       )}
-      <LoadingBackground loading={loading}>
-        <LoadingStyle></LoadingStyle>
-      </LoadingBackground>
       {content && (
         <>
-          <NewWrapper>
-            {contentData && (
-              <>
-                {ownerAuth !== null && isEditable ? (
-                  <>
-                    <BackCover
-                      style={{
-                        border: '1px solid white',
-                        backgroundImage: `url(${
-                          imageURLs ? imageURLs : latestContentsData.groupPhoto
-                        })`,
-                      }}
-                    >
-                      <FileLabel>
-                        選擇照片
-                        <FileInput
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={getPhotoInfo}
-                          style={{ display: 'none' }}
-                        />
-                      </FileLabel>
-                    </BackCover>
-                    <MainInfo>
-                      <Divide
-                        justifyContent="center"
-                        marginBottom="12px"
-                        mobile_justifyContent="flex-start"
-                      >
-                        <Text
-                          fontSize="24px"
-                          fontWeight="400"
-                          tablet_fontSize="20px"
-                          mobile_fontSize="16px"
-                        >
-                          團名：
-                        </Text>
-                        <InfoInput
-                          backgroundColor="transparent"
-                          width="300px"
-                          mobile_width="200px"
-                          fontSize="20px"
-                          tablet_fontSize="20px"
-                          mobile_fontSize="16px"
-                          boxShadow="none"
-                          color="#F6EAD6"
-                          borderBottom="1px solid #F6EAD6"
-                          mobile_height="30px"
-                          ref={newNameRef}
-                          defaultValue={
-                            latestContentsData.groupName
-                              ? latestContentsData.groupName
-                              : contentData.groupName
-                          }
-                        />
-                      </Divide>
-                      <Divide marginBottom="12px">
-                        <Text
-                          margin="0px 0px 0px 0px"
-                          fontSize="24px"
-                          fontWeight="400"
-                          tablet_fontSize="20px"
-                          mobile_fontSize="16px"
-                          mobile_margin="0 0 0 0"
-                        >
-                          地點：
-                        </Text>
-                        <Divide>
-                          <InfoInput
-                            backgroundColor="transparent"
-                            width="150px"
-                            mobile_width="100px"
-                            fontSize="20px"
-                            tablet_fontSize="20px"
-                            mobile_fontSize="16px"
-                            boxShadow="none"
-                            color="#F6EAD6"
-                            borderBottom="1px solid #F6EAD6"
-                            mobile_height="30px"
-                            ref={newCityRef}
-                            defaultValue={
-                              latestContentsData.groupCity
-                                ? latestContentsData.groupCity
-                                : contentData.groupCity
-                            }
-                          />
-                          <InfoInput
-                            backgroundColor="transparent"
-                            width="150px"
-                            mobile_width="120px"
-                            fontSize="20px"
-                            tablet_fontSize="20px"
-                            mobile_fontSize="16px"
-                            boxShadow="none"
-                            color="#F6EAD6"
-                            borderBottom="1px solid #F6EAD6"
-                            mobile_height="30px"
-                            ref={newMountainRef}
-                            defaultValue={
-                              latestContentsData.groupMountain
-                                ? latestContentsData.groupMountain
-                                : contentData.groupMountain
-                            }
-                          />
-                        </Divide>
-                      </Divide>
-                      <Divide marginBottom="12px">
-                        <Text
-                          fontSize="24px"
-                          fontWeight="400"
-                          tablet_fontSize="20px"
-                          mobile_fontSize="16px"
-                        >
-                          日期：
-                        </Text>
-                        <DateInput
-                          type="date"
-                          style={{ colorScheme: 'dark' }}
-                          onChange={(e) => setNewStart(e.target.value)}
-                          defaultValue={
-                            latestContentsData.startDate
-                              ? latestContentsData.startDate
-                              : contentData.startDate
-                          }
-                        />
-                        <DateInput
-                          type="date"
-                          style={{ colorScheme: 'dark', cursor: 'pointer' }}
-                          onChange={(e) => setNewEnd(e.target.value)}
-                          defaultValue={
-                            latestContentsData.endDate
-                              ? latestContentsData.endDate
-                              : contentData.endDate
-                          }
-                        />
-                      </Divide>
-                      <Divide marginBottom="12px">
-                        <Text fontSize="16px" fontWeight="400">
-                          群組密碼：
-                        </Text>
-                        <InfoInput
-                          ref={newPassword}
-                          backgroundColor="transparent"
-                          width="150px"
-                          mobile_width="120px"
-                          fontSize="16px"
-                          boxShadow="none"
-                          color="#F6EAD6"
-                          borderBottom="1px solid #F6EAD6"
-                          mobile_height="30px"
-                          defaultValue={
-                            latestContentsData.groupPassword
-                              ? latestContentsData.groupPassword
-                              : contentData.groupPassword
-                          }
-                        />
-                      </Divide>
-                      <Divide flexDirection="column">
-                        <Divide justiftContent="space-between">
-                          <EditBtn
-                            width="120px"
-                            mobile_width="80px"
-                            color="#B99362"
-                            padding="8px 12px"
-                            mobile_padding="8px"
-                            mobile_fontSize="12px"
-                            style={{
-                              opacity: '1',
-                            }}
-                            onClick={() => setIsEditable(false)}
-                          >
-                            取消修改
-                          </EditBtn>
-                          <EditBtn
-                            width="120px"
-                            mobile_width="80px"
-                            color="#B99362"
-                            padding="8px 12px"
-                            mobile_padding="8px"
-                            mobile_fontSize="12px"
-                            style={{
-                              opacity: '1',
-                            }}
-                            onClick={editFunction}
-                          >
-                            確認修改
-                          </EditBtn>
-                        </Divide>
-                      </Divide>
-                    </MainInfo>
-                  </>
-                ) : (
-                  <>
-                    <BackCover
-                      style={{
-                        backgroundImage: `url(${
-                          imageURLs ? imageURLs : latestContentsData.groupPhoto
-                        })`,
-                      }}
-                    ></BackCover>
-                    <MainInfo>
-                      <Divide
-                        justifyContent="center"
-                        marginBottom="12px"
-                        mobile_justifyContent="flex-start"
-                      >
-                        <Text
-                          fontSize="24px"
-                          fontWeight="400"
-                          tablet_fontSize="20px"
-                          mobile_fontSize="16px"
-                        >
-                          團名：
-                        </Text>
-                        <Text
-                          fontSize="20px"
-                          tablet_fontSize="20px"
-                          mobile_fontSize="16px"
-                        >
-                          {latestContentsData.groupName
-                            ? latestContentsData.groupName
-                            : contentData.groupName}
-                        </Text>
-                      </Divide>
-                      <Divide marginBottom="12px">
-                        <Text
-                          margin="0px 0px 0px 0px"
-                          fontSize="24px"
-                          fontWeight="400"
-                          tablet_fontSize="20px"
-                          mobile_fontSize="16px"
-                          mobile_margin="0 0 0 0"
-                        >
-                          地點：
-                        </Text>
-                        <Divide>
-                          <Text
-                            fontSize="20px"
-                            margin="0 8px 0 0"
-                            tablet_fontSize="20px"
-                            mobile_fontSize="16px"
-                          >
-                            {latestContentsData.groupCity
-                              ? latestContentsData.groupCity
-                              : contentData.groupCity}
-                            |
-                            {latestContentsData.groupMountain
-                              ? latestContentsData.groupMountain
-                              : contentData.groupMountain}
-                          </Text>
-                        </Divide>
-                      </Divide>
-                      <Divide marginBottom="12px">
-                        <Text
-                          fontSize="24px"
-                          fontWeight="400"
-                          tablet_fontSize="20px"
-                          mobile_fontSize="16px"
-                        >
-                          日期：
-                        </Text>
-                        <Text
-                          fontSize="20px"
-                          tablet_fontSize="16px"
-                          mobile_fontSize="14px"
-                        >
-                          {latestContentsData.startDate
-                            ? latestContentsData.startDate
-                            : contentData.startDate}{' '}
-                          ~{' '}
-                          {latestContentsData.endDate
-                            ? latestContentsData.endDate
-                            : contentData.endDate}
-                        </Text>
-                      </Divide>
-                      {ownerAuth !== null && (
-                        <Divide marginBottom="12px">
-                          <Text fontSize="16px" fontWeight="400">
-                            群組密碼：
-                          </Text>
-                          <Text fontSize="16px" mobile_fontSize="14px">
-                            {latestContentsData.groupPassword}
-                          </Text>
-                        </Divide>
-                      )}
-                      {ownerAuth !== null && !isEditable && (
-                        <>
-                          <ReactTooltip
-                            id="owner"
-                            place="bottom"
-                            effect="solid"
-                          >
-                            團長專屬修改權限
-                          </ReactTooltip>
-                          <EditBtn
-                            width="140px"
-                            borderBottom="1px solid #F6EAD6"
-                            mobile_fontSize="12px"
-                            mobile_marginTop="10px"
-                            onClick={() => {
-                              setIsEditable(true)
-                            }}
-                            data-tip
-                            data-for="owner"
-                          >
-                            【修改基本資訊】
-                          </EditBtn>
-                        </>
-                      )}
-                    </MainInfo>
-                  </>
-                )}
-              </>
-            )}
-          </NewWrapper>
+          <BannerInfo
+            setLatestContentsData={setLatestContentsData}
+            latestContentsData={latestContentsData}
+            setContentData={setContentData}
+            contentData={contentData}
+            setOwnerAuth={setOwnerAuth}
+            ownerAuth={ownerAuth}
+          />
           <Wrapper>
-            <ScrollDivide>
-              <ReactTooltip id="contact" place="top" effect="solid">
-                留言版
-              </ReactTooltip>
-              <Scroll
-                data-tip
-                data-for="contact"
-                onClick={() => setOnline((current) => !current)}
-              ></Scroll>
-              {online && (
-                <Divide
-                  style={{
-                    position: 'absolute',
-                    right: '20px',
-                    bottom: '60px',
-                  }}
-                >
-                  <TodoList memberAuth={memberAuth} ownerAuth={ownerAuth} />
-                </Divide>
-              )}
-            </ScrollDivide>
+            <TodoList memberAuth={memberAuth} ownerAuth={ownerAuth} />
             <Divide
               alignItems="start"
               justiftContent="space-around"
@@ -1246,12 +531,20 @@ const ActivityContent = () => {
                   {isNote ? (
                     <NewIntroWrapper
                       ref={newIntro}
-                      defaultValue={introData ? introData : '目前尚無填寫事項'}
+                      defaultValue={
+                        latestContentsData
+                          ? latestContentsData.groupIntro
+                          : '目前尚無填寫事項'
+                      }
                     />
                   ) : (
                     <NewIntroWrapper
                       disabled
-                      value={introData ? introData : '目前尚無填寫事項'}
+                      value={
+                        latestContentsData
+                          ? latestContentsData.groupIntro
+                          : '目前尚無填寫事項'
+                      }
                     />
                   )}
                 </NoteBox>
@@ -1309,8 +602,6 @@ const ActivityContent = () => {
                             return (
                               <Divide
                                 flexDirection="column"
-                                tablet_flexDirection="column"
-                                mobile_flexDirection="column"
                                 marginRight="12px"
                                 key={index}
                                 id={index}
