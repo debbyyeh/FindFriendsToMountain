@@ -213,6 +213,15 @@ const Icon = styled.div`
   background-size: cover;
   cursor: pointer;
 `
+const Dot = styled.div`
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background-color: #f6ead6;
+`
+const HighDot = styled(Dot)`
+  background-color: rgb(227, 102, 52);
+`
 const Map = () => {
   const value = useContext(UserContext)
   const [clickCity, setClickCity] = useState('')
@@ -591,30 +600,23 @@ const Map = () => {
       )}
 
       <Signature>
-        {/* <Text fontSize="14px" mobile_fontSize="12px" textAlign="left">
-          【點選城市查看推薦山之道，若完成攀登可點選山的名稱註記】
-        </Text> */}
         <Divide justifyContent="flex-start">
-          <div
-            style={{
-              width: '15px',
-              height: '15px',
-              borderRadius: '50%',
-              backgroundColor: '#F6EAD6',
-            }}
-          ></div>
-          <WalkingPlace>步道</WalkingPlace>
+          <ReactTooltip id="trail" place="top" effect="solid">
+            點選城市查看推薦步道
+          </ReactTooltip>
+          <Dot></Dot>
+          <WalkingPlace data-tip data-for="trail">
+            步道
+          </WalkingPlace>
         </Divide>
         <Divide justifyContent="flex-start">
-          <div
-            style={{
-              width: '15px',
-              height: '15px',
-              borderRadius: '50%',
-              backgroundColor: 'rgb(227, 102, 52)',
-            }}
-          ></div>
-          <HighMountain>百岳</HighMountain>
+          <ReactTooltip id="mountain" place="top" effect="solid">
+            點選城市查看推薦百岳
+          </ReactTooltip>
+          <HighDot></HighDot>
+          <HighMountain data-tip data-for="mountain">
+            百岳
+          </HighMountain>
         </Divide>
         {!isAdd ? (
           <Divide justifyContent="flex-start" marginTop="10px">
@@ -624,8 +626,8 @@ const Map = () => {
               }}
               onClick={adding}
             ></Icon>
-            <Text tablet_fontSize="14px" mobile_fontSize="10px">
-              新增爬過的山
+            <Text tablet_fontSize="14px" mobile_fontSize="12px">
+              新增山
             </Text>
           </Divide>
         ) : (
@@ -636,7 +638,7 @@ const Map = () => {
               }}
               onClick={adding}
             ></Icon>
-            <Text tablet_fontSize="14px" mobile_fontSize="10px">
+            <Text tablet_fontSize="14px" mobile_fontSize="12px">
               輸入後按加入地圖
             </Text>
           </Divide>

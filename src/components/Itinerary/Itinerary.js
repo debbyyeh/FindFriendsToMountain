@@ -29,14 +29,14 @@ const BackgroundStyle = styled.div`
 `
 const IconImage = styled.div`
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   @media screen and (max-width: 1279px) {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
   }
 `
 const DroppableContainer = styled.div`
@@ -588,10 +588,7 @@ const Itinerary = () => {
                                                       {item.takePerson}
                                                     </Text>
                                                   </Divide>
-                                                  <Btn
-                                                    borderRadius="50%"
-                                                    width="30px"
-                                                    height="30px"
+                                                  <Icon
                                                     onClick={() =>
                                                       personWhoTake(
                                                         index,
@@ -603,10 +600,9 @@ const Itinerary = () => {
                                                       display: item.takePerson
                                                         ? 'none'
                                                         : 'block',
+                                                      backgroundImage: `url(${add})`,
                                                     }}
-                                                  >
-                                                    +
-                                                  </Btn>
+                                                  ></Icon>
                                                 </Divide>
                                                 {item.takePerson &&
                                                   item.takePersonID ===
