@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { UserContext } from '../../utils/userContext'
-import { Text, Divide, Btn, InfoInput, SrcImage } from '../../css/style'
+import { Text, Divide, Btn, InfoInput } from '../../css/style'
 import { useParams } from 'react-router-dom'
 import carIcon from './Car.png'
-import cancel from './CancelNormal.png'
-import cancelHover from './Cancel.png'
+import cancel from '../../images/CancelNormal.png'
+import cancelHover from '../../images/Cancel.png'
 import { doc, updateDoc, onSnapshot } from 'firebase/firestore'
 import { db } from '../../utils/firebase'
 
@@ -18,7 +18,6 @@ const CarContainer = styled.div`
     margin-bottom: 20px;
   }
 `
-
 const CarseatContainer = styled.input`
   border-radius: 8px;
   width: 47%;
@@ -88,6 +87,16 @@ const CancelBtn = styled.div`
     height: 20px;
   }
 `
+const CarImage = styled.img`
+  width: 70px;
+  height: 60px;
+  object-fit: contain;
+`
+const DefaultImage = styled(CarImage)`
+  width: 150px;
+  height: 125px;
+  margin: 0 auto;
+`
 
 const Cars = () => {
   const urlID = useParams()
@@ -98,13 +107,12 @@ const Cars = () => {
   const docRef = doc(db, 'groupContents', urlID.id)
 
   useEffect(() => {
-    const unsub = onSnapshot(docRef, (doc) => {
+    onSnapshot(docRef, (doc) => {
       const data = doc.data()
       const latestData = data.carLists
       setLatest(latestData)
     })
   }, [])
-  console.log(latest)
   const CarListForm = ({ addCar }) => {
     function handleSubmit(e) {
       e.preventDefault()
@@ -181,9 +189,7 @@ const Cars = () => {
   }
 
   async function updateCarSeatList(latest) {
-    const updateCarsToData = await updateDoc(docRef, {
-      carLists: latest,
-    })
+    await updateDoc(docRef, { carLists: latest })
     value.alertPopup()
     value.setAlertContent('更新成功')
   }
@@ -196,127 +202,93 @@ const Cars = () => {
 
   async function updateCarList(latest) {
     const newArr = [...latest]
-    const updateCarsToData = await updateDoc(docRef, {
-      carLists: newArr,
-    })
+    await updateDoc(docRef, { carLists: newArr })
   }
 
   return (
-    <>
-      <Divide
-        width="100%"
-        minHeight="300px"
-        flexDirection="column"
-        tablet_width="100%"
-        padding="20px 60px 20px 60px"
-        tablet_padding="20px 20px 20px 20px"
-        style={{
-          margin: '50px auto',
-          border: '1px solid white',
-          borderRadius: '24px',
-        }}
-      >
-        <Divide flexDirection="column">
-          <Text textAlign="center">【請輸入下方相關資訊】</Text>
-          <CarListForm addCar={addCar} />
-        </Divide>
-        <CarDivide>
-          <ScrollDivide>
-            {latest && latest.length > 0 ? (
-              latest.map((car, carIndex) => {
-                return (
-                  <>
-                    <CarContainer key={carIndex}>
-                      <Divide justifyContent="center" marginBottom="12px">
-                        <Text fontSize="20px" mobile_fontSize="14px">
-                          {car.whoseCar}的車子
-                        </Text>
-                        <CancelBtn
-                          onClick={() => deleteCar(carIndex)}
-                        ></CancelBtn>
-                      </Divide>
-                      <Divide flexDirection="column">
-                        <SrcImage
-                          src={carIcon}
-                          width="70px"
-                          height="60px"
-                          objectFit="contain"
-                        />
-                        <Text marginTop="8px" mobile_fontSize="14px">
-                          目前還有
-                          {Number(latest[carIndex].seat < car.maxNum)
-                            ? Number(car.maxNum - latest[carIndex].seat)
-                            : Number(latest[carIndex].seat)}
-                          /{Number(car.maxNum)}
-                          位置
-                        </Text>
-                      </Divide>
-                      <SeatDivide>
-                        {Array(car.maxNum)
-                          .fill(undefined)
-                          .map((_, index) => {
-                            return (
-                              <CarseatContainer
-                                key={index}
-                                style={{
-                                  backgroundColor: latest[carIndex]
-                                    .passengerArrange[index]
-                                    ? '#B99362'
-                                    : 'transparent',
-                                  border: latest[carIndex].passengerArrange[
-                                    index
-                                  ]
-                                    ? '1px solid #B99362'
-                                    : '1px dashed #F6EAD6',
-                                }}
-                                defaultValue={
-                                  latest[carIndex].passengerArrange[index] ===
-                                  undefined
-                                    ? ''
-                                    : latest[carIndex].passengerArrange[index]
-                                }
-                                type="text"
-                                placeholder="乘客"
-                                onChange={(e) => {
-                                  findPassenger(carIndex, index, e.target.value)
-                                }}
-                              />
-                            )
-                          })}
-                      </SeatDivide>
-                    </CarContainer>
-                  </>
-                )
-              })
-            ) : (
-              <>
-                <SrcImage
-                  width="150px"
-                  height="125px"
-                  style={{
-                    objectFit: 'contain',
-                    margin: '0 auto',
-                  }}
-                  src={carIcon}
-                />
-              </>
-            )}
-          </ScrollDivide>
-        </CarDivide>
-        {latest && latest.length > 0 && (
-          <Btn
-            width="150px"
-            tablet_fontSize="14px"
-            mobile_width="100px"
-            borderRadius="24px"
-            mobile_height="30px"
-            onClick={updateCarSeatList}
-          >
-            儲存送出
-          </Btn>
-        )}
+    <Divide
+      width="100%"
+      minHeight="300px"
+      flexDirection="column"
+      padding="20px 60px 20px 60px"
+      tablet_padding="20px 20px 20px 20px"
+      style={{
+        margin: '50px auto',
+        border: '1px solid white',
+        borderRadius: '24px',
+      }}
+    >
+      <Divide flexDirection="column">
+        <Text textAlign="center">【請輸入下方相關資訊】</Text>
+        <CarListForm addCar={addCar} />
       </Divide>
-    </>
+      <CarDivide>
+        <ScrollDivide>
+          {latest && latest.length > 0 ? (
+            latest.map((car, carIndex) => {
+              return (
+                <>
+                  <CarContainer key={carIndex}>
+                    <Divide justifyContent="center" marginBottom="12px">
+                      <Text fontSize="20px" mobile_fontSize="14px">
+                        {car.whoseCar}的車子
+                      </Text>
+                      <CancelBtn
+                        onClick={() => deleteCar(carIndex)}
+                      ></CancelBtn>
+                    </Divide>
+                    <Divide flexDirection="column">
+                      <CarImage src={carIcon} alt="car" />
+                      <Text marginTop="8px" mobile_fontSize="14px">
+                        目前還有
+                        {Number(latest[carIndex].seat < car.maxNum)
+                          ? Number(car.maxNum - latest[carIndex].seat)
+                          : Number(latest[carIndex].seat)}
+                        /{Number(car.maxNum)}
+                        位置
+                      </Text>
+                    </Divide>
+                    <SeatDivide>
+                      {Array(car.maxNum)
+                        .fill(undefined)
+                        .map((_, index) => {
+                          return (
+                            <CarseatContainer
+                              key={index}
+                              style={{
+                                backgroundColor: latest[carIndex]
+                                  .passengerArrange[index]
+                                  ? '#B99362'
+                                  : 'transparent',
+                                border: latest[carIndex].passengerArrange[index]
+                                  ? '1px solid #B99362'
+                                  : '1px dashed #F6EAD6',
+                              }}
+                              defaultValue={
+                                latest[carIndex].passengerArrange[index] ===
+                                undefined
+                                  ? ''
+                                  : latest[carIndex].passengerArrange[index]
+                              }
+                              type="text"
+                              placeholder="乘客"
+                              onChange={(e) => {
+                                findPassenger(carIndex, index, e.target.value)
+                              }}
+                            />
+                          )
+                        })}
+                    </SeatDivide>
+                  </CarContainer>
+                </>
+              )
+            })
+          ) : (
+            <DefaultImage src={carIcon} alt="car" />
+          )}
+        </ScrollDivide>
+      </CarDivide>
+    </Divide>
   )
 }
 

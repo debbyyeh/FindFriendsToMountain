@@ -271,7 +271,7 @@ const ActivityContent = () => {
     }
     getContentInfo()
     getOwnerProfile()
-    const unsub = onSnapshot(groupContentRef, (doc) => {
+    onSnapshot(groupContentRef, (doc) => {
       const data = doc.data()
       if (data === undefined) {
         value.alertPopup()
@@ -369,7 +369,7 @@ const ActivityContent = () => {
             : contentData.endDate,
         }
         newjoinList.push(joinInfo, ...oldjoinList)
-        const updatejoinGroup = await updateDoc(joinData, {
+        await updateDoc(joinData, {
           joinGroup: newjoinList,
         })
       } catch {
@@ -392,7 +392,7 @@ const ActivityContent = () => {
         isLogged: true,
       }
       newMember.push(newMemberInfo, ...contentData.memberList)
-      const updateMember = await updateDoc(groupContentRef, {
+      await updateDoc(groupContentRef, {
         memberList: newMember,
       })
     }
@@ -575,6 +575,7 @@ const ActivityContent = () => {
                       <MemberPic
                         src={ownerProfile?.photoURL}
                         onClick={() => setProfile()}
+                        alt="owner picture"
                       />
                     </Divide>
                   )}
@@ -620,6 +621,7 @@ const ActivityContent = () => {
                                   onClick={() => {
                                     seeTheProfile(index)
                                   }}
+                                  alt="member picture"
                                 />
                               </Divide>
                             )

@@ -103,9 +103,9 @@ const AlertContent = styled.div`
 `
 const AlertBox = styled.div`
   position: fixed;
-  left:-350px;
+  left: -350px;
   top: 70%;
-  z-index: 999; 
+  z-index: 999;
   cursor: pointer;
   border: 1px solid rgba(241, 142, 6, 0.81);
   background-color: rgba(220, 128, 1, 0.16);
@@ -113,7 +113,7 @@ const AlertBox = styled.div`
   height: 60px;
   padding: 0 12px;
   box-shadow: 10px 10px 12px rgba(0, 0, 0, 0.2);
-  animation-name: ${(props) => (props.$alert ? 'slideIn' : 'null')}; 
+  animation-name: ${(props) => (props.$alert ? 'slideIn' : 'null')};
   animation-duration: 4s;
   @keyframes slideIn {
     0% {
@@ -131,15 +131,15 @@ const AlertBox = styled.div`
   }
   &:hover {
     ${AlertContent} {
-      color: white; !important
+      color: white !important ;
     }
   }
   &:hover {
     background-color: rgba(220, 128, 1, 0.33);
   }
-  
 `
 const AlertImg = styled.div`
+  background-image: url(${error});
   background-size: cover;
   width: 32px;
   height: 32px;
@@ -157,35 +157,35 @@ const App = () => {
   const [warning, setWarning] = useState(false)
   const [alertContent, setAlertContent] = useState('')
   const navigate = useNavigate()
-  const auth = getAuth()
 
   useEffect(() => {
+    const auth = getAuth()
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserAuth(user)
         setUserUid(user.uid)
       } else {
         setUserAuth(null)
-        navigate('/')
+        navigate('/login')
       }
     })
-    getUserName()
-  }, [userUid])
-
-  async function getUserName() {
-    if (userUid) {
-      try {
-        const docRef = doc(db, 'users', userUid)
-        const docSnap = await getDoc(docRef)
-        if (docSnap.exists()) {
-          const userData = docSnap.data()
-          setUserName(userData.name)
+    async function getUserName() {
+      if (userUid) {
+        try {
+          const docRef = doc(db, 'users', userUid)
+          const docSnap = await getDoc(docRef)
+          if (docSnap.exists()) {
+            const userData = docSnap.data()
+            setUserName(userData.name)
+          }
+        } catch {
+          console.log('No such document!')
         }
-      } catch {
-        console.log('No such document!')
       }
     }
-  }
+    getUserName()
+  }, [])
+
   function alertPopup() {
     setAlert(true)
     setTimeout(() => {
@@ -205,25 +205,19 @@ const App = () => {
   }
 
   return (
-    <>
-      <UserContext.Provider value={value}>
-        <GlobalStyle />
-        <AlertBox $alert={alert} $warning={warning}>
-          <AlertContent>
-            <AlertIcon>
-              <AlertImg
-                style={{
-                  backgroundImage: `url(${error})`,
-                }}
-              ></AlertImg>
-            </AlertIcon>
-            <AlertContentInfo>{alertContent}</AlertContentInfo>
-          </AlertContent>
-        </AlertBox>
-        <Header />
-        <Outlet />
-      </UserContext.Provider>
-    </>
+    <UserContext.Provider value={value}>
+      <GlobalStyle />
+      <AlertBox $alert={alert} $warning={warning}>
+        <AlertContent>
+          <AlertIcon>
+            <AlertImg />
+          </AlertIcon>
+          <AlertContentInfo>{alertContent}</AlertContentInfo>
+        </AlertContent>
+      </AlertBox>
+      <Header />
+      <Outlet />
+    </UserContext.Provider>
   )
 }
 

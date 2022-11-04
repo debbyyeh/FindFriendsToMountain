@@ -45,7 +45,6 @@ const PhotoWrapper = styled.div`
     align-items: start;
   }
 `
-
 const InfoWrapper = styled.div`
   background-color: #222322;
   height: 100%;
@@ -97,13 +96,10 @@ const MainTitle = styled.div`
 `
 
 const Title = styled.div`
-  font-size: 24px;
+  font-size: 20px;
   color: #f6ead6;
   margin-top: -20px;
 
-  @media screen and (max-width: 1279px) {
-    font-size: 20px;
-  }
   @media screen and (max-width: 767px) {
     font-size: 16px;
   }
@@ -239,7 +235,9 @@ const AfterUpload = styled.div`
   background-color: #d9d9d9;
   border-radius: 8px;
 `
-const FileInput = styled.input``
+const FileInput = styled.input`
+  display: none;
+`
 const FileLabel = styled.label`
   display: inline-block;
   cursor: pointer;
@@ -275,7 +273,7 @@ const move = keyframes`
   0%
    {
     left: 0;
-    transform:rotate(0deg)
+    transform:rotate(0deg);
   }
   25%{
     left:400px;
@@ -295,28 +293,20 @@ const move = keyframes`
   }
   100%{
     left: 0%;
-    transform:rotate(-360deg)
+    transform:rotate(-360deg);
   }
 `
 const LoadingStyle = styled.span`
-  font-family: 'Rubik Moonrocks', cursive;
-  font-size: 60px;
-  text-transform: uppercase;
-  letter-spacing: 5px;
   position: absolute;
-  top:50%;
-  left:25%;
-  color:#B99362;
-  background-clip: text;
+  top: 50%;
+  left: 25%;
   &:before {
     content: '';
-    z-index:99;
+    z-index: 99;
     width: 80px;
     height: 80px;
-    ${'' /* background-color: rgba(34, 35, 34, 0.8); */}
-    background-image:url(${logo});
-    background-size:cover;
-    ${'' /* background-color: white; */}
+    background-image: url(${logo});
+    background-size: cover;
     border-radius: 50%;
     position: absolute;
     top: -30%;
@@ -332,27 +322,19 @@ function Login() {
   const [images, setImages] = useState()
   const [imageURLs, setImageURLs] = useState()
   const [downloadUrl, setDownloadUrl] = useState([])
-  const [jwtUid, setjwtUid] = useState()
   const [loading, setLoading] = useState(false)
   const value = useContext(UserContext)
   const [mode, setMode] = useState(true)
   const navigate = useNavigate()
 
-  // useEffect(() => {
-  //   if (value.userAuth !== null) {
-  //     navigate('/profile')
-  //   }
-  // }, [value.userAuth])
   function getPhotoInfo(e) {
     setImages([...e.target.files])
-    console.log(e.target.files[0])
     const newImageUrls = URL.createObjectURL(e.target.files[0])
     setImageURLs(newImageUrls)
   }
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm()
   async function signInCheck(data) {
@@ -361,19 +343,15 @@ function Login() {
       .then((userCredential) => {
         const user = userCredential.user
         if (user) {
-          setjwtUid(user.uid)
           value.alertPopup()
           value.setAlertContent('登入成功')
           navigate('/profile')
         }
       })
       .catch((error) => {
-        console.log(error.code)
         if (error.code === 'auth/wrong-password') {
-          console.log(124)
           value.alertPopup()
           value.setAlertContent('帳號或密碼有誤')
-          const errorMessage = error.message
         }
       })
   }
@@ -388,15 +366,13 @@ function Login() {
       createUserWithEmailAndPassword(auth, data.email, data.password)
         .then((userCredential) => {
           onAuthStateChanged(auth, (currentUser) => {
-            // const user = userCredential.user;
-            const getjwtToken = currentUser.accessToken
             const jwtUid = currentUser.uid
             if (jwtUid !== undefined) {
               const imageRef = ref(storage, `images/${jwtUid}`)
               uploadBytes(imageRef, images[0]).then(() => {
                 getDownloadURL(imageRef).then((url) => {
                   setDownloadUrl(url)
-                  const newDocRef = setDoc(doc(db, 'users', jwtUid), {
+                  setDoc(doc(db, 'users', jwtUid), {
                     id: jwtUid,
                     name: data.nickname,
                     photoURL: url,
@@ -405,7 +381,6 @@ function Login() {
                     leadGroup: [],
                     equipment: [],
                   })
-                  console.log(newDocRef)
                   if (downloadUrl !== undefined) {
                     setLoading(false)
                     value.alertPopup()
@@ -419,7 +394,6 @@ function Login() {
         })
         .catch((error) => {
           const errorCode = error.code
-          console.log(error.code)
           if (errorCode === 'auth/email-already-in-use') {
             value.alertPopup()
             value.setAlertContent('帳號重複註冊')
@@ -576,7 +550,6 @@ function Login() {
                       type="file"
                       accept="image/*"
                       multiple
-                      style={{ display: 'none' }}
                       onChange={getPhotoInfo}
                     />
                   </FileLabel>
