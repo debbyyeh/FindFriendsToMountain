@@ -7,9 +7,9 @@ svg {
 }
 @media screen and (max-width:767px){
     svg{
-        width:60%;
-        height:50vh;
-        margin-left:15%;
+        width:80%;
+        height:70vh;
+        margin-left:10%;
     }
 }
 path {

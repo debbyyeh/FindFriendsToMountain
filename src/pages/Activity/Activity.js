@@ -1,18 +1,17 @@
 import React, { useState, useRef, useContext } from 'react'
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 import { db, storage } from '../../utils/firebase'
 import { collection, setDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { UserContext } from '../../utils/userContext'
 import { useNavigate } from 'react-router-dom'
 import { HashLink } from 'react-router-hash-link'
-import { Btn, Divide } from '../../css/style'
+import { Btn, Divide, LoadingStyle } from '../../css/style'
 import Calendar from 'react-calendar'
 import trekking from './Trekking.png'
 import back from './back.png'
 import check from './check.png'
 import share from './Share.png'
-import logo from './Mountain.png'
 import 'react-calendar/dist/Calendar.css'
 import top from './top.png'
 
@@ -166,7 +165,6 @@ const FileLabel = styled.label`
     }
   }
 `
-
 const UploadPic = styled.div`
   width: 100%;
   height: 320px;
@@ -215,7 +213,6 @@ const TextInput = styled.textarea`
     height: 200px;
   }
 `
-
 const Basic = styled.div`
   width: 100%;
   margin-right: auto;
@@ -402,88 +399,7 @@ const LoadingBackground = styled.div`
   top: 0;
   display: ${(props) => (props.loading ? 'block' : 'none')};
 `
-const move = keyframes`
-  0%,
-   {
-    left: 0;
-    transform:rotate(0deg)
-  }
-  25%{
-    left:600px;
-    transform:rotate(20deg)
-  }
-  50% {
-    transform:rotate(0deg)
-    left: 80%;
-  }
-  55%{
-    transform:rotate(0deg)
-    left: 90%;
-  }
-  70%{
-    transform:rotate(0deg)
-    left: 75%;
-  }
-  100%{
-    left: 0%;
-    transform:rotate(-360deg)
-  }
-`
-const MBmove = keyframes`
-  0%,
-   {
-    left: 0;
-    transform:rotate(0deg)
-  }
-  25%{
-    left:300px;
-    transform:rotate(20deg)
-  }
-  50% {
-    transform:rotate(0deg)
-    left: 80%;
-  }
-  55%{
-    transform:rotate(0deg)
-    left: 90%;
-  }
-  70%{
-    transform:rotate(0deg)
-    left: 75%;
-  }
-  100%{
-    left: 0%;
-    transform:rotate(-360deg)
-  }
-`
-const LoadingStyle = styled.span`
-  font-family: 'Rubik Moonrocks', cursive;
-  font-size: 60px;
-  text-transform: uppercase;
-  letter-spacing: 5px;
-  position: absolute;
-  top: 50%;
-  left: 25%;
-  color: #b99362;
-  background-clip: text;
-  &:before {
-    content: '';
-    z-index: 99;
-    width: 80px;
-    height: 80px;
-    background-image: url(${logo});
-    background-size: cover;
-    border-radius: 50%;
-    position: absolute;
-    top: -30%;
-    left: 0;
-    mix-blend-mode: difference;
-    animation: ${move} 3s ease-in-out infinite;
-    @media screen and (max-width: 767px) {
-      animation: ${MBmove} 3s ease-in-out infinite;
-    }
-  }
-`
+
 const Icon = styled.img`
   cursor: pointer;
   display: block;
@@ -575,9 +491,7 @@ function Activity() {
     } else {
       setIsActive(true)
       setLoading(true)
-      const userdocRef = doc(db, 'users', value.userUid)
       const docRef = doc(collection(db, 'groupContents'))
-      const docSnap = await getDoc(userdocRef)
       const id = docRef.id
       if (images === undefined) {
         let newGroup = {
@@ -606,7 +520,7 @@ function Activity() {
               : null,
           groupIntro: textRef.current.value ? textRef.current.value : null,
         }
-        const newDocRef = setDoc(doc(db, 'groupContents', id), newGroup)
+        setDoc(doc(db, 'groupContents', id), newGroup)
         setGroup(newGroup)
         setLoading(false)
         setIsInfo(true)
@@ -616,7 +530,6 @@ function Activity() {
           `images/${nameRef.current.value}_${id}_登山團封面照`,
         )
         uploadBytes(imageRef, images[0]).then(() => {
-          console.log('檔案上傳成功')
           getDownloadURL(imageRef).then((url) => {
             let newGroup = {
               groupName: nameRef.current.value ? nameRef.current.value : null,
@@ -644,7 +557,7 @@ function Activity() {
                   : null,
               groupIntro: textRef.current.value ? textRef.current.value : null,
             }
-            const newDocRef = setDoc(doc(db, 'groupContents', id), newGroup)
+            setDoc(doc(db, 'groupContents', id), newGroup)
             setLoading(false)
             setGroup(newGroup)
             setIsInfo(true)
@@ -653,7 +566,6 @@ function Activity() {
       }
     }
   }
-  console.log(group)
   function backToSet() {
     value.alertPopup()
     value.setAlertContent('關閉後請重新設定資訊')
@@ -697,9 +609,7 @@ function Activity() {
         endDate: group.endDate,
       }
       newLeadList.push(leadGroupInfo, ...oldLeadList)
-      const updateLeadGroup = updateDoc(userdocRef, {
-        leadGroup: newLeadList,
-      })
+      updateDoc(userdocRef, { leadGroup: newLeadList })
       navigate(`/activity/${group.groupID}`)
     }
   }
@@ -707,7 +617,7 @@ function Activity() {
   async function setTheContent() {
     setComplete((current) => !current)
     const docRef = doc(db, 'groupContents', group.groupID)
-    const updateGroupInfo = setDoc(
+    setDoc(
       docRef,
       {
         bedLists: [],
@@ -740,15 +650,13 @@ function Activity() {
         onMouseLeave={() => setIsPreview(false)}
       >
         {isPreview && (
-          <>
-            <PreviewArea>
-              <Lists>
-                <List>√ 群組密碼為必填資料</List>
-                <List>√ 資料可於下個階段做修改，可先填寫基本資訊</List>
-                <List>√ 填寫完畢後按下「完成設定」就可分享群組連結給朋友</List>
-              </Lists>
-            </PreviewArea>
-          </>
+          <PreviewArea>
+            <Lists>
+              <List>√ 群組密碼為必填資料</List>
+              <List>√ 資料可於下個階段做修改，可先填寫基本資訊</List>
+              <List>√ 填寫完畢後按下「完成設定」就可分享群組連結給朋友</List>
+            </Lists>
+          </PreviewArea>
         )}
       </NoteBtn>
       <Wrapper
@@ -914,7 +822,7 @@ function Activity() {
                   <>
                     {!complete && (
                       <Divide justifyContent="flex-start">
-                        <Icon src={back} onClick={backToSet} />
+                        <Icon src={back} onClick={backToSet} alt="last step" />
                         <Btn
                           width="auto"
                           border="none"
@@ -927,7 +835,11 @@ function Activity() {
                     )}
                     {complete ? (
                       <Divide justifyContent="flex-start">
-                        <Icon src={back} onClick={backToSet} />
+                        <Icon
+                          src={back}
+                          onClick={backToSet}
+                          alt="go back to last step"
+                        />
                         <Btn
                           fontSize="14px"
                           width="auto"
@@ -939,7 +851,7 @@ function Activity() {
                       </Divide>
                     ) : (
                       <Divide justifyContent="flex-start">
-                        <Icon src={check} onClick={setTheContent} />
+                        <Icon src={check} onClick={setTheContent} alt="check" />
                         <Btn
                           fontSize="14px"
                           width="auto"
@@ -972,11 +884,14 @@ function Activity() {
                         </Contents>
                       </Card>
                     )}
-
                     {complete && (
                       <>
                         <Divide justifyContent="flex-start" marginTop="12px">
-                          <Icon src={share} onClick={handleShareButton} />
+                          <Icon
+                            src={share}
+                            onClick={handleShareButton}
+                            alt="share link"
+                          />
                           <Btn
                             fontSize="14px"
                             width="auto"

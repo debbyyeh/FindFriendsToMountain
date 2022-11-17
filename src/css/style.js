@@ -1,4 +1,5 @@
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
+import logo from '../images/logo.png'
 
 export const Divide = styled.div`
   display: flex;
@@ -184,5 +185,75 @@ export const EditBtn = styled.button`
     margin-bottom: ${(props) =>
       props.mobile_marginBottom || props.marginBottom};
     margin-left: ${(props) => props.mobile_marginLeft || 'none'};
+  }
+`
+export const move = keyframes`
+  0%{
+    left: 0;
+    transform:rotate(0deg);
+  }25%{
+    left:600px;
+    transform:rotate(20deg);
+  }50% {
+    transform:rotate(0deg);
+    left: 80%;
+  }55%{
+    transform:rotate(0deg);
+    left: 90%;
+  }70%{
+    transform:rotate(0deg);
+    left: 75%;
+  }100%{
+    left: 0%;
+    transform:rotate(-360deg);
+  }
+`
+export const MBmove = keyframes`
+  0%
+   {
+    left: 0;
+    transform:rotate(0deg);
+  }
+  25%{
+    left:300px;
+    transform:rotate(20deg);
+  }
+  50% {
+    transform:rotate(0deg);
+    left: 80%;
+  }
+  55%{
+    transform:rotate(0deg);
+    left: 90%;
+  }
+  70%{
+    transform:rotate(0deg);
+    left: 75%;
+  }
+  100%{
+    left: 0%;
+    transform:rotate(-360deg);
+  }
+`
+export const LoadingStyle = styled.span`
+  position: absolute;
+  top: 50%;
+  left: 25%;
+  &:before {
+    content: '';
+    z-index: 99;
+    width: 80px;
+    height: 80px;
+    background-image: url(${logo});
+    background-size: cover;
+    border-radius: 50%;
+    position: absolute;
+    top: -30%;
+    left: 0;
+    mix-blend-mode: difference;
+    animation: ${move} 3s ease-in-out infinite;
+    @media screen and (max-width: 767px) {
+      animation: ${MBmove} 3s ease-in-out infinite;
+    }
   }
 `

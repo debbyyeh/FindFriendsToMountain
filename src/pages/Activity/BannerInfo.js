@@ -223,7 +223,7 @@ const BannerInfo = ({ contentData, latestContentsData, ownerAuth }) => {
     } else {
       try {
         if (docSnap.exists()) {
-          const updateLeadGroup = await setDoc(
+          await setDoc(
             groupContentRef,
             {
               groupName: newNameRef.current.value,
@@ -260,7 +260,7 @@ const BannerInfo = ({ contentData, latestContentsData, ownerAuth }) => {
           endDate: newEnd ? newEnd : latestContentsData.endDate,
         }
         oldLeadGroup.splice(index, 1, leadGroupInfo)
-        const updateLeadGroup = await updateDoc(docRef, {
+        await updateDoc(docRef, {
           leadGroup: oldLeadGroup,
         })
       }
@@ -295,7 +295,7 @@ const BannerInfo = ({ contentData, latestContentsData, ownerAuth }) => {
           endDate: newEnd ? newEnd : latestContentsData.endDate,
         }
         getJoinData.splice(eachIndex, 1, joinGroupInfo)
-        const updatejoinGroup = await updateDoc(thisIDRef, {
+        await updateDoc(thisIDRef, {
           joinGroup: getJoinData,
         })
       }
@@ -363,7 +363,6 @@ const BannerInfo = ({ contentData, latestContentsData, ownerAuth }) => {
                         width="150px"
                         mobile_width="100px"
                         fontSize="20px"
-                        tablet_fontSize="20px"
                         mobile_fontSize="16px"
                         boxShadow="none"
                         color="#F6EAD6"
@@ -382,7 +381,6 @@ const BannerInfo = ({ contentData, latestContentsData, ownerAuth }) => {
                         width="150px"
                         mobile_width="120px"
                         fontSize="20px"
-                        tablet_fontSize="20px"
                         mobile_fontSize="16px"
                         boxShadow="none"
                         color="#F6EAD6"

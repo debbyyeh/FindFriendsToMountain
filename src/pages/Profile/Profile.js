@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Divide } from '../../css/style'
+import { Divide, LoadingStyle } from '../../css/style'
 import React, { useState, useEffect, useRef, useContext } from 'react'
 import { db } from '../../utils/firebase'
 import { doc, updateDoc, onSnapshot } from 'firebase/firestore'
@@ -439,88 +439,6 @@ const LoadingBackground = styled.div`
   top: 0;
   display: ${(props) => (props.loading ? 'block' : 'none')};
 `
-const move = keyframes`
-  0%,
-   {
-    left: 0;
-    transform:rotate(0deg)
-  }
-  25%{
-    left:600px;
-    transform:rotate(20deg)
-  }
-  50% {
-    transform:rotate(0deg)
-    left: 80%;
-  }
-  55%{
-    transform:rotate(0deg)
-    left: 90%;
-  }
-  70%{
-    transform:rotate(0deg)
-    left: 75%;
-  }
-  100%{
-    left: 0%;
-    transform:rotate(-360deg)
-  }
-`
-const MBmove = keyframes`
-  0%,
-   {
-    left: 0;
-    transform:rotate(0deg)
-  }
-  25%{
-    left:300px;
-    transform:rotate(20deg)
-  }
-  50% {
-    transform:rotate(0deg)
-    left: 80%;
-  }
-  55%{
-    transform:rotate(0deg)
-    left: 90%;
-  }
-  70%{
-    transform:rotate(0deg)
-    left: 75%;
-  }
-  100%{
-    left: 0%;
-    transform:rotate(-360deg)
-  }
-`
-const LoadingStyle = styled.span`
-  font-family: 'Rubik Moonrocks', cursive;
-  font-size: 60px;
-  text-transform: uppercase;
-  letter-spacing: 5px;
-  position: absolute;
-  top: 50%;
-  left: 25%;
-  color: #b99362;
-  background-clip: text;
-  &:before {
-    content: '';
-    z-index: 99;
-    width: 80px;
-    height: 80px;
-    background-image: url(${logo});
-    background-size: cover;
-    border-radius: 50%;
-    position: absolute;
-    top: -30%;
-    left: 0;
-    mix-blend-mode: difference;
-    animation: ${move} 3s ease-in-out infinite;
-    @media screen and (max-width: 767px) {
-      animation: ${MBmove} 3s ease-in-out infinite;
-    }
-  }
-`
 function Profile() {
   const [getUserData, setGetUserData] = useState()
   const [tabIndex, setTabIndex] = useState(0)
@@ -538,7 +456,7 @@ function Profile() {
         navigate('/')
       } else {
         setLoading(true)
-        const unsub = onSnapshot(doc(db, 'users', value.userUid), (doc) => {
+        onSnapshot(doc(db, 'users', value.userUid), (doc) => {
           const data = doc.data()
           setGetUserData(data)
         })
@@ -546,7 +464,7 @@ function Profile() {
       }
     }
     getDBInfo()
-  }, [value.userAuth, value.userUid])
+  }, [value.userAuth, value.userUid, navigate, value])
 
   async function addTool() {
     if (equipmentSearch.current.value === '') {
@@ -557,7 +475,7 @@ function Profile() {
       equipmentSearch.current.value = ''
       try {
         const docRef = doc(db, 'users', value.userUid)
-        const updateEquipment = await updateDoc(docRef, {
+        await updateDoc(docRef, {
           equipment: getUserData.equipment,
         })
       } catch (error) {
@@ -573,7 +491,7 @@ function Profile() {
     const newTools = deleteTools
     try {
       const docRef = doc(db, 'users', value.userUid)
-      const updateEquipment = await updateDoc(docRef, { equipment: newTools })
+      await updateDoc(docRef, { equipment: newTools })
     } catch (error) {
       console.log('資料更新失敗')
     }
@@ -592,12 +510,10 @@ function Profile() {
       </LoadingBackground>
       <Wrapper>
         {getUserData && (
-          <>
-            <ProfileWrapper>
-              <PersonName>{getUserData?.name}</PersonName>
-              <PersonPhoto src={getUserData?.photoURL} alt="userphoto" />
-            </ProfileWrapper>
-          </>
+          <ProfileWrapper>
+            <PersonName>{getUserData?.name}</PersonName>
+            <PersonPhoto src={getUserData?.photoURL} alt="userphoto" />
+          </ProfileWrapper>
         )}
         <CategoryDivide>
           <NoteBtn
@@ -616,9 +532,7 @@ function Profile() {
                     </>
                   )}
                   {currentPage === 1 && (
-                    <>
-                      <List>√ 你曾經加入過的群組資訊皆會保留於此</List>
-                    </>
+                    <List>√ 你曾經加入過的群組資訊皆會保留於此</List>
                   )}
                   {currentPage === 2 && (
                     <>
@@ -743,7 +657,7 @@ function Profile() {
               ) : (
                 <Flex>
                   <DefaultMsg>目前尚無參加群組</DefaultMsg>
-                  <DefaultImg src={hiking} />
+                  <DefaultImg src={hiking} alt="join group" />
                 </Flex>
               )}
             </CardDivide>
@@ -784,11 +698,7 @@ function Profile() {
               </Tools>
             </>
           )}
-          {currentPage === 3 && (
-            <>
-              <Map />
-            </>
-          )}
+          {currentPage === 3 && <Map />}
         </CategoryDivide>
       </Wrapper>
     </>

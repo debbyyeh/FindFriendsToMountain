@@ -2,12 +2,7 @@ import { useContext, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import styled, { keyframes } from 'styled-components'
 import { UserContext } from '../../utils/userContext'
-import background from './background.jpg'
-import 南湖 from './南湖.jpg'
-import 南湖A from './南湖大山.jpg'
 import 玉山 from './玉山.jpg'
-import 桃源谷 from './桃源谷.jpg'
-import 大同 from './大同大禮.jpg'
 
 const LoginClick = styled(Link)`
   display: block;
@@ -58,7 +53,6 @@ const BackgroundPic = styled.div`
     height: 200px;
   }
 `
-
 const BgBall = styled.div`
   border-radius: 50%;
   width: 70px;
@@ -158,7 +152,6 @@ const slideSmall = keyframes`
     top:-24px;
   }
 `
-
 const TypingText = styled.div`
   font-weight: 900;
   margin-left: 20px;
@@ -200,6 +193,7 @@ const Divide = styled.div`
 function Home() {
   const value = useContext(UserContext)
   const [isLogged, setIsLogged] = useState(false)
+
   useEffect(() => {
     if (value.userAuth === null) {
       setIsLogged(false)
@@ -209,36 +203,34 @@ function Home() {
   }, [value.userAuth])
 
   return (
-    <>
-      <Background>
-        <BgBall>
-          {!isLogged ? (
-            <LoginClick to="login">登入頁面</LoginClick>
-          ) : (
-            <LoginClick to="profile">回到個人頁面</LoginClick>
-          )}
-        </BgBall>
-        <BgBallA></BgBallA>
-        <BackgroundPic>
-          <HomeTitle>
-            Find Friends
-            <Divide>
-              <TypingContent>To</TypingContent>
-              <TypeWrapper>
-                <Typing>
-                  <TypingText>
-                    <TypingContent>mountains</TypingContent>
-                  </TypingText>
-                  <TypingText>
-                    <TypingContent>一起找山遊</TypingContent>
-                  </TypingText>
-                </Typing>
-              </TypeWrapper>
-            </Divide>
-          </HomeTitle>
-        </BackgroundPic>
-      </Background>
-    </>
+    <Background>
+      <BgBall>
+        {!isLogged ? (
+          <LoginClick to="login">登入頁面</LoginClick>
+        ) : (
+          <LoginClick to="profile">回到個人頁面</LoginClick>
+        )}
+      </BgBall>
+      <BgBallA></BgBallA>
+      <BackgroundPic>
+        <HomeTitle>
+          Find Friends
+          <Divide>
+            <TypingContent>To</TypingContent>
+            <TypeWrapper>
+              <Typing>
+                <TypingText>
+                  <TypingContent>mountains</TypingContent>
+                </TypingText>
+                <TypingText>
+                  <TypingContent>一起找山遊</TypingContent>
+                </TypingText>
+              </Typing>
+            </TypeWrapper>
+          </Divide>
+        </HomeTitle>
+      </BackgroundPic>
+    </Background>
   )
 }
 
